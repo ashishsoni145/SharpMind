@@ -12,23 +12,25 @@ if (process.platform === 'win32') {
 
 import fs from 'fs';
 
-const monorepoRoot = path.resolve(__dirname, '../../');
+const monorepoRoot = fs.existsSync(path.resolve(__dirname, '../package.json'))
+  ? path.resolve(__dirname, '../')
+  : path.resolve(__dirname, '../../');
 const isMonorepo = fs.existsSync(path.resolve(monorepoRoot, 'package.json'));
 
-const typesIndexPath = fs.existsSync(path.resolve(__dirname, '../../packages/types/src/index.ts'))
-  ? path.resolve(__dirname, '../../packages/types/src/index.ts')
+const typesIndexPath = fs.existsSync(path.resolve(monorepoRoot, 'packages/types/src/index.ts'))
+  ? path.resolve(monorepoRoot, 'packages/types/src/index.ts')
   : path.resolve(__dirname, 'src/packages/types/index.ts');
 
-const typesDir = fs.existsSync(path.resolve(__dirname, '../../packages/types/src'))
-  ? path.resolve(__dirname, '../../packages/types/src')
+const typesDir = fs.existsSync(path.resolve(monorepoRoot, 'packages/types/src'))
+  ? path.resolve(monorepoRoot, 'packages/types/src')
   : path.resolve(__dirname, 'src/packages/types');
 
-const apiClientIndexPath = fs.existsSync(path.resolve(__dirname, '../../packages/api-client/src/index.ts'))
-  ? path.resolve(__dirname, '../../packages/api-client/src/index.ts')
+const apiClientIndexPath = fs.existsSync(path.resolve(monorepoRoot, 'packages/api-client/src/index.ts'))
+  ? path.resolve(monorepoRoot, 'packages/api-client/src/index.ts')
   : path.resolve(__dirname, 'src/packages/api-client/index.ts');
 
-const apiClientDir = fs.existsSync(path.resolve(__dirname, '../../packages/api-client/src'))
-  ? path.resolve(__dirname, '../../packages/api-client/src')
+const apiClientDir = fs.existsSync(path.resolve(monorepoRoot, 'packages/api-client/src'))
+  ? path.resolve(monorepoRoot, 'packages/api-client/src')
   : path.resolve(__dirname, 'src/packages/api-client');
 
 const nextConfig: NextConfig = {

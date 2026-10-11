@@ -3,13 +3,28 @@ import { getSupabaseClient } from './supabase/client';
 
 let apiClientInstance: SharpMindApiClient | null = null;
 
+export const getApiBaseUrl = (): string => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL;
+  if (envUrl) {
+    const cleanUrl = envUrl.replace(/\/$/, '');
+    return cleanUrl.endsWith('/api/v1') ? cleanUrl : `${cleanUrl}/api/v1`;
+  }
+
+  // Development fallback when running locally on localhost
+  if (
+    process.env.NODE_ENV === 'development' ||
+    (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+  ) {
+    return 'http://localhost:4000/api/v1';
+  }
+
+  // Production default origin
+  return 'https://api.sharpmind.live/api/v1';
+};
+
 export const getApiClient = (): SharpMindApiClient => {
   if (!apiClientInstance) {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
-      (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-        ? '/api/v1'
-        : 'http://localhost:4000/api/v1');
+    const baseUrl = getApiBaseUrl();
 
     apiClientInstance = new SharpMindApiClient({
       baseUrl,

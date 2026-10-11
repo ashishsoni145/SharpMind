@@ -1,43 +1,71 @@
 # Last Session Handoff
 
-Session: Code Health Remediation & Standalone Deployment Hardening (Render & Vercel Compatibility) Completed on 2026-09-22.
+**Session:** Domain Separation, Web App Architecture & Continuous Vercel Deployability  
+**Completed On:** 2026-10-11  
+**Status:** Completed & Fully Verified  
+
+---
 
 ### What Was Accomplished:
 
-1. **Web TypeScript Fix & Notification Preferences Upsert (`apps/web/src/lib/adapters/settings/supabase-settings-adapter.ts`)**:
-   - Fixed TS2339 property mismatch where obsolete fields (`emailNotifications`, `inAppNotifications`, `studyReminders`) were accessed on `NotificationSettings`.
-   - Correctly mapped canonical fields: `weeklyReportEmail` -> `email_enabled`, `revisionAlerts` -> `revision_reminders`, `testSeriesAnnouncements` -> `test_reminders`, `dailyStudyReminder` -> `study_session_reminders`.
-   - Replaced `.update()` with `.upsert({ student_id: userId, ... }, { onConflict: 'student_id' })` to guarantee persistence even when no prior preference row exists.
-   - Updated `getSettings(userId)` to query `public.notification_preferences` and hydrate student notification preferences into the returned settings.
+1. **Independent Tri-Project Topology Established:**
+   - Established three decoupled projects in the monorepo matching the required domain topology:
+     - `landing/` → `https://sharpmind.live` (Public marketing, product pages, CTAs)
+     - `web/` → `https://app.sharpmind.live` (Student workspace, onboarding, dashboard, classrooms, tutor, tests)
+     - `backend/` → `https://api.sharpmind.live` (API server, domain logic, AI orchestrator, persistence)
+   - Updated root `package.json` workspaces to `["landing", "web", "backend", "packages/*", "apps/*"]` with unified orchestration scripts (`dev`, `build`, `typecheck:all`).
 
-2. **Standalone Deployment Architecture for Render & Vercel**:
-   - The user requested that `backend/` can be deployed independently to Render and `apps/web/` independently to Vercel without monorepo workspace resolution failure.
-   - Mirrored and synced self-contained types into `backend/src/packages/types` and `apps/web/src/packages/types` + `apps/web/src/packages/api-client`.
-   - Configured `backend/tsconfig.json` to resolve `@sharpmind/types` from `src/packages/types/index.ts`.
-   - Configured `apps/web/tsconfig.json` to resolve `@sharpmind/types` and `@sharpmind/api-client` from `src/packages/...`.
-   - Configured `apps/web/next.config.ts` with dynamic fallback resolving packages from monorepo root if available, or self-contained `src/packages` when deployed standalone on Vercel.
-   - Enhanced CORS origin validation in `backend/src/app.ts` to support wildcard and multi-domain pattern matching (e.g. `https://*.vercel.app` and comma-separated origins) for seamless Vercel frontend to Render backend communication.
+2. **Public Landing Project (`landing/`):**
+   - Created standalone Next.js 15 project in `landing/` with static export configuration (`output: 'export'`).
+   - Self-contained UI components, styles, design tokens, and metadata.
+   - Primary CTAs ("Log In", "Get Started Free") configured to route directly to `https://app.sharpmind.live` via `NEXT_PUBLIC_APP_URL`.
+   - Verified independent static export: 16/16 pages exported cleanly with zero authentication or database dependencies.
 
-3. **PWA Icons Restoration (`apps/web/public/`)**:
-   - Generated valid 192x192 (`icon-192.png`) and 512x512 (`icon-512.png`) PNG application icons with the SharpMind theme (obsidian background with violet gradient shield crest).
-   - Resolves HTTP 404 errors referenced by `apps/web/public/manifest.json`.
+3. **Student Web Application (`web/`):**
+   - Restructured from `apps/web` to `web/` preserving 100% of existing components, adapters, simulations, and routes.
+   - Root route (`/`) configured to automatically route authenticated users to `/app` (Dashboard) and unauthenticated visitors to `/login`.
+   - Centralized API base URL resolution in `web/src/lib/api.ts` to use `NEXT_PUBLIC_API_URL` (defaulting to `https://api.sharpmind.live/api/v1` in production, with `http://localhost:4000/api/v1` dev fallback).
+   - Dynamic monorepo root resolution in `web/next.config.ts` supporting both monorepo and hoisted/standalone Vercel builds.
+   - Verified independent static export: 36/36 pages exported cleanly.
 
-4. **Authentic Question Bank Completeness for Initial Classroom Chapter**:
-   - Physics Chapter 1: Units and Measurements (`c0000011-0000-0000-0000-000000000001`) is the default landing chapter in Classroom.
-   - Seeded authentic JEE Main 2023 (Dimensional Analysis) and NEET 2023 (Error Propagation) PYQs directly into Supabase `questions` and `question_options` (with UUID primary keys).
-   - Added matching authentic PYQs to `CANONICAL_QUESTIONS` in `canonical-curriculum-fixtures.ts` to ensure both live Supabase and offline fallback modes present immediate interactive questions without empty states.
+4. **Backend API Server & Vercel Serverless Function (`backend/`):**
+   - Created Vercel serverless function entrypoint (`backend/api/index.ts`) and `backend/vercel.json` with route rewrites.
+   - Preserved `src/server.ts` (`dist/server.js`) for long-running Node.js/Docker/Render server deployments.
+   - Production health endpoints verified: `GET /health` and `GET /api/v1/health`.
+   - CORS origin validation updated in `backend/src/config/env.ts` to allow `https://sharpmind.live` and `https://app.sharpmind.live` in production.
+   - Updated `visual-learning.test.ts` to resolve simulation contracts from `web/`.
 
-### Verification Status:
-- TypeScript compilation:
-  - `npm --prefix backend run typecheck`: Passed with 0 errors.
-  - `npm --prefix apps/web run typecheck`: Passed with 0 errors.
-- Automated Test Suite:
-  - `npm --prefix backend run test`: 25/25 test suites, 239/239 tests passed with 0 failures in 10.37s.
-- Production Builds:
-  - `npm --prefix apps/web run build`: Next.js 15 production build completed cleanly with exit code 0; all 36/36 static pages exported.
-  - `npm --prefix backend run build`: Backend `tsc` compiled cleanly with exit code 0.
-- Database Verification:
-  - Verified `student_questions` view returns both newly seeded Chapter 1 PYQs with zero-leakage constraints enforced.
+5. **Architecture Documentation & Deployment Policy:**
+   - Created `docs/architecture/DEPLOYMENT_ARCHITECTURE.md` specifying roots, commands, domains, runtime assumptions, and environment variables.
+   - Enforced `docs/architecture/VERCEL_DEPLOYABILITY_RULES.md` as continuous before/after edit policy.
+   - Reconciled `.ai/CURRENT_STATE.md`, `.ai/PROJECT_MAP.md`, and `.ai/PROJECT_CONTEXT.md`.
+   - Flagged legacy test credentials in documentation and recommended rotation.
+
+---
+
+### Verification Results:
+
+- **TypeScript Compilation (`npm run typecheck:all`):**
+  - `npm --prefix landing run typecheck`: Passed (0 errors).
+  - `npm --prefix web run typecheck`: Passed (0 errors).
+  - `npm --prefix backend run typecheck`: Passed (0 errors).
+- **Automated Test Suite (`npm --prefix backend run test`):**
+  - 25/25 test suites passed, 239/239 tests passed with 0 failures in 36.42s.
+- **Production Builds (`npm run build`):**
+  - Landing: Next.js 15 production build completed cleanly (16/16 static pages exported).
+  - Web: Next.js 15 production build completed cleanly (36/36 static pages exported).
+  - Backend: TypeScript compilation succeeded (`dist/server.js` and `dist/api/index.js` generated).
+
+---
+
+### Remaining External Blockers:
+
+- **DNS & Vercel Dashboard Linking:** Project domains (`sharpmind.live`, `app.sharpmind.live`, `api.sharpmind.live`) must be added to their respective Vercel projects in the Vercel dashboard and DNS records pointed.
+- **Supabase Allowed Redirect URLs:** Add `https://app.sharpmind.live/**` and `https://sharpmind.live/**` to the Supabase Authentication Redirect URLs in the Supabase management console.
+- **Credential Rotation:** Rotate the test user password in Supabase Auth to ensure integrity.
+
+---
 
 ### Next Checkpoint:
-- User manual / browser verification as requested.
+
+- Connect the three Vercel projects in the Vercel dashboard with Root Directories `landing`, `web`, and `backend`, apply production environment variables, and verify live DNS/SSL resolution.

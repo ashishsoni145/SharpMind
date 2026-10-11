@@ -3,22 +3,29 @@
   "private": true,
   "description": "SharpMind — AI Academic OS",
   "workspaces": [
-    "apps/*",
+    "landing",
+    "web",
     "backend",
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
-    "dev": "npm --prefix apps/web run dev",
-    "dev:web": "npm --prefix apps/web run dev",
+    "dev": "npm --prefix web run dev",
+    "dev:landing": "npm --prefix landing run dev",
+    "dev:web": "npm --prefix web run dev",
     "dev:backend": "npm --prefix backend run dev",
-    "build": "npm --prefix apps/web run build",
+    "build:landing": "npm --prefix landing run build",
+    "build:web": "npm --prefix web run build",
     "build:backend": "npm --prefix backend run build",
-    "start": "npm --prefix apps/web run start",
+    "build": "npm run build:landing && npm run build:web && npm run build:backend",
+    "start": "npm --prefix web run start",
     "start:backend": "npm --prefix backend run start",
-    "lint": "npm --prefix apps/web run lint",
-    "typecheck": "npm --prefix apps/web run typecheck",
+    "lint": "npm --prefix web run lint",
+    "typecheck:landing": "npm --prefix landing run typecheck",
+    "typecheck:web": "npm --prefix web run typecheck",
+    "typecheck": "npm --prefix web run typecheck",
     "typecheck:backend": "npm --prefix backend run typecheck",
-    "typecheck:all": "npm --prefix backend run typecheck && npm --prefix apps/web run typecheck",
+    "typecheck:all": "npm run typecheck:landing && npm run typecheck:web && npm run typecheck:backend",
     "test:backend": "npm --prefix backend run test"
   }
 }

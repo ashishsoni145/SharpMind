@@ -11,7 +11,32 @@ Notion is the source for product requirements and roadmap. Git plus `.ai/` is th
 Required workflow: READ MEMORY → INSPECT REPOSITORY → IDENTIFY PHASE/PART → VERIFY CHECKPOINT → PLAN → IMPLEMENT → TEST → DIFF → UPDATE MEMORY → CHECKPOINT. Do not start Phase 01 without explicit `START PHASE 01`.
 
 ## Browser Verification Credentials
+
 Whenever opening the browser to verify implementations, use the following credentials to sign in:
+
 - Email: `alpmlaapmp@gmail.com`
 - Password: `Asdfghjkl;0`
 
+## Mandatory Vercel Deployability Policy
+
+Before making any code edit, you MUST read `docs/architecture/VERCEL_DEPLOYABILITY_RULES.md` and follow its instructions.
+
+Before editing:
+
+- Inspect the current repository state and deployment configuration.
+- Identify affected deployment targets and establish the relevant build/test baseline.
+
+After every meaningful code or configuration change:
+
+- Review the diff.
+- Run relevant typechecks, tests, and production builds.
+- Verify that every affected deployment target remains deployable from its configured root.
+- Fix regressions before continuing.
+
+Before finishing a task:
+
+- Report the exact checks run and their results.
+- Clearly identify any unverified deployment settings or blockers.
+- Never claim deployment success without evidence.
+
+If the rules file is missing or unreadable, stop and report the problem. Do not silently skip this policy.

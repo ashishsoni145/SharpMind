@@ -1,468 +1,72 @@
-# Current State
+# Current State — SharpMind
 
-Date: 2026-09-16
+**Last Verified:** 2026-10-11  
+**Architecture:** Tri-Project Monorepo with Strict Domain Separation & Continuous Vercel Deployability  
+**Topology:**
+- `landing/` → `https://sharpmind.live` (Public Marketing & Landing Site)
+- `web/` → `https://app.sharpmind.live` (Student Academic OS Workspace)
+- `backend/` → `https://api.sharpmind.live` (Express API Server & Vercel Serverless Function)
 
-- Supabase Database & Persistence Layer Fully Provisioned:
-  - Connected to remote Supabase project: `https://vscprtuinxopistikpcs.supabase.co`.
-  - Canonical 11-module relational schema created with 26 tables in `public` schema:
-    - Identity & Profiles: `profiles` (1:1 with `auth.users`, synchronized via `handle_new_user()` trigger).
-    - Family & Mentor Linkages: `parent_student_links`, `teacher_student_links` (consent and authorization boundaries).
-    - Curriculum Taxonomy: `boards` (CBSE, ICSE, State Board, IB), `grades` (Class 11, Class 12, Dropper), `subjects` (Physics, Chemistry, Math, Biology, CS, English), `target_exams` (JEE Main, JEE Advanced, NEET, CBSE Boards, BITSAT), `curriculum_nodes` (hierarchical chapters & weightages).
-    - Student Profiles & Onboarding: `student_profiles` (academic settings, targets, learning styles, goals), `onboarding_drafts` (multi-step draft auto-save).
-    - Student Model & Intelligence: `student_knowledge_states` (continuous mastery modeling, p_know, p_forget, stability), `evidence_logs` (immutable event stream).
-    - Question Bank & PYQ Provenance: `questions`, `question_options` (with exam source, year, explanations, hints).
-    - Assessments & Submissions: `assessments`, `assessment_questions`, `assessment_submissions`, `assessment_answers`.
-    - Mistake Notebook: `mistakes` (error categorization, student/AI coaching notes, spaced retry status).
-    - Adaptive Backlog & Planner: `study_plans`, `planner_tasks`, `revision_items`.
-    - AI Tutor Sessions: `tutor_sessions`, `tutor_messages` (with grounded references).
-    - Materials & Vector Search: `materials`, `material_chunks` (with pgvector `vector(1536)`).
-  - Security: Row Level Security (RLS) enabled on 100% (26/26) of tables with least-privilege policies.
-  - Initial seed data applied and verified:
-    - 4 Boards, 3 Grades, 6 Subjects, 5 Target Exams, 12 Core Chapters, 5 Provenance Questions, 20 Question Options, 1 Baseline Diagnostic Assessment with 5 mapped questions.
-  - Migrations version-controlled:
-    - `infra/supabase/migrations/20260916000001_initial_academic_os_schema.sql`
-    - `infra/supabase/migrations/20260916000002_seed_initial_curriculum.sql`
-  - Architecture documentation: ADR `docs/architecture/adr/0002-canonical-database-schema.md`.
-  - Client Application Integration in `apps/web`:
-    - `@supabase/supabase-js` installed.
-    - Browser singleton client: `src/lib/supabase/client.ts`.
-    - Live adapters: `SupabaseAuthAdapter`, `SupabaseStudentProfileAdapter`, `SupabaseCurriculumAdapter` with offline/unconfigured local fallback.
-    - Environment variables configured in `.env`, `.env.local`, and `.env.example`.
+---
 
-- Phase 01 — Part 05 Completed: Authenticated Web Shell & Workspace Navigation
-  - Workspace Shell Architecture (`src/components/workspace/`):
-    - `WorkspaceShell.tsx`: Session hydration, collapsed sidebar persistence in `localStorage`, global `Cmd/Ctrl + K` palette shortcut listener, and mobile slide-over state management. Wrapped in `<Suspense>` via `src/app/app/layout.tsx` to ensure clean static prerendering with `useSearchParams`.
-    - `Sidebar.tsx`: Collapsible desktop rail and mobile drawer with categorized navigation: Study Engine (Dashboard, Classroom, Library, AI Tutor, Focus Mode), Mastery Systems (Planner, Test Series, Mistake Notebook, Revision Engine, Readiness Score, Analytics), and Account (Settings, Upgrade).
-    - `TopBar.tsx`: Contextual breadcrumbs, global search trigger (`Cmd+K`), student academic identity pill (`target_exams` & `grade`), study streak counter, unread notifications indicator, and user profile avatar menu.
-    - `CommandPalette.tsx`: Full-screen modal supporting instant keyboard navigation and filtering across all 13 workspace modules.
-    - `NotificationsDrawer.tsx`: Flyout drawer for system and study notifications with empty state.
-    - `WorkspacePlaceholder.tsx`: Architectural placeholder component showcasing planned capabilities, live Supabase schema links, roadmap release tags, and interactive sandboxes.
-  - AI Next-Action Surface Dashboard (`src/app/app/page.tsx`):
-    - Primary Recommendation Card: Next-action engine driven by student state (onboarding incomplete vs uncalibrated cold start vs calibrated routine) with explicit *"Why this next?"* pedagogical rationale.
-    - Adaptive Daily Queue (Backlog): Prioritized task cards (Diagnostic Test, Focus Block, Doubt Clearance).
-    - Knowledge State Matrix: Honest uncalibrated state across enrolled subjects (Physics, Chemistry, Math) with 0 fabricated scores, clearly prompting baseline assessment calibration.
-    - Quick Study Mode Launchers: Instant routing to AI Tutor, Focus Mode, Test Series, and Mistake Notebook.
-    - Robust clay loading skeleton and error boundary with retry capability.
-  - Sub-Route Modules Implemented:
-    - `/app/classroom`: Interactive classroom stream with current chapter and peer doubt thread.
-    - `/app/library`: NCERT and standard reference syllabus library with chapter breakdown.
-    - `/app/tutor`: Socratic AI Tutor workspace with interactive question prompt sandbox.
-    - `/app/focus`: Study block session manager with interactive Pomodoro countdown timer.
-    - `/app/planner`: Daily study schedule and adaptive backlog planner.
-    - `/app/tests`: Test series launcher featuring live Supabase Baseline Diagnostic Assessment.
-    - `/app/mistakes`: Mistake notebook with root-cause categorization (conceptual, calculation, careless, time).
-    - `/app/revision`: Spaced repetition revision queue and decay curve tracker.
-    - `/app/readiness`: Exam readiness score breakdown with honest uncalibrated baseline.
-    - `/app/analytics`: Study time, accuracy, and topic velocity analytics.
-    - `/app/upgrade`: Subscription tiers (Free Baseline vs SharpMind Pro).
-    - `/app/settings`: Profile settings, exam targets, study pace, and security controls.
-  - Verification:
-    - `npm run typecheck` (`tsc --noEmit`): 0 errors.
-    - `npm run build`: 36/36 static pages exported cleanly with exit code 0.
-    - HTTP verification: All 14 routes return HTTP 200 with full markup payloads.
-    - Architecture & next-action logic unit test passed 100%.
+## 1. Verified Deployment Status
 
-- Phase 01 — Part 08 Completed: Full Profile & Settings System with Theme Switcher
-  - Settings Navigation & Domain Contracts (`src/components/settings/` & `src/lib/types/settings.ts`):
-    - `SettingsNav.tsx`: 5 dedicated settings sections: Profile & Account, Academic Target, Security & Access, Subscription & Tier, Appearance & Notifications.
-    - `ProfileForm.tsx`: Student name, username, email, and user role management with live validation and persistence.
-    - `AcademicSettingsForm.tsx`: Board (CBSE, ICSE, State, IB), grade (Class 11, Class 12, Dropper), stream (PCM, PCB, PCMB), target exams (JEE Advanced, JEE Main, NEET, BITSAT), target year, daily hours (1-12h slider), and preferred study time slots.
-    - `SecuritySettingsForm.tsx`: Password update with live criteria checklist (length, upper/lower, numbers, symbols), two-factor authentication toggle, and active session count.
-    - `SubscriptionStatusCard.tsx`: Active tier badge (SharpMind Pro), plan capabilities checklist, billing frequency, and upgrade launcher.
-    - `PreferencesForm.tsx`: Appearance theme switcher (Dark, Light, System) with instant DOM application, study reminders time picker, spaced repetition alerts toggle, mock exam announcements toggle, weekly reports toggle, and accessibility toggles (reduced motion, audio feedback).
-    - `settingsAdapter`: Clean domain adapter abstraction (`SettingsAdapter`, `LocalSettingsAdapter`, `SupabaseSettingsAdapter`) updating Supabase `profiles` and `student_profiles` tables with local offline fallback.
-  - Functional Theme System (`src/lib/theme/` & `src/styles/tokens.css`):
-    - `ThemeProvider` & `useTheme()`: Global theme provider managing active theme state, system preference media query listeners, and persistence in `localStorage` (`sharpmind_theme_v1`).
-    - Instant visual toggle: Sets `data-theme="dark"` or `data-theme="light"` on `document.documentElement` without page reload.
-    - Tokenized CSS: Complete dark and light color tokens for background, surface, text, and border hierarchies.
+All three deployment targets build independently from their configured project roots:
 
-- Phase 01 — Part 09 Completed: Comprehensive Web Integration & QA Pass
-  - Full Route Verification:
-    - 16/16 workspace and public routes tested and returning HTTP 200: `/`, `/login/`, `/onboarding/`, `/app/`, `/app/classroom/`, `/app/library/`, `/app/tutor/`, `/app/focus/`, `/app/settings/`, `/app/upgrade/`, `/app/tests/`, `/app/analytics/`, `/app/mistakes/`, `/app/revision/`, `/app/readiness/`, `/app/planner/`.
-  - Static Build Verification:
-    - Next.js production build (`npm run build`) completed successfully with exit code 0.
-    - All 36/36 static pages exported cleanly.
-  - TypeScript Compilation:
-    - `tsc --noEmit` (`npm run typecheck`) passed with 0 errors across 100% of workspace files.
-  - Icon & Design Hygiene:
-    - 0 emojis in core code; 100% SVG vector `Icon` system throughout forms, cards, tabs, and action controls.
-  - Backlog Registration:
-    - Created `.ai/progress/backlog.md` detailing future phase commitments (vector ingestion, BKT inference, PYQ bank expansion, LLM integration, mobile clients).
+| Project | Configured Vercel Root | Build Command | Output Mode | Status |
+|---|---|---|---|---|
+| **Landing** | `landing` | `npm run build` | Next.js 15 Static Export (16/16 routes) | ✅ Verified (Exit Code 0) |
+| **Web** | `web` | `npm run build` | Next.js 15 Static Export (36/36 routes) | ✅ Verified (Exit Code 0) |
+| **Backend** | `backend` | `npm run build` | Node CommonJS / `@vercel/node` | ✅ Verified (Exit Code 0, 239/239 tests pass) |
 
-### Phase 01 Status: 100% COMPLETED
-All 9 parts of Phase 01 (Foundation, Database, Auth, Onboarding, Authenticated Shell, Classroom Hierarchy, Library & AI Tutor, Profile & Settings, Web Integration & QA) are fully built, tested, and verified.
+---
 
-- Authentic NCERT Rationalised Curriculum & Topic-Specific 3D/Interactive Simulations (Completed 2026-09-17):
-  - NCERT Rationalised Coverage (2024-2026):
-    - 106 Chapters seeded in Supabase Postgres and `ncert-chapters-data.ts`:
-      - Physics (28 Chapters: 14 in Class 11, 14 in Class 12)
-      - Chemistry (19 Chapters: 9 in Class 11, 10 in Class 12)
-      - Mathematics (27 Chapters: 14 in Class 11, 13 in Class 12)
-      - Biology (32 Chapters: 19 in Class 11, 13 in Class 12)
-    - Full authentic sub-topics in `ncert-topics-data.ts` mapped for all 106 chapters with resilient fallback in `StaticCurriculumAdapter` and dynamic `topicsCount` in `SupabaseCurriculumAdapter`.
-  - 14 Dedicated Modular 3D / Interactive Simulations in `apps/web/src/components/visual/simulations/`:
-    - `ProjectileSimulation.tsx`: 3D Ballistic Trajectory, pitch/yaw/zoom orbit camera, air drag, gravity field selector, apex/range markers, and live telemetry HUD ($v_0, \theta, \phi, H_{max}, R$). Isolated strictly to *Motion in a Plane -> Projectile Motion*.
-    - `RectilinearKinematicsSimulation.tsx`: 1D particle on track with $\vec{v}$ and $\vec{a}$ vector arrows, synchronized real-time $x(t), v(t), a(t)$ oscilloscope, emergency brake toggle.
-    - `CircularMotionSimulation.tsx`: 3D circular orbit with tangential $\vec{v}_t$, radial centripetal $\vec{a}_c = \omega^2 R$, period $T$, and frequency $f$.
-    - `InclineFbdSimulation.tsx`: 3D wedge inclined plane + apex pulley + hanging mass with orthogonal vector overlays ($\vec{N}, mg\sin\theta, mg\cos\theta, \vec{T}, \vec{f}_s$).
-    - `RoadBankingSimulation.tsx`: 3D banked highway turn with vehicle, tire friction envelope, and real-time stability meter ($v_0 = \sqrt{Rg\tan\theta}$, safe, slipping, skidding).
-    - `EnergyConservationSimulation.tsx`: Potential well / roller track with rolling particle and real-time $E_k, E_p, E_{total}$ energy bar charts.
-    - `KeplerOrbitSimulation.tsx`: 3D planetary ellipse orbit with eccentricity $e$ slider and Kepler's 2nd Law animated equal-area sector sweeps.
-    - `PointChargeFieldSimulation.tsx`: 3D electrostatic multi-charge field lines and equipotential contour surfaces for $+q$ and $-q$.
-    - `DcCircuitMeshSimulation.tsx`: Closed DC circuit with animated electron drift, multi-resistor network, and real-time Kirchhoff voltage/current law verification.
-    - `DoubleSlitInterferenceSimulation.tsx`: Wave ripple tank with dual coherent sources, constructive/destructive interference, and fringe intensity screen ($\beta = \frac{\lambda D}{d}$).
-    - `BohrAtomSimulation.tsx`: 3D quantum orbits $n=1..5$, clickable energy level jumps, and emitted photon wave packets with calculated $\lambda$ and spectral series.
-    - `VseprGeometrySimulation.tsx`: 3D rotatable molecular geometry sandbox with $CH_4, NH_3, H_2O, BeCl_2, BF_3, PCl_5, SF_6$, lone pair lobes, and bond angles.
-    - `SecantTangentLimitSimulation.tsx`: Calculus limits of difference quotients, interactive secant pivoting to tangent slope.
-    - `VectorCrossProductSimulation.tsx`: 3D Vector algebra $\vec{C} = \vec{A} \times \vec{B}$ with shaded parallelogram area and Right-Hand Rule indicator.
-  - Dispatcher & Classroom Integration:
-    - `VisualLearningViewer.tsx`: Refactored to dispatch strictly by `simulationId`. Defaults to a clean NCERT concept derivation guide without any simulation or projectile motion fallback.
-    - `TopicDetailView.tsx`: Isolated simulation toggle per concept (`activeSimulationConceptId: string | null`), passing `simulationId` cleanly.
-  - Browser Verification Credentials:
-    - Whenever launching the browser subagent or manual browser test, use:
-      - Email: `alpmlaapmp@gmail.com`
-      - Password: `Asdfghjkl;0`
+## 2. Domain & API Architecture
 
-- Vercel Deployment & Hoisted Monorepo Build Fix:
-  - Root Cause Diagnosed:
-    - Root `package.json` defines npm workspaces (`apps/*`, `backend`, `packages/*`).
-    - Vercel monorepo builds run `npm install` at root (`/vercel/path0`), hoisting `next` to `/vercel/path0/node_modules/next`.
-    - `apps/web/package.json` had hardcoded relative script paths: `node -r ./patch-fs.js ./node_modules/next/dist/bin/next build`.
-    - In Vercel's hoisted structure, `./node_modules/next/dist/bin/next` evaluated inside `apps/web` failed with `Cannot find module '/vercel/path0/apps/web/node_modules/next/dist/bin/next'`.
-  - Fix Implemented:
-    - Created `apps/web/run-next.js` which dynamically resolves the Next.js CLI binary using standard Node module resolution (`require.resolve('next/dist/bin/next')`), seamlessly supporting local, parent, and hoisted root node_modules.
-    - Preserved Windows FAT32 compatibility (`patch-fs.js`) on `process.platform === 'win32'`, passing it via normalized forward-slash `--require` in `NODE_OPTIONS` for Webpack worker threads, while bypassing it completely on Linux/Vercel.
-    - Updated `apps/web/package.json` scripts to use `node ./run-next.js dev|build|start`.
-    - Added `outputFileTracingRoot: path.resolve(__dirname, '../../')` to `apps/web/next.config.ts`.
-    - Cleaned up `apps/web/patch-fs.js` and ensured root `package-lock.json` is generated and aligned.
-  - Verification:
-    - Local Windows build (`node ./run-next.js build`): 36/36 static pages exported cleanly (exit code 0).
-    - Root build (`npm run build`): Exit code 0.
-    - Typecheck (`tsc --noEmit`): 0 errors across entire workspace.
+- **Public Landing (`landing/`):**
+  - Completely decoupled from Supabase client authentication and backend databases.
+  - CTAs point directly to `https://app.sharpmind.live/signup` and `https://app.sharpmind.live/login`.
+- **Student Web Application (`web/`):**
+  - Root route (`/`): Dynamically routes authenticated sessions to `/app` (Dashboard) and unauthenticated visitors to `/login`.
+  - API Client: Centralized in `web/src/lib/api.ts`, using `NEXT_PUBLIC_API_URL=https://api.sharpmind.live`.
+  - Supabase Auth: Sessions hydrated via remote Supabase instance (`https://vscprtuinxopistikpcs.supabase.co`).
+- **Backend API (`backend/`):**
+  - Dual deployment: Vercel serverless function entrypoint (`api/index.ts` with `vercel.json`) + standalone long-running server (`src/server.ts`).
+  - Production health checks: `GET /health` and `GET /api/v1/health` (status, uptime, version), `GET /api/v1/health/db` (live Supabase connection ping).
+  - CORS Allowlist: Restricts browser requests strictly to `https://sharpmind.live` and `https://app.sharpmind.live` in production.
 
-- Phase 02 Completed: Backend Foundation, Auth/Authorization, File Subsystem, Search, and Shared Contracts (Parts 01–04):
-  - Express API Server (`backend/`):
-    - TypeScript server running on port 4000 with Helmet security headers, CORS origin filtering, compression, express.json limit 10mb, and Pino structured logging with request tracing.
-    - Zod environment validation (`backend/src/config/env.ts`) verifying PORT, NODE_ENV, SUPABASE_URL, and SUPABASE_SERVICE_ROLE_KEY.
-    - Centralized `AppError` hierarchy and global error handling returning standardized `ApiResponse<T>` envelopes.
-    - Supabase service-role client singleton (`backend/src/db/client.ts`).
-    - Health checks: `GET /health` and `GET /api/v1/health` (uptime, version, env), `GET /api/v1/health/db` (verifies live Supabase connectivity and query latency).
-  - Auth & Authorization (`backend/src/middleware/`):
-    - `requireAuth`: Extracts JWT from `Authorization: Bearer <token>` or session cookies, validates against `supabase.auth.getUser()`, and attaches enriched `req.user` profile.
-    - `requireRole`: Enforces platform role boundaries (`student`, `parent`, `teacher`, `admin`).
-    - `requireSelfOrAdmin`: Enforces user data isolation and validates parent/teacher links against `parent_student_links` and `teacher_student_links`.
-    - User and Student Profile endpoints (`GET /me`, `PATCH /me`, `GET /me/student-profile`, `PUT /me/student-profile`, `GET /:id`).
-    - Onboarding draft auto-save and completion endpoints (`GET /onboarding/draft`, `POST /onboarding/draft`, `POST /onboarding/complete`).
-  - File Subsystem & Search (`backend/src/modules/files`, `backend/src/modules/search`):
-    - Database migration `20260918000001_file_subsystem_and_search.sql` executed against live Supabase project: created `public.file_assets` table (100% RLS), `sharpmind_files` storage bucket (50MB limit), and full-text GIN search indexes on `curriculum_nodes`, `questions`, and `materials`.
-    - Pre-signed direct upload URLs (`POST /files/upload-url`) avoiding server memory overhead for user files (homework, notes, avatars).
-    - Pre-signed download URLs (`GET /files/:id/download`), user file listing with pagination (`GET /files`), and deletion (`DELETE /files/:id`).
-    - Search endpoint (`GET /search`): Unified text search across curriculum taxonomy, question bank/PYQs, and reference materials, with a pgvector-ready semantic search interface.
-  - Shared Packages & Web Integration:
-    - `@sharpmind/types` in `packages/types`: Canonical domain models (Auth, Onboarding, Curriculum, Settings, Tutor, Forms, Files, API) exported for both backend and client workspaces.
-    - `@sharpmind/api-client` in `packages/api-client`: Fully-typed isomorphic SDK with modular accessors (`api.health`, `api.users`, `api.onboarding`, `api.files`, `api.search`).
-    - `apps/web/src/lib/api.ts`: Web client instance wired to live Supabase session access tokens.
-    - `apps/web/src/lib/types/`: Transparent re-exports from `@sharpmind/types` preserving 100% backward compatibility with existing components and adapters.
-    - Webpack aliases and path mappings configured for zero-build-lag development.
-  - Verification:
-    - Backend automated test suite: 7/7 tests passed (`backend/src/__tests__/api.test.ts`).
-    - Backend typecheck (`npm run typecheck:backend`): 0 errors.
-    - Web typecheck (`npm run typecheck`): 0 errors.
-    - Next.js production build (`npm run build`): 36/36 static pages exported cleanly.
-    - Live health check: Web HTTP 200, Backend status ok, Backend DB connected.
+---
 
-- Phase 03 Completed: Curriculum Engine, Academic Knowledge Graph, and Verified PYQ Subsystem (Parts 01–04):
-  - Database Migration & Schema Extensions (`infra/supabase/migrations/20260918000002_curriculum_knowledge_graph_and_pyq.sql`):
-    - Created `public.concepts` table for atomic, curriculum-agnostic learning objects with difficulty levels and common student misconceptions.
-    - Created `public.concept_curriculum_mappings` linking concepts many-to-many to curriculum nodes across multiple syllabi.
-    - Created `public.knowledge_graph_edges` table with typed relationships (`prerequisite_of`, `part_of`, `related_to`, `enables`, `common_misconception_of`) and edge weights.
-    - Created recursive PostgreSQL CTE function `public.get_concept_prerequisites(target_concept_id)` with depth tracking and cycle guards.
-    - Extended `curriculum_nodes` with `unit` node type, `academic_year`, `version`, `status` (`draft`, `published`, `archived`), `learning_objectives`, and `target_exam_ids`.
-    - Extended `questions` with `concept_id`, `target_exam_id`, `marks`, `is_important`, `appearance_frequency`, `pattern_tags`, `source_paper_code`, and `source_session`.
-    - 100% RLS enabled on all new tables with permissive public read access for curriculum data and authenticated writes.
-  - Backend Modules (`backend/src/modules/`):
-    - `curriculum/`: Hierarchy navigation (boards, grades, subjects, target exams, chapters, topics, subtopics), unit modeling, and curriculum node import/versioning with validation.
-    - `knowledge-graph/`: Concept creation, prerequisite edge creation, graph query endpoints, and DFS-based Directed Acyclic Graph (DAG) cycle detection in `GraphService.hasPrerequisiteCycle(sourceId, targetId)` rejecting cyclic insertions.
-    - `questions/`: PYQ retrieval with exam/topic/concept filters, question ingestion with deduplication on `(subject_id, question_text, source_exam, source_year)` which increments `appearance_frequency` and sets `is_important = true`, and exam pattern analysis (`getExamPatterns`).
-  - Authentic Academic Seeding:
-    - Executed `backend/src/scripts/seed_curriculum_and_pyqs.ts` against live Supabase database.
-    - Seeded 8 core foundational concepts across Physics, Chemistry, and Mathematics (Vectors, 1D Kinematics, Projectile Motion, Circular Motion, Newton's Laws, Work-Energy, VSEPR Theory, Limits/Continuity) with detailed misconceptions and remedies.
-    - Seeded 7 knowledge graph directed prerequisite and related edges.
-    - Seeded authentic verified PYQ examination questions from JEE Main, JEE Advanced, and NEET UG with step-by-step verified solutions, King's property definite integrals, Taylor series limits, FBDs, and Socratic hints.
-  - Classroom UI Integration (`apps/web`):
-    - Enhanced `SupabaseCurriculumAdapter` to fetch live questions, authentic PYQs with frequency counters, marks, pattern tags, and mapped concepts with graceful offline fallback.
-    - Enhanced `TopicDetailView`:
-      - Added Academic Prerequisites & Diagnostic Readiness card displaying topic prerequisites with met/pending status and calibration hooks (`masteryStatus`, `retentionPercent`).
-      - Added interactive examination filter pills (All, JEE Main, NEET, JEE Advanced, CBSE Board).
-      - Added visual badges for high-yield questions (`🔥 High Yield`), repeated question frequency (`Repeated 3x`), marks allocation (`4 Marks`), verified provenance, and pattern tags (`#projectile standard`, `#taylor series`).
-  - Architecture Documentation:
-    - Created ADR 0004: `docs/architecture/adr/0004-academic-knowledge-graph-and-curriculum-engine.md`.
-  - Comprehensive Verification:
-    - Backend automated test suite: 22/22 tests passed across 4 test suites (`api.test.ts`, `curriculum.test.ts`, `graph.test.ts`, `pyq.test.ts`).
-    - Backend typecheck (`npm --prefix backend run typecheck`): 0 errors.
-    - Web typecheck (`npm --prefix apps/web run typecheck`): 0 errors.
-- Phase 04 Completed: Student Model & Academic Intelligence Layer (Parts 01–06):
-  - Database Migration (`infra/supabase/migrations/20260921000001_student_model_and_intelligence_layer.sql`):
-    - Created `public.student_evidence_logs` table: immutable, append-only event stream tracking every student attempt, score, time taken, confidence report, question ID, session type, and provenance source.
-    - Created `public.student_concept_states` table: materialized, traceable knowledge state per student, concept, and curriculum node with Bayesian `p_know`, `mastery_score`, exponential decay `retention_score`, `stability_days`, `half_life_days`, `uncertainty`, `confidence_score`, streaks, and review dates.
-    - Created `public.student_model_snapshots` table: point-in-time state freezing for longitudinal drift detection and auditing.
-    - Created `public.diagnostic_sessions` table: stratified cold-start assessment tracking with answers, strengths, weaknesses, and confidence levels.
-    - Created `public.backlog_items` table: dynamic prioritized curriculum queue with multi-factor priority scores, human-readable explanations, and classification tags.
-    - Created `public.study_plans` & `public.planner_tasks` tables: time-budgeted study sessions with task fitting, break offsets, and status toggles.
-    - Created `public.revision_items` & `public.revision_events` tables: SM-2 spaced repetition items with ease factors, intervals, repetitions, urgency ratings, and feedback logs.
-    - 100% RLS enabled on all 8 tables with strict student and mentor authorization policies.
-  - Domain Rules & Core Engines (`backend/src/modules/`):
-    - `student-model/`: Bayesian Knowledge Tracing (BKT), Ebbinghaus retention decay ($R = e^{-t/S}$), stability updates, recency weighting, uncertainty calculation ($1/\sqrt{N}$), and full state recomputation from evidence. LLMs are strictly prevented from arbitrarily modifying academic state.
-    - `diagnostic/`: Stratified cold-start question selection across enrolled subjects, scoring with negative marking, low confidence capping ($\le 0.6$) to prevent false certainty, and automatic Student Model initialization.
-    - `backlog/`: Multi-factor prioritization algorithm (exam proximity 20%, weakness 25%, retention decay 15%, curriculum weightage 15%, prerequisite depth 10%, recency 10%, accuracy 5%) with human-readable rationale pills.
-    - `planner/`: Greedy priority-first knapsack session generator fitting daily hour constraints, spreading subjects across the week, rescheduling missed critical work, and calculating session start/end times with 15-minute breaks.
-    - `revision/`: SuperMemo-2 (SM-2) algorithm updating ease factors and review intervals, intelligent drill type selection (mistake review, practice, active recall, formula review, flashcards), and closed-loop evidence feedback into the Student Model.
-  - API Client & Express App Integration:
-    - Extended `@sharpmind/api-client` with 5 new modules: `studentModel`, `diagnostic`, `backlog`, `planner`, and `revision`.
-    - Registered all routes in `backend/src/app.ts` under `/api/v1/`.
-  - Intelligent Dashboard (`apps/web/src/app/app/page.tsx` & `page.module.css`):
-    - Real-time Student Model metrics ribbon: Mastery Level, Retention Health, Observed Evidence count, and Focus Queue items.
-    - Interactive Baseline Diagnostic Modal: 5 stratified STEM questions with confidence rating selectors, immediate scoring, and live Student Model calibration.
-    - Adaptive Study Plan card: Today's scheduled focus blocks with duration, subject tags, interactive completion checkboxes, and "Replan Missed Work" action.
-    - Spaced Repetition Queue (SM-2): Urgency badges and instant recall outcome buttons ("Recalled", "Hard", "Forgot") that update retention and log evidence.
-    - Prioritized Learning Backlog: Priority ranking with human-readable explanation pills and targeted practice launchers.
-    - Student Knowledge State Matrix: Honest uncalibrated vs calibrated indicators across enrolled subjects.
-  - Architecture Documentation:
-    - ADR 0005: `docs/architecture/adr/0005-student-model-and-intelligence-layer.md`.
-  - Comprehensive Verification:
-    - Vitest backend test suite: 113/113 tests passing across 9 test files (0 failures).
-    - Backend typecheck (`npm run typecheck` in backend): 0 errors.
-    - Web typecheck (`npm run typecheck` in apps/web): 0 errors.
+## 3. Implemented Capabilities Baseline
 
-- Phase 05 Completed: Assessment Engine, Mistake System & Exam Readiness (Parts 01–05):
-  - Database Migration (`infra/supabase/migrations/20260921000002_phase_05_assessment_and_readiness.sql`):
-    - Applied via Supabase migration tools.
-    - Extended `questions`: Added `pedagogical_type`, `is_generated`, `generation_provenance`, `diagram_url`, `solution_steps`, `numerical_tolerance`, `source_type`, and `provenance_source`. Updated check constraint allowing all standard curriculum formats.
-    - Extended `assessments`: Added `marking_scheme`, `difficulty_distribution`, `sections_config`, and `is_adaptive`.
-    - Extended `assessment_submissions`: Added `post_test_analysis` and `time_remaining_seconds`.
-    - Extended `mistakes`: Added `assessment_id`, `root_cause`, `student_answer`, `correct_answer`, `repetition_count`, `spaced_interval_days`, `next_retry_at`, `is_resolved`, and `notes`.
-    - Created `student_readiness`: Dedicated table for 8-factor grounded readiness index, score projections, simulations, and recommended interventions with 100% RLS.
-  - Part 01: Question Domain & Selection Engine (`backend/src/modules/questions/`):
-    - Full support for single-choice, multiple-choice, numerical, assertion-reasoning, short answer, long answer, case-based, competency-based, HOTS, derivation/proof, diagram-based questions.
-    - Deterministic answer validation (`validateAnswer`) with partial marking and numerical tolerance calculation ($\pm 1\%$ or $\pm 0.05$).
-    - Adaptive question selection (`selectAdaptiveQuestions`) matching current student mastery.
-    - Question sanitization (`sanitizeQuestionForActiveTest`) stripping answers/hints to eliminate client-side leakage.
-  - Part 02 & Part 03: Assessment Engine & Post-Test Intelligence (`backend/src/modules/assessments/`):
-    - Multi-type assessment generator (chapter, subject, full mock, PYQ, diagnostic, revision).
-    - Synchronized server countdown, autosave (`autosaveAnswer`), resume (`resumeTestAttempt`), and deterministic scoring (`calculateAssessmentScore`) with negative marking (+4 / -1).
-    - Behavioral post-test diagnostics (`analyzePostTestIntelligence`): easy-question misses, impulse guessing detection (<20s), calculation errors, time management sinks (>240s), and weak topic drag.
-    - Closed-loop telemetry: Completed assessments immediately invoke `StudentModelService.recordEvidence()` for each question and log mistakes into `public.mistakes`.
-  - Part 04: Mistake Engine & Error Remediation (`backend/src/modules/mistakes/`):
-    - Systematic failure mode classification (conceptual, formula, calculation, misreading, memory, application, method, time pressure, silly, guessing).
-    - Spaced repetition retry intervals ($1\text{d} \to 3\text{d} \to 7\text{d} \to 21\text{d} \to 45\text{d}$).
-    - Retry evaluation (`retryMistake`), resolution updating, and evidence feeding back into the Student Model.
-  - Part 05: Grounded Exam Readiness & Target Simulation (`backend/src/modules/readiness/`):
-    - 8 Grounded Factors: Syllabus Coverage ($20\%$), Concept Mastery ($25\%$), Retention Stability ($15\%$), Test Experience ($10\%$), Speed & Pacing ($10\%$), High-Difficulty Performance ($10\%$), Consistency ($5\%$), Revision & Mistake Health ($5\%$).
-    - Transparent target simulator with explicit declared behavioral assumptions and bounded confidence intervals ($\pm 6-8\%$).
-  - API Client & App Integration:
-    - Extended `@sharpmind/api-client` with `assessments`, `mistakes`, and `readiness` modules.
-    - Registered all Phase 05 routes in `backend/src/app.ts` under `/api/v1/`.
-  - Web Workspace Interfaces (`apps/web/src/app/app/`):
-    - Test Center & Active Runner (`/app/tests`): Category filters, test cards, full NTA runner with countdown timer, question palette navigation, numerical input, autosave, and post-test scorecard modal.
-    - Mistake Notebook (`/app/mistakes`): Metrics banner, failure mode filters, mistake cards with side-by-side answer comparisons, overdue review indicators, and interactive spaced retry modal.
-    - Exam Readiness Dashboard (`/app/readiness`): Circular readiness gauge, 8-factor breakdown cards, and interactive trajectory simulator with real-time sliders.
-  - Architecture Documentation:
-    - Created ADR 0006: `docs/architecture/adr/0006-assessment-engine-mistakes-and-exam-readiness.md`.
-  - Comprehensive Verification:
-    - 158/158 tests passed across all 14 test suites in `backend` (0 failures).
-    - Backend typecheck (`npm run typecheck` in backend): 0 errors.
-    - Web typecheck (`npm run typecheck` in apps/web): 0 errors.
+- **Phases 01–07 Completed:**
+  - Authenticated Web Shell, Command Palette (`Cmd+K`), Theme Switcher.
+  - Supabase Database (41 tables with 100% Row Level Security).
+  - Curriculum Engine (NCERT Class 11-12 across Physics, Chemistry, Math, Biology).
+  - Academic Knowledge Graph with DAG cycle detection.
+  - Verified PYQ Question Bank (JEE Main, JEE Advanced, NEET).
+  - Persistent Student Model (BKT + exponential retention decay).
+  - Diagnostic Cold-Start Assessment & Adaptive Backlog.
+  - Adaptive Study Planner & SM-2 Spaced Repetition Engine.
+  - NTA-Style Test Runner & Behavioral Post-Test Diagnostics.
+  - Mistake Notebook with 10 root-cause error classifications.
+  - Grounded 8-Factor Exam Readiness Gauge & Target Simulator.
+  - Socratic AI Tutor Engine (10 modes with anti-answer-leak guardrails).
+  - Provider-Agnostic Model Router (Gemini, Groq, OpenRouter).
+  - Pre-signed Direct Storage Uploads (`sharpmind_files` bucket).
+  - Distraction-Free Focus Studio & Academic Health Score.
+  - 14 Interactive STEM Visual Simulations.
 
-- Phase 06 Completed: AI Orchestration, Socratic Tutor, Model Router, and Guardrails (Parts 01–05):
-  - Database Migration (`infra/supabase/migrations/20260921000003_phase_06_ai_orchestration_and_tutor.sql`):
-    - Applied to remote Supabase via MCP tool.
-    - Extended `tutor_sessions`: Added `title`, `topic_id`, `subject_id`, `context_meta`.
-    - Extended `tutor_messages`: Added `image_url`, `latency_ms`, `model_used`, `provider_used`, `mode`.
-    - Created `public.ai_audit_logs`: Telemetry table with 100% RLS for token budgeting and audit trails.
-  - Part 01: Provider-Agnostic AI Orchestration & Model Router (`backend/src/ai/`):
-    - Modular provider adapters: `MockAiAdapter` (deterministic offline-first), `GroqAiAdapter` (high-speed Llama 3), `GeminiAiAdapter` (multimodal reasoning and vision), `OpenRouterAiAdapter` (multi-cloud failover).
-    - `ModelRouter`: Routing matrix by task type, exponential backoff with random jitter, automatic HTTP 429 rate-limit failover, per-student rolling token budgeting (60,000 tokens/min), and audit logging.
-    - `AiOrchestrator`: Clean application facade for text completion and typed Zod structured outputs.
-  - Part 02: Selective Context Retrieval & Assembly (`backend/src/ai/retrieval/context-assembler.ts`):
-    - Selective retrieval across 5 academic dimensions: Curriculum, Knowledge Graph, Student Model, Mistakes, and PYQs.
-    - Strict tenant isolation (`.eq('student_id', studentId)`), token budgeting, and provenance citation markers (`[NCERT-...]`, `[KG-...]`, `[SM-...]`, `[MISTAKE-...]`, `[PYQ-...]`).
-  - Part 03: Socratic AI Tutor Engine (`backend/src/modules/tutor/`):
-    - 10 distinct academic modes: `teach`, `socratic`, `hint`, `practice`, `quiz`, `check_solution`, `explain_mistake`, `revision`, `viva`, `exam`.
-    - Active learning constraint: `TutorRules.checkActiveLearning` intercepts and sanitizes premature direct answer leaks into open-ended discovery questions in Socratic and Hint modes.
-    - 3-tier progressive hint scaffolding (nudge -> formula -> calculation step).
-    - Persistent sessions and message history in Supabase (`tutor_sessions`, `tutor_messages`).
-  - Part 04: Specialized Domain AI Agents (`backend/src/ai/agents/`):
-    - `QuestionGenAgent`: Syllabus-calibrated questions with verified distractors and LaTeX solutions.
-    - `TestAnalysisAgent`: Post-test diagnostic breakdown of accuracy, pacing, and remediation roadmaps.
-    - `MistakeAnalysisAgent`: Error root-cause classification and curriculum remediation mapping.
-    - `StudyMaterialAgent`: Extracts structured topics, formulas, definitions, and pitfalls from student notes with document provenance.
-    - Zero unauthorized direct database writes; state updates route through domain services.
-  - Part 05: Guardrails & Regression Evaluation Suite (`backend/src/ai/guardrails/`, `backend/src/ai/evaluation/`):
-    - `InputGuardrail`: Blocks instruction overrides, roleplay jailbreaks (DAN), system prompt extraction, and cross-student data access.
-    - `OutputGuardrail`: Suppresses uncalibrated 100% certainty, prevents prompt leakage, and blocks direct answer dumping.
-    - `EvaluationRunner`: 20-fixture regression suite evaluating security, grounding, active learning, and formatting.
-  - Client & App Integration:
-    - Extended `@sharpmind/api-client` with full typed `tutor` client module.
-    - Registered `/api/v1/tutor` routes in `backend/src/app.ts`.
-    - Updated `apps/web/src/lib/adapters/tutor/supabase-ai-tutor-adapter.ts` to communicate with backend AI Orchestration with resilient local simulation fallback.
-  - Architecture Documentation:
-    - Created ADR 0007: `docs/architecture/adr/0007-ai-orchestration-tutor-and-guardrails.md`.
-  - Comprehensive Verification:
-    - 193/193 tests passed across all 19 test suites in `backend` (0 failures).
-    - Backend typecheck (`npm run typecheck` in backend): 0 errors.
-    - Web typecheck (`npm run typecheck` in apps/web): 0 errors.
+---
 
-- Phase 07 Completed: Study Material Intelligence, Interactive Visuals, Focus Mode, Academic Analytics & Notification Infrastructure (Parts 01–05):
-  - Database Migration (`infra/supabase/migrations/20260921000004_phase_07_study_material_focus_analytics_notifications.sql`):
-    - Applied to remote Supabase via MCP tool.
-    - Extended `materials`: Added `user_id`, `file_asset_id`, `processing_status`, `summary`, `extracted_concepts`, `formula_sheet`, `flashcards`, `quiz_questions`, `error_message`, and RLS policies.
-    - Created `public.study_sessions`: Focus session tracking with interruption notes and reflection logs with 100% RLS.
-    - Created `public.academic_reviews`: Daily AI debriefs and weekly strategic reviews grounded in empirical telemetry with 100% RLS.
-    - Created `public.notification_preferences`: Student-controlled quiet hours (22:00-07:00), timezone, and channel toggles with 100% RLS.
-    - Created `public.notifications`: Support for 10 notification types, `action_required` flags, and `action_label` with 100% RLS.
-  - Part 01: Study Material Intelligence (`backend/src/modules/materials/`):
-    - Sliding-window chunker with 250-word chunks, 30-word semantic overlap, and citation tags (`DOC-<id>-CHUNK-<n>`).
-    - AI synthesis of summaries, formula sheets, flashcards, and quizzes strictly via `StudyMaterialAgent` through provider-agnostic `aiOrchestrator` preserving provenance.
-    - Handled malformed files, empty texts, and student permission boundaries.
-  - Part 02: Interactive Visual-Learning Framework (`apps/web/src/components/visual/`):
-    - `visual-simulation.contract.ts`: Standardized contract registering 14 interactive simulations across Physics (Projectile Motion, Gauss's Law, Wave Optics), Chemistry (VSEPR Geometry, Atomic Orbitals, Chemical Equilibrium), and Mathematics (3D Vectors, Conic Sections).
-    - Mouse/touch rotation, zoom, drag inspection, parameter sliders, and accessible narrative fallbacks for screen readers and low-bandwidth environments.
-  - Part 03: Focus Mode & Study Session Tracking (`backend/src/modules/focus/`, `apps/web/src/app/app/focus/`):
-    - Real distraction-free study studio with interactive timer, circular SVG progress indicator, interruption logging, and post-session reflection modal.
-    - Closed-loop Student Model integration: Records `self_assessment` evidence to `StudentModelService.recordEvidence` with calibrated uncertainty, acknowledging effort without fabricating concept mastery. Zero UI emojis.
-  - Part 04: Academic Analytics & Review Surfaces (`backend/src/modules/analytics/`, `apps/web/src/app/app/analytics/`):
-    - Explainable 7-dimension Academic Health Score: Syllabus Coverage (15%), Conceptual Mastery (20%), Revision Cadence (15%), Exam Readiness (20%), Time Pacing (10%), Problem Accuracy (10%), Habit Consistency (10%).
-    - Daily AI Debrief & Weekly Strategic Reviews grounded strictly in empirical telemetry.
-  - Part 05: Notification & Reminder Infrastructure + Action Required Toast System (`backend/src/modules/notifications/`, `apps/web/src/components/ui/Toast/`):
-    - Timezone-aware quiet hours evaluation, 24-hour reminder deduplication, and channel delivery routing.
-    - User Request: Created `ActionToast` and `ActionToastProvider` displaying floating, dismissible glassmorphic banners with primary call-to-action buttons for urgent tasks.
-    - Modernized `NotificationsDrawer.tsx` to display real backend notifications and action buttons with pure SVG icons.
-  - Client & App Integration:
-    - Extended `@sharpmind/api-client` with `materials`, `focus`, `analytics`, and `notifications` modules.
-    - Registered routes in `backend/src/app.ts`.
-  - Architecture Documentation:
-    - Created ADR 0008: `docs/architecture/adr/0008-study-materials-visuals-focus-analytics-and-notifications.md`.
-  - Comprehensive Verification:
-    - 216/216 tests passed across all 24 test suites in `backend` (0 failures).
-    - Backend typecheck (`npm run typecheck` in backend): 0 errors.
-    - Web typecheck (`npm run typecheck` in apps/web): 0 errors.
+## 4. Verification Baseline (2026-10-11)
 
-- Priority P0 Completed: Trust & Foundation (Stop Fake Data, Complete Placeholders, Fix Auth Inconsistencies) — 2026-09-21:
-  - Dashboard Real Data Pipeline (`apps/web/src/app/app/page.tsx`):
-    - Removed hardcoded fake initializers for `dailyTasks`, `backlogItems`, `dueRevisions`, and hardcoded `masteryScore: 68` / `retentionScore: 84`.
-    - Fully wired reads to backend endpoints via authenticated shared `apiClient`: `apiClient.studentModel.getSummary`, `apiClient.backlog.get`, `apiClient.planner.getToday`, and `apiClient.revision.getDue`.
-    - Fully wired writes: `handleReviewOutcome` calls `apiClient.revision.completeEvent`, `handleToggleTaskStatus` calls `apiClient.planner.updateTask`, `handleReplan` calls `apiClient.planner.replan`.
-    - Baseline diagnostic modal now genuinely commits observed evidence records for each question to `public.student_evidence_logs` via `apiClient.studentModel.recordEvidence` referencing canonical question UUIDs, triggering downstream mastery updates and backlog recalculation.
-    - Next-action hero dynamically derives recommendations from the student's actual backlog priority rank.
-  - Tests Page Auth & Real Runner (`apps/web/src/app/app/tests/page.tsx`):
-    - Replaced broken local API client instantiation (`localStorage.getItem('supabase_access_token')`) with the shared `apiClient` using `supabase.auth.getSession()`.
-    - Removed `DEFAULT_ASSESSMENTS` (fake mock tests that do not exist in DB).
-    - Removed fake fallback test questions and fake scorecard generation in catch blocks.
-    - Enabled honest error reporting and empty state messaging when no assessments are available.
-  - Mistake Notebook Truth in Data (`apps/web/src/app/app/mistakes/page.tsx`):
-    - Replaced broken local API client with shared `apiClient`.
-    - Removed `DEFAULT_MISTAKES` (110 lines of fabricated data that masked 401s).
-    - Removed client-side retry evaluation fallback.
-    - Integrated genuine empty state and backend error banners with retry capability.
-  - Grounded Exam Readiness (`apps/web/src/app/app/readiness/page.tsx`):
-    - Replaced broken local API client with shared `apiClient`.
-    - Removed `DEFAULT_READINESS_STATE` (95 lines of fabricated factors and projections).
-    - Removed fake client-side mathematical simulation fallback in catch block.
-    - Displays honest uncalibrated state when baseline diagnostic evidence is missing.
-  - Academic Analytics Telemetry (`apps/web/src/app/app/analytics/page.tsx`):
-    - Eliminated fake 78% health score, fake daily debrief, and fake weekly review from catch blocks.
-    - Displays genuine uncalibrated and empty states when study sessions or telemetry records are absent.
-  - AI Tutor Authenticity (`apps/web/src/lib/adapters/tutor/` & `apps/web/src/app/app/tutor/page.tsx`):
-    - Removed silent fallback to `LocalAITutorAdapter` for empty session lists in `SupabaseAITutorAdapter`.
-    - Eliminated hardcoded fallback student UUID (`a0ee61e9-3af8-462c-bcea-cdafd72468f3`) in `TutorPageContent`.
-    - Eliminated hardcoded initial physics session; dynamic session created upon first user inquiry.
-  - Functional Spaced Repetition Engine Page (`apps/web/src/app/app/revision/`):
-    - Replaced `WorkspacePlaceholder` with real data-driven UI (`page.tsx` and `revision.module.css`).
-    - Wired to `apiClient.revision.getDue` and `apiClient.revision.completeEvent`.
-    - Displays urgency tags, SM-2 interval/repetition counters, retention decay progress bars, and Recalled/Hard/Forgot recall action triggers.
-  - Functional Adaptive Study Planner Page (`apps/web/src/app/app/planner/`):
-    - Replaced `WorkspacePlaceholder` with real data-driven UI (`page.tsx` and `planner.module.css`).
-    - Built Today's Agenda session view with task completion toggles calling `apiClient.planner.updateTask`.
-    - Built Weekly Matrix 7-day schedule view via `apiClient.planner.getWeek`.
-    - Integrated "Replan Missed Work" action calling `apiClient.planner.replan`.
-  - Repository Hygiene:
-    - Updated `.gitignore` to ignore `__pycache__/`, `*.pyc`, and `.cache/`.
-  - Verification:
-    - 216/216 backend Vitest tests passed across all 24 suites.
-    - TypeScript compilation (`npm run typecheck:all`): 0 errors in backend and web.
-    - Production Next.js build (`npm run build`): 36/36 static pages exported cleanly with 0 errors.
+- `npm run typecheck:all`: 0 errors across landing, web, and backend.
+- `npm run build`: 16/16 landing static pages, 36/36 web static pages, and backend `tsc` compilation succeeded cleanly (exit code 0).
+- `npm --prefix backend run test`: 25 test suites, 239/239 tests passed with 0 failures in 36.42s.
 
-- Priority P0/P1 Remediation Completed: Canonical Identity, Tenant Isolation, Zero-Leakage & Production AI Security (2026-09-21):
-  - Canonical Identity Resolution Architecture:
-    - Built `IdentityService` (`backend/src/modules/auth/identity.service.ts`) resolving both `auth.users.id` / `profiles.id` and `student_profiles.id` with memory caching and automatic initialization for legacy student profiles.
-    - Added `req.studentProfileId` to Express types (`backend/src/types/express.d.ts`).
-    - Implemented `resolveStudentProfile` middleware (`backend/src/middleware/identity.ts`).
-  - Cross-Tenant Isolation Enforcement:
-    - Implemented `requireStudentOrMentor` and `requireResourceOwner` middlewares (`backend/src/middleware/authorization.ts`).
-    - Protected all 14 student endpoints across the entire backend:
-      - Student model routes (`student-model.routes.ts`)
-      - Diagnostic routes (`diagnostic.routes.ts`)
-      - Backlog & Planner routes (`backlog.routes.ts`, `planner.routes.ts`)
-      - Revision routes (`revision.routes.ts`)
-      - Readiness scoring (`readiness.routes.ts`, `readiness.controller.ts`)
-      - Mistake notebook (`mistake.routes.ts`, `mistake.controller.ts`)
-      - Assessments & test attempts (`assessment.routes.ts`, `assessment.controller.ts`)
-      - Study & focus sessions (`focus.routes.ts`, `focus.controller.ts`, removed insecure `x-student-id`)
-      - AI tutor sessions (`tutor.routes.ts`, `tutor.controller.ts`)
-      - Study materials (`material.routes.ts`, `material.controller.ts`)
-      - Files & uploads (`file.routes.ts`, `file.service.ts`, verified student/mentor relationship)
-      - Notifications (`notification.routes.ts`, `notification.controller.ts`)
-      - Analytics (`analytics.routes.ts`, `analytics.controller.ts`)
-  - Question Answer-Key Zero-Leakage Protection:
-    - Implemented server-side `sanitizeQuestionForClient` (`question.rules.ts`) stripping `isCorrect`, `is_correct`, `explanation`, `solution_steps`, `hints`.
-    - Sanitized all student question endpoints in `question.controller.ts` (`listQuestions`, `getPyqs`, `getImportantQuestions`, `getQuestionById`, `selectAdaptive`).
-    - Applied Supabase RLS migration `20260921000005_question_answer_security_and_rls.sql`: created secure public views `student_questions` and `student_question_options`; revoked public table read on `question_options`.
-    - Updated `@sharpmind/types` and `@sharpmind/api-client` with `apiClient.questions.validate` for secure server-side answer verification.
-    - Updated `TopicDetailView.tsx` to validate answers via API rather than reading client-side booleans.
-  - Production AI Guardrails & Mock Removal:
-    - In `backend/src/ai/router/model-router.ts`, eliminated mock fallback in production.
-    - Throws `AiServiceUnavailableError` when all configured AI providers fail in production.
-    - Validated in `backend/src/config/env.ts` that `AI_PROVIDER_PRIMARY` cannot be `'mock'` when `NODE_ENV === 'production'`.
-  - CORS Security Hardening:
-    - In `backend/src/app.ts`, eliminated the permissive `callback(null, true)` fallback.
-    - Enforces configured origin allowlist; rejects unauthorized cross-origin callers.
-  - Idempotent Assessment Submissions & Mistake Logging:
-    - In `backend/src/modules/assessments/assessment.service.ts`, `submitTestAttempt` returns existing completed submissions without error or duplicate records.
-    - Mistake logging guards against duplicates per submission and question.
-    - Evidence logging trace-linked via `sourceRefId`.
-  - Elimination of Fake Academic Data:
-    - Removed hardcoded fake baseline diagnostic questions and client-side scoring from `apps/web/src/app/app/page.tsx`; routed to `/app/tests?type=diagnostic`.
-    - Removed fake notifications from `NotificationsDrawer.tsx`.
-    - Removed fake local study session IDs from `apps/web/src/app/app/focus/page.tsx`.
-    - Removed hardcoded default student identities from `local-settings-adapter.ts` and `settings/page.tsx`.
-  - Comprehensive Verification:
-    - Added automated security and tenant isolation test suite `backend/src/__tests__/security-authorization.test.ts`.
-    - 25/25 test files passed, 239/239 tests passed.
-    - Full monorepo typecheck passed with 0 errors (`npm run typecheck:all`).
-    - Next.js production build (`npm run build`) and backend build (`npm run build:backend`) passed with 0 errors.
+---
 
-- Code Health Remediation & Standalone Deployment Hardening (Completed 2026-09-22):
-  - Web TypeScript Fixes:
-    - Resolved `NotificationSettings` property mismatch in `apps/web/src/lib/adapters/settings/supabase-settings-adapter.ts`.
-    - Mapped canonical fields (`weeklyReportEmail`, `revisionAlerts`, `testSeriesAnnouncements`, `dailyStudyReminder`).
-    - Replaced raw `.update()` with `.upsert(..., { onConflict: 'student_id' })` to prevent silent updates for new student profiles.
-    - Hydrated `notification_preferences` in `getSettings(userId)`.
-  - Standalone Deployment Architecture (Render Backend & Vercel Web):
-    - Enabled independent folder deployment for `backend/` on Render and `apps/web/` on Vercel without relying on monorepo parent workspace paths.
-    - Synchronized self-contained packages: `backend/src/packages/types` and `apps/web/src/packages/types` + `apps/web/src/packages/api-client`.
-    - Configured single-path resolution in `tsconfig.json` files to strictly satisfy SWC/Next.js and `tsc` loader requirements.
-    - Updated `apps/web/next.config.ts` with dynamic fallback resolving packages from monorepo if present, or self-contained `src/packages` when deployed standalone on Vercel.
-    - Enhanced CORS in `backend/src/app.ts` to support wildcard and multi-domain pattern matching (e.g. `https://*.vercel.app` and comma-separated origins) for seamless Vercel frontend to Render backend communication.
-  - PWA Icons Restoration:
-    - Generated SharpMind branded PNG icons: `apps/web/public/icon-192.png` (192x192) and `apps/web/public/icon-512.png` (512x512).
-    - Resolved HTTP 404 errors referenced by `apps/web/public/manifest.json`.
-  - Question Bank Completeness for Initial Classroom Chapter:
-    - Seeded authentic JEE Main 2023 (Dimensional Analysis) and NEET 2023 (Error Propagation) PYQs directly into Supabase `questions` and `question_options` for Chapter 1: Units and Measurements (`c0000011-0000-0000-0000-000000000001`).
-    - Added matching authentic PYQs to `CANONICAL_QUESTIONS` in `canonical-curriculum-fixtures.ts` to ensure immediate interactive questions in both live Supabase and offline modes.
-  - Verification:
-    - `npm --prefix apps/web run typecheck`: 0 errors.
-    - `npm --prefix backend run typecheck`: 0 errors.
-    - `npm --prefix backend run test`: 25 files, 239 tests passing (100%).
-    - `npm --prefix apps/web run build`: 36/36 static pages exported cleanly with exit code 0.
-    - `npm --prefix backend run build`: Compiled cleanly with exit code 0.
+## 5. Security Action Items
 
+- **Credential Rotation:** Test credentials previously committed in repo memory (`alpmlaapmp@gmail.com`) should be rotated in remote Supabase Auth.
