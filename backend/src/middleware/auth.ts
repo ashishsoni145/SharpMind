@@ -64,7 +64,7 @@ export const requireAuth = async (
       role: (profile?.role as AuthenticatedUser['role']) || 'student',
       fullName: profile?.full_name || authUser.user_metadata?.full_name || '',
       avatarUrl: profile?.avatar_url || authUser.user_metadata?.avatar_url,
-      isEmailVerified: profile?.is_email_verified ?? !!authUser.email_confirmed_at,
+      isEmailVerified: Boolean(authUser.email_confirmed_at),
     };
 
     req.user = user;
@@ -100,7 +100,7 @@ export const optionalAuth = async (
         role: (profile?.role as AuthenticatedUser['role']) || 'student',
         fullName: profile?.full_name || authUser.user_metadata?.full_name || '',
         avatarUrl: profile?.avatar_url || authUser.user_metadata?.avatar_url,
-        isEmailVerified: profile?.is_email_verified ?? !!authUser.email_confirmed_at,
+        isEmailVerified: Boolean(authUser.email_confirmed_at),
       };
     }
     next();

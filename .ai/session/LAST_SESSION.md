@@ -192,12 +192,73 @@
 
 ---
 
+### Email Verification System Phases 1, 2 & 3 Completed (2026-10-14):
+
+1. **Phase 1: Complete Email OTP Verification**:
+   - `web/src/app/verify-email/page.tsx`:
+     - Clean heading "Verify your email", email display, and Continue button triggering OTP request through rate-limited backend endpoint `POST /api/v1/auth/request-otp`.
+     - 6-digit numeric OTP inputs with auto-advance, backspace handling, and paste support.
+     - Supabase Auth email verification integration (`verifyOtp`) with clear error messaging for incorrect, expired, and invalid codes.
+     - Resend cooldown timer and rolling-window rate-limit feedback.
+     - Non-blocking post-verification success email dispatch and automatic session refresh before redirecting to `/app`.
+     - Completely removed simulated button and demo token behavior from production UI.
+   - `web/src/lib/adapters/auth/`:
+     - Updated `AuthAdapter` interface to include `verifyOtp`.
+     - Implemented `verifyOtp` in `SupabaseAuthAdapter` via `supabase.auth.verifyOtp({ email, token, type: 'signup' })`.
+     - Implemented `verifyOtp` in `LocalAuthAdapter` for consistent mock/local development.
+     - Exposed `verifyOtp` and `refreshSession` in `useAuth()` (`auth-context.tsx`).
+   - `web/src/components/workspace/WorkspaceShell.tsx`:
+     - Persistent, responsive, and accessible (`role="alert"`) verification banner shown when `user && !user.isEmailVerified`.
+     - Informs student that email verification is required within 7 days.
+     - Direct CTA button linking to `/verify-email?email=...`.
+     - Disappears immediately upon authoritative session refresh when Supabase confirms verification.
+
+2. **Phase 2: OTP Rate Limiting & Verified-User Authorization**:
+   - Database Migration (`infra/supabase/migrations/20261014000002_otp_rate_limiting.sql`):
+     - Created `public.otp_send_logs` table with indices on `(email, requested_at DESC)` and `requested_at`.
+     - Created atomic advisory-locked stored procedure `public.check_and_record_otp_send` preventing concurrent race condition bypasses across multiple server instances.
+     - Stored procedure `public.cleanup_expired_otp_logs` for periodic pruning.
+   - `OtpRateLimitService` (`backend/src/modules/auth/otp-rate-limit.service.ts`):
+     - Enforces rolling 60-minute window (maximum 3 requests) and 60-second cooldown per normalized email.
+     - Email normalization (`trim().toLowerCase()`).
+     - Safe responses preventing user enumeration.
+   - `requireVerifiedEmail` Authorization Guard (`backend/src/middleware/authorization.ts`):
+     - Derives verification status strictly from authoritative Supabase Auth data (`authUser.email_confirmed_at`). Stale profile flags cannot bypass verification.
+     - Applied to AI tutor routes (`/api/v1/tutor`), study material routes (`/api/v1/materials`), and assessment start/submit endpoints (`/api/v1/assessments/:id/start`, `/api/v1/assessments/submissions/:submissionId/submit`).
+     - Preserves access to public routes, auth endpoints, and `/api/v1/users/me`.
+
+3. **Phase 3: Seven-Day Unverified Account Retention**:
+   - `RetentionService` (`backend/src/modules/auth/retention.service.ts`):
+     - Scans Supabase Auth users via `supabase.auth.admin.listUsers`.
+     - Filters for accounts older than 7 days where `email_confirmed_at === null`.
+     - **Pre-deletion race-condition prevention**: performs an immediate authoritative check via `supabase.auth.admin.getUserById` immediately before deletion; if the student verified in the interim, deletion is aborted.
+     - Deletes eligible expired accounts via Supabase Admin API `supabase.auth.admin.deleteUser` (never raw SQL on `auth.users`).
+     - Cascades cleanly to `profiles` and dependent tables via Postgres foreign keys (`ON DELETE CASCADE`).
+     - Idempotent execution with batching, dry-run support, and aggregate reporting.
+   - Protected Route (`POST /api/v1/auth/retention-cleanup`):
+     - Requires secret header `x-retention-secret` or authenticated admin session.
+
+---
+
+### Verification Summary (2026-10-14):
+
+- **TypeScript Typecheck:**
+  - `npm --prefix web run typecheck`: Passed (exit code 0).
+  - `npm --prefix backend run typecheck`: Passed (exit code 0).
+  - `npm run typecheck:all`: Passed across all packages.
+- **Backend Build & Asset Copying:** `npm --prefix backend run build` passed (`tsc && node scripts/copy-templates.js` copied all templates to `dist/emails/templates/`).
+- **Web Production Build:** `npm --prefix web run build` passed cleanly (39/39 static pages exported with exit code 0).
+- **Backend Test Suite:** `npm --prefix backend run test` passed (27 test suites, 271/271 tests passed with exit code 0, including 11 tests in `otp-verification-flow.test.ts`).
+- **Dev Server Active:** `http://localhost:3000/verify-email/` (HTTP 200), `http://localhost:3000/app/tests` (HTTP 200), `http://localhost:3000/app` (HTTP 200), `http://localhost:3000/app/profile` (HTTP 200), `http://localhost:3000/login` (HTTP 200).
+
+---
+
 ### Remaining External Blockers:
 
 - **Resend Domain Verification:** Verify domain `sharpmind.live` in the Resend dashboard (add DKIM, SPF, and DMARC DNS records). For local testing or before domain verification, `EMAIL_FROM=onboarding@resend.dev` can be used.
 - **Environment Variable Configuration:** Set `RESEND_API_KEY` in `backend/.env` (and Vercel/backend hosting environment variables).
+- **Scheduled Retention Trigger:** Configure cron job (e.g. GitHub Actions, Vercel Cron, or Supabase pg_cron) to invoke `POST /api/v1/auth/retention-cleanup` daily with the `x-retention-secret` header.
 - **DNS & Vercel Dashboard Linking:** Project domains (`sharpmind.live`, `app.sharpmind.live`, `api.sharpmind.live`) must be added to their respective Vercel projects in the Vercel dashboard.
-- **Supabase Allowed Redirect URLs:** Add `https://app.sharpmind.live/**` and `https://sharpmind.live/**` to the Supabase Authentication Redirect URLs.
 
 ---
 

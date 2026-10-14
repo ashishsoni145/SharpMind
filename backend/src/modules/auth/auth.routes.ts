@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
+import { optionalAuth } from '../../middleware/auth';
 
 const router = Router();
+
+// Endpoint for requesting a signup confirmation OTP (rate limited)
+router.post('/request-otp', AuthController.requestOtp);
 
 // Endpoint for triggering welcome email after signup
 router.post('/welcome-email', AuthController.sendWelcomeEmail);
@@ -11,6 +15,9 @@ router.post('/verification-success-email', AuthController.sendVerificationSucces
 
 // Webhook for automated Supabase Auth triggers
 router.post('/webhook', AuthController.handleAuthWebhook);
+
+// Protected retention cleanup trigger (secret header or admin authenticated)
+router.post('/retention-cleanup', optionalAuth, AuthController.triggerRetentionCleanup);
 
 export const authRoutes = router;
 export default authRoutes;

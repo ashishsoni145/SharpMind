@@ -17,5 +17,6 @@ export interface AuthAdapter {
   updatePassword(credentials: PasswordUpdateCredentials): Promise<AuthResult>;
   resendVerificationEmail(email: string): Promise<AuthResult>;
   verifyEmailToken?(token: string): Promise<AuthResult>;
+  verifyOtp(email: string, token: string, type?: 'signup' | 'email'): Promise<AuthResult>;
   onAuthStateChange(callback: (session: AuthSession | null) => void): () => void;
 }

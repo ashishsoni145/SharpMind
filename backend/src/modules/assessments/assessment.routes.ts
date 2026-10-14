@@ -3,7 +3,7 @@ import { AssessmentController } from './assessment.controller';
 import { requireAuth } from '../../middleware/auth';
 import { requireAdmin } from '../../middleware/roles';
 import { resolveStudentProfile } from '../../middleware/identity';
-import { requireResourceOwner } from '../../middleware/authorization';
+import { requireResourceOwner, requireVerifiedEmail } from '../../middleware/authorization';
 import { validateBody, validateQuery } from '../../lib/validate';
 import {
   listAssessmentsQuerySchema,
@@ -20,7 +20,7 @@ router.use(resolveStudentProfile);
 router.get('/', validateQuery(listAssessmentsQuerySchema), AssessmentController.listAssessments);
 router.post('/', requireAdmin, validateBody(createAssessmentSchema), AssessmentController.createAssessment);
 router.get('/:id', AssessmentController.getAssessmentById);
-router.post('/:id/start', AssessmentController.startAttempt);
+router.post('/:id/start', requireVerifiedEmail, AssessmentController.startAttempt);
 router.post(
   '/submissions/:submissionId/autosave',
   requireResourceOwner('submission', 'submissionId'),
@@ -34,6 +34,7 @@ router.get(
 );
 router.post(
   '/submissions/:submissionId/submit',
+  requireVerifiedEmail,
   requireResourceOwner('submission', 'submissionId'),
   validateBody(submitAssessmentSchema),
   AssessmentController.submitAttempt

@@ -25,6 +25,8 @@ interface AuthContextValue {
   updatePassword: (credentials: PasswordUpdateCredentials) => Promise<AuthResult>;
   resendVerificationEmail: (email: string) => Promise<AuthResult>;
   verifyEmailToken: (token: string) => Promise<AuthResult>;
+  verifyOtp: (email: string, token: string, type?: 'signup' | 'email') => Promise<AuthResult>;
+  refreshSession: () => Promise<AuthSession | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -125,6 +127,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { success: true };
   }, []);
 
+  const refreshSession = useCallback(async (): Promise<AuthSession | null> => {
+    try {
+      const refreshed = await authAdapter.getSession();
+      setSession(refreshed);
+      return refreshed;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const verifyOtp = useCallback(
+    async (email: string, token: string, type: 'signup' | 'email' = 'signup'): Promise<AuthResult> => {
+      setIsLoading(true);
+      try {
+        const res = await authAdapter.verifyOtp(email, token, type);
+        if (res.success) {
+          if (res.session) {
+            setSession(res.session);
+          } else {
+            const refreshed = await authAdapter.getSession();
+            if (refreshed) {
+              setSession(refreshed);
+            } else if (session?.user) {
+              setSession({
+                ...session,
+                user: {
+                  ...session.user,
+                  isEmailVerified: true,
+                },
+              });
+            }
+          }
+        }
+        return res;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [session]
+  );
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user: session?.user ?? null,
@@ -139,6 +182,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updatePassword,
       resendVerificationEmail,
       verifyEmailToken,
+      verifyOtp,
+      refreshSession,
     }),
     [
       session,
@@ -150,6 +195,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updatePassword,
       resendVerificationEmail,
       verifyEmailToken,
+      verifyOtp,
+      refreshSession,
     ]
   );
 

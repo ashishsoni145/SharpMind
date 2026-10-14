@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { requireAuth } from '../../middleware/auth';
 import { resolveStudentProfile } from '../../middleware/identity';
-import { requireResourceOwner } from '../../middleware/authorization';
+import { requireResourceOwner, requireVerifiedEmail } from '../../middleware/authorization';
 import { MaterialController } from './material.controller';
 
 const router = Router();
 
 router.use(requireAuth);
+router.use(requireVerifiedEmail);
 router.use(resolveStudentProfile);
 
 router.post('/', MaterialController.create);

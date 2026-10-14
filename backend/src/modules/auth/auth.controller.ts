@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { EmailService } from '../../emails/email.service';
 import { logger } from '../../lib/logger';
-import { BadRequestError } from '../../lib/errors';
+import { BadRequestError, UnauthorizedError } from '../../lib/errors';
+import { OtpRateLimitService } from './otp-rate-limit.service';
+import { RetentionService } from './retention.service';
+import { supabase } from '../../db/client';
+import { config } from '../../config';
 
 export class AuthController {
   /**
@@ -109,6 +113,104 @@ export class AuthController {
       // Webhooks should acknowledge receipt even on secondary errors to avoid infinite redelivery
       logger.error({ err }, '[AuthController] Auth webhook processing error');
       res.status(200).json({ received: true, error: (err as any)?.message });
+    }
+  }
+
+  /**
+   * POST /api/v1/auth/request-otp
+   * Request an email verification OTP for an existing unverified account.
+   * Atomically rate limited to 3 sends per normalized email address per rolling 60 minutes.
+   * Returns a safe response to prevent user enumeration.
+   */
+  public static async requestOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email } = req.body;
+      if (!email || typeof email !== 'string') {
+        throw new BadRequestError('Field "email" is required and must be a string.');
+      }
+
+      const normalizedEmail = OtpRateLimitService.normalizeEmail(email);
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(normalizedEmail)) {
+        throw new BadRequestError('Please provide a valid email address.');
+      }
+
+      const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
+      const rateLimit = await OtpRateLimitService.checkAndRecord(normalizedEmail, clientIp);
+
+      if (!rateLimit.allowed) {
+        logger.warn(
+          { email: EmailService.maskEmail(normalizedEmail), attempts: rateLimit.attempts },
+          '[AuthController] OTP send rate limited'
+        );
+        res.status(429).json({
+          success: false,
+          error: rateLimit.message,
+          retryAfterSeconds: rateLimit.retryAfterSeconds,
+        });
+        return;
+      }
+
+      // Dispatch OTP through Supabase Auth
+      try {
+        const { error: resendError } = await supabase.auth.resend({
+          type: 'signup',
+          email: normalizedEmail,
+        });
+        if (resendError) {
+          logger.warn(
+            { error: resendError.message, email: EmailService.maskEmail(normalizedEmail) },
+            '[AuthController] Supabase resend returned non-fatal error'
+          );
+        }
+      } catch (sendErr) {
+        logger.error(
+          { sendErr, email: EmailService.maskEmail(normalizedEmail) },
+          '[AuthController] Exception dispatching OTP'
+        );
+      }
+
+      // Always return a neutral success response to prevent account enumeration
+      res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email, a verification code has been dispatched.',
+        cooldownSeconds: OtpRateLimitService.COOLDOWN_SECONDS,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * POST /api/v1/auth/retention-cleanup
+   * Scheduled or admin-triggered cleanup of accounts unverified after 7 days.
+   * Protected by secret header x-retention-secret or admin session.
+   */
+  public static async triggerRetentionCleanup(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const providedSecret = req.headers['x-retention-secret'];
+      const expectedSecret = process.env.RETENTION_SECRET || config.supabase.serviceRoleKey;
+
+      const isAuthorizedSecret = Boolean(expectedSecret && providedSecret === expectedSecret);
+      const isAdminUser = req.user?.role === 'admin';
+
+      if (!isAuthorizedSecret && !isAdminUser) {
+        throw new UnauthorizedError('Unauthorized: valid retention secret or admin session required.');
+      }
+
+      const { dryRun, batchSize, maxAgeDays } = req.body || {};
+      const report = await RetentionService.cleanupUnverifiedAccounts({
+        dryRun: typeof dryRun === 'boolean' ? dryRun : undefined,
+        batchSize: typeof batchSize === 'number' ? batchSize : undefined,
+        maxAgeDays: typeof maxAgeDays === 'number' ? maxAgeDays : undefined,
+      });
+
+      res.status(200).json({
+        success: true,
+        data: report,
+      });
+    } catch (err) {
+      next(err);
     }
   }
 }

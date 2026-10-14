@@ -191,3 +191,22 @@ export const requireResourceOwner = (resourceType: ProtectedResourceType, idPara
     }
   };
 };
+
+/**
+ * Middleware ensuring the authenticated user has verified their email address
+ * based on authoritative Supabase Auth status.
+ */
+export const requireVerifiedEmail = (req: Request, _res: Response, next: NextFunction): void => {
+  if (!req.user) {
+    return next(new UnauthorizedError('Authentication required.'));
+  }
+
+  if (!req.user.isEmailVerified) {
+    return next(
+      new ForbiddenError('Email verification required. Please verify your email to access this feature.')
+    );
+  }
+
+  next();
+};
+

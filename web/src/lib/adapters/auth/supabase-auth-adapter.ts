@@ -225,6 +225,56 @@ export class SupabaseAuthAdapter implements AuthAdapter {
     return { success: true };
   }
 
+  public async verifyOtp(
+    email: string,
+    token: string,
+    type: 'signup' | 'email' = 'signup'
+  ): Promise<AuthResult> {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return { success: false, error: { code: 'network_error', message: 'Supabase client is not configured.' } };
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: email.trim().toLowerCase(),
+      token: token.trim(),
+      type,
+    });
+
+    if (error) {
+      return {
+        success: false,
+        error: mapSupabaseError(error),
+      };
+    }
+
+    let session: AuthSession | undefined = undefined;
+    let user: User | undefined = undefined;
+
+    if (data.session) {
+      session = mapSupabaseSession(data.session);
+      user = session.user;
+    } else if (data.user) {
+      user = mapSupabaseUser(data.user);
+    } else {
+      const refreshedSession = await this.getSession();
+      if (refreshedSession) {
+        session = refreshedSession;
+        user = refreshedSession.user;
+      }
+    }
+
+    return {
+      success: true,
+      user,
+      session,
+    };
+  }
+
+  public async verifyEmailToken(token: string): Promise<AuthResult> {
+    return this.verifyOtp('', token, 'signup');
+  }
+
   public onAuthStateChange(callback: (session: AuthSession | null) => void): () => void {
     const supabase = getSupabaseClient();
     if (!supabase) {

@@ -322,6 +322,53 @@ export class LocalAuthAdapter implements AuthAdapter {
     };
   }
 
+  public async verifyOtp(
+    email: string,
+    token: string,
+    _type: 'signup' | 'email' = 'signup'
+  ): Promise<AuthResult> {
+    await this.delay(350);
+    const normalizedEmail = email.trim().toLowerCase();
+    const cleanToken = token.trim();
+
+    if (cleanToken.length !== 6 && cleanToken !== 'demo_verification_token') {
+      return {
+        success: false,
+        error: {
+          code: 'token_invalid_or_expired',
+          message: 'Invalid verification code. Please enter the 6-digit code sent to your email.',
+        },
+      };
+    }
+
+    const users = this.getUsers();
+    const userIndex = users.findIndex((u) => u.email.toLowerCase() === normalizedEmail);
+
+    if (userIndex === -1) {
+      return {
+        success: true,
+      };
+    }
+
+    const updatedUser = { ...users[userIndex], isEmailVerified: true, updatedAt: new Date().toISOString() };
+    users[userIndex] = updatedUser;
+    this.saveUsers(users);
+
+    const { passwordHash: _, ...publicUser } = updatedUser;
+    const session: AuthSession = {
+      user: publicUser,
+      accessToken: `token_demo_${publicUser.id}_${Date.now()}`,
+      expiresAt: Math.floor(Date.now() / 1000) + 86400,
+    };
+    this.saveSession(session);
+
+    return {
+      success: true,
+      user: publicUser,
+      session,
+    };
+  }
+
   public onAuthStateChange(callback: (session: AuthSession | null) => void): () => void {
     this.listeners.add(callback);
     return () => {

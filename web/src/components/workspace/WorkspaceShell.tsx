@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useProtectedRoute } from '@/lib/auth/use-protected-route';
 import { studentProfileAdapter } from '@/lib/adapters/student';
@@ -97,6 +98,25 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
           isMobileOpen={isMobileOpen}
           onToggleCollapse={handleToggleCollapse}
         />
+
+        {!user.isEmailVerified && (
+          <aside className={styles.verificationNotice} role="alert" aria-live="polite">
+            <div className={styles.noticeContent}>
+              <span className={styles.noticeIcon} aria-hidden="true">
+                ⚠️
+              </span>
+              <span className={styles.noticeText}>
+                <strong>Email verification required:</strong> Please verify your email address ({user.email}) within 7 days of signup to ensure continuous access to AI tutoring and study features.
+              </span>
+            </div>
+            <Link
+              href={`/verify-email?email=${encodeURIComponent(user.email)}`}
+              className={styles.noticeActionBtn}
+            >
+              Verify Email &rarr;
+            </Link>
+          </aside>
+        )}
 
         <main id="workspace-content" className={styles.contentWrapper}>
           {children}
