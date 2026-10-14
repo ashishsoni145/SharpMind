@@ -30,6 +30,10 @@ export const envSchema = z.object({
   APP_MODE: z.enum(['production', 'development', 'demo', 'test']).optional().default(
     (process.env.APP_MODE as any) || 'development'
   ),
+  RESEND_API_KEY: z.string().optional().default(process.env.RESEND_API_KEY || ''),
+  EMAIL_FROM: z.string().default(process.env.EMAIL_FROM || 'SharpMind <noreply@sharpmind.live>'),
+  APP_URL: z.string().url().default(process.env.APP_URL || 'https://app.sharpmind.live'),
+  LANDING_URL: z.string().url().default(process.env.LANDING_URL || 'https://sharpmind.live'),
 }).refine(
   (data) => {
     if (data.NODE_ENV === 'production' && data.APP_MODE !== 'demo') {
@@ -58,6 +62,10 @@ const parseEnv = () => {
     AI_GEMINI_API_KEY: process.env.AI_GEMINI_API_KEY || process.env.GEMINI_API_KEY,
     AI_OPENROUTER_API_KEY: process.env.AI_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY,
     APP_MODE: process.env.APP_MODE,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    APP_URL: process.env.APP_URL,
+    LANDING_URL: process.env.LANDING_URL,
   });
 
   if (!result.success) {

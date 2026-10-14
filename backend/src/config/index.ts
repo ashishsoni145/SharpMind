@@ -19,6 +19,12 @@ export const config = {
   logging: {
     level: env.LOG_LEVEL,
   },
+  email: {
+    apiKey: env.RESEND_API_KEY,
+    from: env.EMAIL_FROM,
+    appUrl: env.APP_URL,
+    landingUrl: env.LANDING_URL,
+  },
 } as const;
 
 export { env };

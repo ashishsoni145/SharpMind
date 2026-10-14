@@ -14,6 +14,7 @@ interface TopBarProps {
   onOpenNotifications: () => void;
   onToggleMobileMenu: () => void;
   isCollapsed?: boolean;
+  isMobileOpen?: boolean;
   onToggleCollapse?: () => void;
 }
 
@@ -22,15 +23,11 @@ const ROUTE_TITLES: Record<string, string> = {
   '/app/classroom': 'Classroom Stream',
   '/app/library': 'Curriculum Library',
   '/app/tutor': 'AI Academic Tutor',
-  '/app/focus': 'Focus Mode',
   '/app/planner': 'Study Planner',
-  '/app/tests': 'Tests & Diagnostics',
-  '/app/mistakes': 'Mistake Notebook',
-  '/app/revision': 'Spaced Revision',
-  '/app/readiness': 'Exam Readiness',
   '/app/analytics': 'Analytics & Velocity',
   '/app/upgrade': 'SharpMind Pro',
-  '/app/settings': 'Settings & Controls',
+  '/app/profile': 'Student Profile',
+  '/profile': 'Student Profile',
 };
 
 export function TopBar({
@@ -39,6 +36,7 @@ export function TopBar({
   onOpenNotifications,
   onToggleMobileMenu,
   isCollapsed,
+  isMobileOpen,
   onToggleCollapse,
 }: TopBarProps) {
   const pathname = usePathname();
@@ -48,6 +46,17 @@ export function TopBar({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const currentTitle = ROUTE_TITLES[pathname] || 'Workspace';
+
+  // Toggle state for menu button animation (cross vs 3 lines)
+  const isMenuCross = Boolean(isMobileOpen || !isCollapsed);
+
+  const handleMenuClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 900) {
+      onToggleMobileMenu();
+    } else if (onToggleCollapse) {
+      onToggleCollapse();
+    }
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -74,7 +83,9 @@ export function TopBar({
     : 'U';
 
   const academicTag = profile
-    ? `${profile.academicProfile.board.toUpperCase()} ${profile.academicProfile.grade.replace('class_', '')}th`
+    ? profile.academicProfile.grade === 'dropper'
+      ? 'Dropper'
+      : `${(profile.academicProfile.board || 'CBSE').toUpperCase()} ${profile.academicProfile.grade.replace('class_', '')}th`
     : 'Identity Pending';
 
   return (
@@ -82,18 +93,14 @@ export function TopBar({
       <div className={styles.leftArea}>
         <button
           type="button"
-          className={styles.menuBtn}
-          onClick={() => {
-            if (typeof window !== 'undefined' && window.innerWidth <= 900) {
-              onToggleMobileMenu();
-            } else if (onToggleCollapse) {
-              onToggleCollapse();
-            }
-          }}
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className={`${styles.animatedMenuBtn} ${isMenuCross ? styles.cross : ''}`}
+          onClick={handleMenuClick}
+          aria-label={isMenuCross ? 'Collapse navigation sidebar' : 'Expand navigation sidebar'}
+          title={isMenuCross ? 'Collapse menu' : 'Expand menu'}
         >
-          <Icon name="menu" size="sm" />
+          <span className={styles.menuBar} />
+          <span className={styles.menuBar} />
+          <span className={styles.menuBar} />
         </button>
 
         <nav aria-label="Breadcrumbs" className={styles.breadcrumbs}>
@@ -119,7 +126,7 @@ export function TopBar({
       </div>
 
       <div className={styles.rightArea}>
-        <Link href="/onboarding" className={styles.academicPill} title="Update Academic Identity">
+        <Link href="/app/profile" className={styles.academicPill} title="View and Edit Profile">
           <span className={styles.pulseDot} aria-hidden="true" />
           <span>{academicTag}</span>
         </Link>
@@ -159,22 +166,13 @@ export function TopBar({
               </div>
 
               <Link
-                href="/onboarding"
+                href="/app/profile"
                 className={styles.dropdownItem}
                 onClick={() => setIsUserMenuOpen(false)}
                 role="menuitem"
               >
-                <Icon name="classroom" size="sm" />
-                <span>Academic Profile</span>
-              </Link>
-              <Link
-                href="/app/settings"
-                className={styles.dropdownItem}
-                onClick={() => setIsUserMenuOpen(false)}
-                role="menuitem"
-              >
-                <Icon name="settings" size="sm" />
-                <span>Settings & Routine</span>
+                <Icon name="user" size="sm" />
+                <span>Profile</span>
               </Link>
               <Link
                 href="/"

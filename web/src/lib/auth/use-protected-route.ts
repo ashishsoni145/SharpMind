@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from './auth-context';
 
 interface UseProtectedRouteOptions {
@@ -16,21 +16,23 @@ export function useProtectedRoute({
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (isLoading) return;
 
+    const searchStr = typeof window !== 'undefined' ? window.location.search : '';
+    const params = new URLSearchParams(searchStr);
+
     if (requireAuth && !isAuthenticated) {
-      const currentFullUrl = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+      const currentFullUrl = pathname + (searchStr ? searchStr : '');
       const target = redirectTo || `/login?redirectTo=${encodeURIComponent(currentFullUrl)}`;
       router.replace(target);
     } else if (!requireAuth && isAuthenticated) {
-      const redirectParam = searchParams?.get('redirectTo');
+      const redirectParam = params.get('redirectTo');
       const target = redirectTo || (redirectParam ? decodeURIComponent(redirectParam) : '/app');
       router.replace(target);
     }
-  }, [isAuthenticated, isLoading, requireAuth, redirectTo, router, pathname, searchParams]);
+  }, [isAuthenticated, isLoading, requireAuth, redirectTo, router, pathname]);
 
   return { isAuthenticated, isLoading, user };
 }

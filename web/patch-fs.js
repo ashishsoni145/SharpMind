@@ -65,6 +65,7 @@ function patchFs() {
   if (process.platform === 'win32' && fs.Dirent && fs.Dirent.prototype) {
     const origIsSymlink = fs.Dirent.prototype.isSymbolicLink;
     const origIsDir = fs.Dirent.prototype.isDirectory;
+    const origIsFile = fs.Dirent.prototype.isFile;
 
     fs.Dirent.prototype.isSymbolicLink = function () {
       const isSym = origIsSymlink.call(this);
@@ -83,7 +84,18 @@ function patchFs() {
       try {
         const dir = this.parentPath || this.path || '';
         const fullPath = dir ? path.join(dir, this.name) : this.name;
-        return fs.lstatSync(fullPath).isDirectory();
+        return fs.statSync(fullPath).isDirectory();
+      } catch {
+        return false;
+      }
+    };
+
+    fs.Dirent.prototype.isFile = function () {
+      if (origIsFile.call(this)) return true;
+      try {
+        const dir = this.parentPath || this.path || '';
+        const fullPath = dir ? path.join(dir, this.name) : this.name;
+        return fs.statSync(fullPath).isFile();
       } catch {
         return false;
       }

@@ -44,6 +44,8 @@ export class SupabaseSettingsAdapter implements SettingsAdapter {
       }
 
       if (studentProf) {
+        if (studentProf.grade_id) base.academicProfile.grade = studentProf.grade_id;
+        if (studentProf.board_id) base.academicProfile.board = studentProf.board_id;
         if (studentProf.target_exams) base.academicProfile.targetExams = studentProf.target_exams;
         if (studentProf.daily_available_hours)
           base.academicProfile.dailyAvailableHours = Number(studentProf.daily_available_hours);
@@ -98,6 +100,8 @@ export class SupabaseSettingsAdapter implements SettingsAdapter {
       const updatePayload: Record<string, any> = {
         updated_at: new Date().toISOString(),
       };
+      if (data.grade !== undefined) updatePayload.grade_id = data.grade;
+      if (data.board !== undefined) updatePayload.board_id = data.board;
       if (data.targetExams) updatePayload.target_exams = data.targetExams;
       if (data.dailyAvailableHours) updatePayload.daily_available_hours = data.dailyAvailableHours;
       if (data.preferredStudyTime) updatePayload.preferred_study_time = data.preferredStudyTime;
@@ -157,9 +161,25 @@ export class SupabaseSettingsAdapter implements SettingsAdapter {
     oldPass: string,
     newPass: string
   ): Promise<{ success: boolean; message: string }> {
+    if (!oldPass || !oldPass.trim()) {
+      return { success: false, message: 'Please enter your current password.' };
+    }
+    if (newPass.length < 8) {
+      return { success: false, message: 'New password must be at least 8 characters long.' };
+    }
     const supabase = getSupabaseClient();
     if (supabase) {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && user.email) {
+          const { error: verifyErr } = await supabase.auth.signInWithPassword({
+            email: user.email,
+            password: oldPass,
+          });
+          if (verifyErr) {
+            return { success: false, message: 'Current password is incorrect. Please verify and try again.' };
+          }
+        }
         const { error } = await supabase.auth.updateUser({
           password: newPass,
         });
@@ -167,7 +187,7 @@ export class SupabaseSettingsAdapter implements SettingsAdapter {
           return { success: false, message: error.message };
         }
         await this.localFallback.changePassword(userId, oldPass, newPass);
-        return { success: true, message: 'Password successfully updated in Supabase security vault.' };
+        return { success: true, message: 'Password successfully updated.' };
       } catch (err: any) {
         return { success: false, message: err.message || 'Failed to update password.' };
       }

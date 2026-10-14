@@ -5,7 +5,6 @@
   color: var(--color-text-primary);
   font-family: var(--font-body);
   position: relative;
-  overflow-x: hidden;
 }
 
 .mainColumn {
@@ -14,6 +13,12 @@
   flex-direction: column;
   min-width: 0;
   position: relative;
+  margin-left: 260px;
+  transition: margin-left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mainColumn.collapsed {
+  margin-left: 76px;
 }
 
 .contentWrapper {
@@ -51,6 +56,10 @@
 }
 
 @media (max-width: 900px) {
+  .mainColumn,
+  .mainColumn.collapsed {
+    margin-left: 0;
+  }
   .contentWrapper {
     padding: 1.25rem 1rem;
   }

@@ -790,43 +790,43 @@ export default function WorkspaceDashboard() {
                   <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>Launch Tutor &rarr;</span>
                 </Link>
 
-                <Link href="/app/focus" className={styles.modeCard}>
+                <Link href="/app/classroom" className={styles.modeCard}>
                   <span className={styles.modeIcon} aria-hidden="true">
-                    <Icon name="focus" size="md" />
+                    <Icon name="classroom" size="md" />
                   </span>
                   <div>
-                    <h3 className={styles.modeTitle}>Deep Focus Mode</h3>
+                    <h3 className={styles.modeTitle}>Virtual Classroom</h3>
                     <p className={styles.modeDesc}>
-                      Distraction-free 25m and 50m Pomodoro blocks with session telemetry.
+                      Hierarchical subject syllabus stream with structured chapter concepts.
                     </p>
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>Open Timer &rarr;</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>Open Classroom &rarr;</span>
                 </Link>
 
-                <Link href="/app/tests" className={styles.modeCard}>
+                <Link href="/app/library" className={styles.modeCard}>
                   <span className={styles.modeIcon} aria-hidden="true">
-                    <Icon name="tests" size="md" />
+                    <Icon name="library" size="md" />
                   </span>
                   <div>
-                    <h3 className={styles.modeTitle}>Diagnostic Engine</h3>
+                    <h3 className={styles.modeTitle}>Curriculum Library</h3>
                     <p className={styles.modeDesc}>
-                      Timed practice tests and NTA-compliant past paper simulations.
+                      NCERT digital textbooks, formula sheets, and verified reference materials.
                     </p>
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>Explore Tests &rarr;</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>Browse Library &rarr;</span>
                 </Link>
 
-                <Link href="/app/mistakes" className={styles.modeCard}>
+                <Link href="/app/planner" className={styles.modeCard}>
                   <span className={styles.modeIcon} aria-hidden="true">
-                    <Icon name="mistakes" size="md" />
+                    <Icon name="planner" size="md" />
                   </span>
                   <div>
-                    <h3 className={styles.modeTitle}>Mistake Notebook</h3>
+                    <h3 className={styles.modeTitle}>Study Planner</h3>
                     <p className={styles.modeDesc}>
-                      Categorized review of questions answered incorrectly with retry schedules.
+                      Personalized daily agendas and milestones aligned with target exam timelines.
                     </p>
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>View Errors &rarr;</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>View Schedule &rarr;</span>
                 </Link>
               </div>
             </section>

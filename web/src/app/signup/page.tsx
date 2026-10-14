@@ -91,6 +91,16 @@ function SignupForm() {
     if (!res.success) {
       setErrorMessage(res.error?.message || 'Could not create account. Please try again.');
     } else {
+      if (res.user?.id) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        fetch(`${apiUrl}/api/v1/auth/welcome-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: res.user.id }),
+        }).catch((err) => {
+          console.warn('[Signup] Welcome email dispatch non-blocking notification error:', err);
+        });
+      }
       router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     }
   };

@@ -29,6 +29,16 @@ function VerifyEmailContent() {
     setStatusMessage('Verifying your email address...');
     const res = await verifyEmailToken(verifyToken);
     if (res.success) {
+      if (res.user?.id) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        fetch(`${apiUrl}/api/v1/auth/verification-success-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: res.user.id }),
+        }).catch((err) => {
+          console.warn('[VerifyEmail] Verification success email dispatch non-blocking notification error:', err);
+        });
+      }
       setStatusMessage('Email verified successfully! Redirecting to sign in...');
       setTimeout(() => {
         router.push('/login');

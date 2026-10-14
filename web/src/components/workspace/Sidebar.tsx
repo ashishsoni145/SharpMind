@@ -29,7 +29,6 @@ const NAVIGATION_GROUPS: NavGroup[] = [
       { id: 'classroom', label: 'Classroom', href: '/app/classroom', icon: 'classroom' },
       { id: 'library', label: 'Curriculum Library', href: '/app/library', icon: 'library' },
       { id: 'tutor', label: 'AI Tutor / Doubt', href: '/app/tutor', icon: 'tutor' },
-      { id: 'focus', label: 'Focus Mode', href: '/app/focus', icon: 'focus' },
     ],
   },
   {
@@ -37,10 +36,6 @@ const NAVIGATION_GROUPS: NavGroup[] = [
     title: 'Academic Intelligence',
     items: [
       { id: 'planner', label: 'Study Planner', href: '/app/planner', icon: 'planner' },
-      { id: 'tests', label: 'Tests & Diagnostics', href: '/app/tests', icon: 'tests', badge: 'Diagnostic' },
-      { id: 'mistakes', label: 'Mistake Notebook', href: '/app/mistakes', icon: 'mistakes' },
-      { id: 'revision', label: 'Spaced Revision', href: '/app/revision', icon: 'revision' },
-      { id: 'readiness', label: 'Exam Readiness', href: '/app/readiness', icon: 'readiness' },
       { id: 'analytics', label: 'Analytics', href: '/app/analytics', icon: 'analytics' },
     ],
   },
@@ -75,22 +70,6 @@ export function Sidebar({ isCollapsed, onToggleCollapse, isMobileOpen, onCloseMo
             </div>
             {!isCollapsed && <span className={styles.brandName}>SharpMind</span>}
           </Link>
-
-          <button
-            type="button"
-            className={styles.collapseToggle}
-            onClick={() => {
-              if (typeof window !== 'undefined' && window.innerWidth <= 900) {
-                onCloseMobile();
-              } else {
-                onToggleCollapse();
-              }
-            }}
-            aria-label={isMobileOpen ? 'Close menu' : isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={isMobileOpen ? 'Close menu' : isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <Icon name={isMobileOpen ? 'close' : isCollapsed ? 'chevronRight' : 'chevronLeft'} size="xs" />
-          </button>
         </div>
 
         <nav className={styles.navContainer}>
@@ -136,15 +115,15 @@ export function Sidebar({ isCollapsed, onToggleCollapse, isMobileOpen, onCloseMo
           </Link>
 
           <Link
-            href="/app/settings"
-            className={`${styles.navItem} ${pathname === '/app/settings' ? styles.active : ''}`}
+            href="/app/profile"
+            className={`${styles.navItem} ${pathname === '/app/profile' ? styles.active : ''}`}
             onClick={onCloseMobile}
-            title={isCollapsed ? 'Settings' : undefined}
+            title={isCollapsed ? 'Profile' : undefined}
           >
             <span className={styles.navIcon} aria-hidden="true">
-              <Icon name="settings" size="sm" />
+              <Icon name="user" size="sm" />
             </span>
-            <span className={styles.navLabel}>Settings</span>
+            <span className={styles.navLabel}>Profile</span>
           </Link>
         </div>
       </aside>

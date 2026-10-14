@@ -172,14 +172,35 @@ export class LocalSettingsAdapter implements SettingsAdapter {
     oldPass: string,
     newPass: string
   ): Promise<{ success: boolean; message: string }> {
+    if (!oldPass || !oldPass.trim()) {
+      return { success: false, message: 'Please enter your current password.' };
+    }
     if (newPass.length < 8) {
-      return { success: false, message: 'Password must be at least 8 characters long.' };
+      return { success: false, message: 'New password must be at least 8 characters long.' };
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        const storedUsersRaw = localStorage.getItem('sharpmind_auth_users');
+        if (storedUsersRaw) {
+          const users = JSON.parse(storedUsersRaw);
+          const found = users.find((u: any) => u.id === userId || (u.email && u.email === userId));
+          if (found && found.passwordHash && found.passwordHash !== oldPass) {
+            return { success: false, message: 'Current password is incorrect. Please verify and try again.' };
+          }
+          if (found) {
+            found.passwordHash = newPass;
+            localStorage.setItem('sharpmind_auth_users', JSON.stringify(users));
+          }
+        }
+      } catch {
+        // Fall through
+      }
     }
     const current = await this.getSettings(userId);
     current.security.lastPasswordChange = new Date().toLocaleDateString();
     const map = this.getAllSettings();
     map[userId] = current;
     this.saveAllSettings(map);
-    return { success: true, message: 'Password updated successfully across all active sessions.' };
+    return { success: true, message: 'Password updated successfully.' };
   }
 }

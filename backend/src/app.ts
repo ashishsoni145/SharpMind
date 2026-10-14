@@ -26,6 +26,7 @@ import { materialRoutes } from './modules/materials/material.routes';
 import { focusRoutes } from './modules/focus/focus.routes';
 import { analyticsRoutes } from './modules/analytics/analytics.routes';
 import { notificationRoutes } from './modules/notifications/notification.routes';
+import { authRoutes } from './modules/auth/auth.routes';
 
 export const createApp = (): Express => {
   const app = express();
@@ -82,6 +83,7 @@ export const createApp = (): Express => {
   app.use(`${config.apiPrefix}/health`, healthRoutes);
 
   // Modular API routes
+  app.use(`${config.apiPrefix}/auth`, authRoutes);
   app.use(`${config.apiPrefix}/users`, userRoutes);
   app.use(`${config.apiPrefix}/onboarding`, onboardingRoutes);
   app.use(`${config.apiPrefix}/files`, fileRoutes);

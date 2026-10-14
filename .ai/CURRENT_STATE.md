@@ -59,16 +59,31 @@ All three deployment targets build independently from their configured project r
 
 ---
 
-## 4. Verification Baseline (2026-10-11)
+## 4. Verification Baseline (2026-10-14)
 
 - `npm run typecheck:all`: 0 errors across landing, web, and backend.
-- `npm run build`: 16/16 landing static pages, 36/36 web static pages, and backend `tsc` compilation succeeded cleanly (exit code 0).
-- `npm --prefix backend run test`: 25 test suites, 239/239 tests passed with 0 failures.
-- **Local Dev Server & Windows OneDrive Reparse Point Patch:** Fixed `patch-fs.js` to normalize `fs.Dirent.prototype.isSymbolicLink` and `isDirectory` against OneDrive reparse points on Windows. Web dev server (`npm --prefix web run dev`) actively running and serving `http://localhost:3000` with HTTP 200 on `/`, `/login`, `/app`, `/onboarding`, and `/app/classroom`.
-- **UI/UX Visual Presentation Verification:** Transformed theme from cartoon claymorphism to disciplined dark Matrix-inspired engineering UI with restrained emerald accents, precision radii, stable hover feedback, and accessibility compliance. Zero business logic, API, routing, or dependency changes.
+- `npm run build`: 16/16 landing static pages, 39/39 web static pages (including `/dashboard`, `/verify-email`, `/app/profile`, `/profile`), and backend `tsc` compilation with automated email template asset copying succeeded cleanly (exit code 0).
+- `npm --prefix backend run test`: 26 test suites, 255/255 tests passed with 0 failures (including 16 new email integration tests).
+- **Email System Integration (2026-10-14)**:
+  - Created responsive HTML templates: `backend/src/emails/templates/welcome.html` (7-day notice, verify button to `app.sharpmind.live/verify-email`, non-automatic notice, fallback URL) and `backend/src/emails/templates/verification-success.html` (success confirmation, open button to `app.sharpmind.live/dashboard`).
+  - Implemented `EmailService` (`backend/src/emails/email.service.ts`): Resend client integration, authoritative Supabase Auth verification gating (`email_confirmed_at`), safe PII log masking, dual-layer idempotency (in-memory TTL + Supabase user metadata), and robust fallback template resolution.
+  - Implemented `/api/v1/auth/welcome-email`, `/api/v1/auth/verification-success-email`, and `/api/v1/auth/webhook` in `backend/src/modules/auth/`.
+  - Added seamless `/dashboard` redirect page (`web/src/app/dashboard/page.tsx`) routing directly into the active student workspace (`/app`).
+- **Dev Server Active (`npm run dev:web`)**:
+  - `GET /` → HTTP 200 OK
+  - `GET /app/profile` → HTTP 200 OK
+  - `GET /app` → HTTP 200 OK
+  - `GET /login` → HTTP 200 OK
+  - `GET /profile` → HTTP 307 redirect to `/app/profile`
+- **Bug Fixes (2026-10-14 Morning)**:
+  - **OneDrive Sync Conflict Resolution**: Restored 21 files that were renamed to `*-AashishHP.*` during directory relocation and removed all duplicate conflict copies.
+  - **Windows `fs.Dirent` Reparse Tag Patch**: In `web/patch-fs.js` and `landing/patch-fs.js`, patched `fs.Dirent.prototype.isFile` to fall back to `statSync(path).isFile()` when libuv flags reparse tags as `UV_DIRENT_LINK`, allowing Next.js `getFilesInDir` to reliably discover all app router pages on Windows.
+  - **Static Export Suspense Bailout**: Replaced top-level `useSearchParams()` call in `useProtectedRoute` with safe `window.location.search` inside `useEffect`, preventing static generation CSR bailout errors across all `/app` pages.
 
 ---
 
 ## 5. Security Action Items
 
 - **Credential Rotation:** Test credentials previously committed in repo memory (`alpmlaapmp@gmail.com`) should be rotated in remote Supabase Auth.
+
+

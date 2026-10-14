@@ -87,13 +87,14 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
         onCloseMobile={() => setIsMobileOpen(false)}
       />
 
-      <div className={styles.mainColumn}>
+      <div className={`${styles.mainColumn} ${isCollapsed ? styles.collapsed : ''}`}>
         <TopBar
           profile={profile}
           onOpenSearch={() => setIsSearchOpen(true)}
           onOpenNotifications={() => setIsNotificationsOpen(true)}
           onToggleMobileMenu={() => setIsMobileOpen((prev) => !prev)}
           isCollapsed={isCollapsed}
+          isMobileOpen={isMobileOpen}
           onToggleCollapse={handleToggleCollapse}
         />
 
