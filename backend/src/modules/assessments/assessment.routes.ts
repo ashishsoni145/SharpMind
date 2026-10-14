@@ -15,12 +15,13 @@ import {
 const router = Router();
 
 router.use(requireAuth);
+router.use(requireVerifiedEmail);
 router.use(resolveStudentProfile);
 
 router.get('/', validateQuery(listAssessmentsQuerySchema), AssessmentController.listAssessments);
 router.post('/', requireAdmin, validateBody(createAssessmentSchema), AssessmentController.createAssessment);
 router.get('/:id', AssessmentController.getAssessmentById);
-router.post('/:id/start', requireVerifiedEmail, AssessmentController.startAttempt);
+router.post('/:id/start', AssessmentController.startAttempt);
 router.post(
   '/submissions/:submissionId/autosave',
   requireResourceOwner('submission', 'submissionId'),
@@ -34,7 +35,6 @@ router.get(
 );
 router.post(
   '/submissions/:submissionId/submit',
-  requireVerifiedEmail,
   requireResourceOwner('submission', 'submissionId'),
   validateBody(submitAssessmentSchema),
   AssessmentController.submitAttempt

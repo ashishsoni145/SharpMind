@@ -7,19 +7,35 @@ import { RetentionService } from '../modules/auth/retention.service';
 import { requireVerifiedEmail } from '../middleware/authorization';
 import { AuthenticatedUser } from '../types/express';
 import { Request, Response, NextFunction } from 'express';
-import { config } from '../config';
 
 describe('SharpMind Email OTP Verification, Rate Limiting & Retention Suite', () => {
   const app = createApp();
+  let requestTimes: Map<string, number[]>;
 
   beforeEach(() => {
     vi.restoreAllMocks();
-    OtpRateLimitService.clearLimits();
+    requestTimes = new Map();
+    vi.spyOn(supabase, 'rpc').mockImplementation(async (_fn: any, args: any) => {
+      const email = String(args.p_email).trim().toLowerCase();
+      const now = Date.now();
+      const recent = (requestTimes.get(email) || []).filter((time) => time > now - 60 * 60 * 1000);
+      const latest = recent[recent.length - 1];
+      let row: any;
+      if (latest !== undefined && now - latest < 60_000) {
+        row = { allowed: false, attempts: recent.length, retry_after_seconds: Math.ceil((60_000 - (now - latest)) / 1000), message: 'Please wait before requesting another code.' };
+      } else if (recent.length >= 3) {
+        row = { allowed: false, attempts: recent.length, retry_after_seconds: 3600, message: 'Rate limit exceeded. Maximum 3 verification codes per hour.' };
+      } else {
+        recent.push(now);
+        requestTimes.set(email, recent);
+        row = { allowed: true, attempts: recent.length, retry_after_seconds: 0, message: 'Verification code request allowed.' };
+      }
+      return { data: [row], error: null } as any;
+    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    OtpRateLimitService.clearLimits();
   });
 
   // ===========================================================================
@@ -58,6 +74,20 @@ describe('SharpMind Email OTP Verification, Rate Limiting & Retention Suite', ()
       expect(res.body.success).toBe(true);
       expect(res.body.message).toContain('If an account exists');
       expect(res.body.cooldownSeconds).toBe(60);
+    });
+
+    it('POST /api/v1/auth/request-otp should fail closed when the atomic limiter RPC is unavailable', async () => {
+      vi.spyOn(supabase, 'rpc').mockResolvedValue({ data: null, error: { message: 'function not found' } } as any);
+      const resend = vi.spyOn(supabase.auth, 'resend');
+      const res = await request(app).post('/api/v1/auth/request-otp').send({ email: 'student@example.com' }).expect(503);
+      expect(res.body.success).toBe(false);
+      expect(resend).not.toHaveBeenCalled();
+    });
+
+    it('POST /api/v1/auth/request-otp should report Supabase delivery request failures', async () => {
+      vi.spyOn(supabase.auth, 'resend').mockResolvedValue({ data: {} as any, error: { message: 'provider unavailable' } as any });
+      const res = await request(app).post('/api/v1/auth/request-otp').send({ email: 'student@example.com' }).expect(503);
+      expect(res.body.error).toMatch(/could not be requested/i);
     });
 
     it('POST /api/v1/auth/verification-success-email should reject unverified accounts based on Supabase Auth', async () => {
@@ -231,6 +261,12 @@ describe('SharpMind Email OTP Verification, Rate Limiting & Retention Suite', ()
 
       const errorMsg = res.body.error?.message || res.body.message || JSON.stringify(res.body);
       expect(errorMsg).toMatch(/Email verification required/i);
+
+      const assessmentRes = await request(app)
+        .get('/api/v1/assessments/submissions/private-submission/resume')
+        .set('Authorization', 'Bearer token_stale_profile')
+        .expect(403);
+      expect(assessmentRes.body.error?.message || assessmentRes.body.message).toMatch(/Email verification required/i);
     });
   });
 
@@ -332,6 +368,17 @@ describe('SharpMind Email OTP Verification, Rate Limiting & Retention Suite', ()
       expect(deleteUserSpy).not.toHaveBeenCalled();
     });
 
+    it('RetentionService should recheck age before deletion and preserve a recently created account', async () => {
+      const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+      vi.spyOn(supabase.auth.admin, 'listUsers').mockResolvedValue({ data: { users: [{ id: 'recent-user', created_at: eightDaysAgo, email_confirmed_at: null } as any] }, error: null });
+      vi.spyOn(supabase.auth.admin, 'getUserById').mockResolvedValue({ data: { user: { id: 'recent-user', created_at: twoDaysAgo, email_confirmed_at: null } as any }, error: null });
+      const remove = vi.spyOn(supabase.auth.admin, 'deleteUser');
+      const report = await RetentionService.cleanupUnverifiedAccounts();
+      expect(report.deletedCount).toBe(0);
+      expect(remove).not.toHaveBeenCalled();
+    });
+
     it('POST /api/v1/auth/retention-cleanup should require secret authorization or admin access', async () => {
       // Missing secret -> 401
       await request(app)
@@ -350,11 +397,15 @@ describe('SharpMind Email OTP Verification, Rate Limiting & Retention Suite', ()
         durationMs: 50,
       });
 
+      const previousSecret = process.env.RETENTION_SECRET;
+      process.env.RETENTION_SECRET = 'test-retention-secret';
       const res = await request(app)
         .post('/api/v1/auth/retention-cleanup')
-        .set('x-retention-secret', process.env.RETENTION_SECRET || config.supabase.serviceRoleKey)
+        .set('x-retention-secret', 'test-retention-secret')
         .send({})
         .expect(200);
+      if (previousSecret === undefined) delete process.env.RETENTION_SECRET;
+      else process.env.RETENTION_SECRET = previousSecret;
 
       expect(res.body.success).toBe(true);
       expect(res.body.data.deletedCount).toBe(2);

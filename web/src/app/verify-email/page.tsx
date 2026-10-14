@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { getApiBaseUrl } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import styles from './page.module.css';
 
@@ -74,8 +75,7 @@ function VerifyEmailContent() {
     setIsRequestingOtp(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      const response = await fetch(`${apiUrl}/api/v1/auth/request-otp`, {
+      const response = await fetch(`${getApiBaseUrl()}/auth/request-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: targetEmail }),
@@ -102,7 +102,7 @@ function VerifyEmailContent() {
       }
 
       setOtpSent(true);
-      setStatusMessage(`A 6-digit verification code has been dispatched to ${targetEmail}.`);
+      setStatusMessage(`If an account exists for ${targetEmail}, a verification code has been requested.`);
       setCooldown(data.cooldownSeconds || 60);
     } catch {
       setErrorMessage('Network error communicating with the verification service. Please try again.');
@@ -190,8 +190,7 @@ function VerifyEmailContent() {
       // Notify backend non-blocking to trigger the verification-success email
       const verifiedUserId = res.user?.id || user?.id;
       if (verifiedUserId) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        fetch(`${apiUrl}/api/v1/auth/verification-success-email`, {
+        fetch(`${getApiBaseUrl()}/auth/verification-success-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: verifiedUserId }),

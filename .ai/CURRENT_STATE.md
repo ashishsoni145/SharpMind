@@ -17,7 +17,7 @@ All three deployment targets build independently from their configured project r
 |---|---|---|---|---|
 | **Landing** | `landing` | `npm run build` | Next.js 15 Static Export (16/16 routes) | ✅ Verified (Exit Code 0) |
 | **Web** | `web` | `npm run build` | Next.js 15 Static Export (36/36 routes) | ✅ Verified (Exit Code 0) |
-| **Backend** | `backend` | `npm run build` | Node CommonJS / `@vercel/node` | ✅ Verified (Exit Code 0, 239/239 tests pass) |
+| **Backend** | `backend` | `npm run build` | Node CommonJS / `@vercel/node` | ✅ Verified (Exit Code 0, 276/276 tests pass at 2026-10-14 local verification) |
 
 ---
 
@@ -63,7 +63,7 @@ All three deployment targets build independently from their configured project r
 
 - `npm run typecheck:all`: 0 errors across landing, web, and backend.
 - `npm run build`: 16/16 landing static pages, 39/39 web static pages (including `/verify-email`, `/dashboard`, `/app/profile`), and backend `tsc` compilation with automated email template asset copying succeeded cleanly (exit code 0).
-- `npm --prefix backend run test`: 27 test suites, 271/271 tests passed with 0 failures (including 11 tests in `otp-verification-flow.test.ts`).
+- `npm --prefix backend run test`: 27 test suites, 276/276 tests passed with 0 failures (including email, OTP, authorization, webhook, and retention regression coverage).
 - **Phases 1, 2 & 3 Completed (2026-10-14)**:
   - **Phase 1 (Complete Email OTP Verification)**: Modernized `web/src/app/verify-email/page.tsx` with a Continue button requesting OTP through the backend rate-limited endpoint, 6-digit numeric OTP inputs with auto-advance and paste support, Supabase Auth `verifyOtp` integration across `AuthAdapter`, `SupabaseAuthAdapter`, `LocalAuthAdapter`, and `AuthContext`. Removed simulated confirmation button and demo token behavior. Added persistent, accessible verification notice banner in `WorkspaceShell` when `user && !user.isEmailVerified`, updating immediately upon authoritative session refresh.
   - **Phase 2 (OTP Rate Limiting & Verified-User Authorization)**: Implemented `20261014000002_otp_rate_limiting.sql` migration creating `otp_send_logs` with advisory-locked atomic procedure. Added `OtpRateLimitService` enforcing rolling 60-minute maximum 3 requests, 60s cooldown, case-insensitive email normalization, and neutral responses preventing user enumeration. Created `requireVerifiedEmail` middleware deriving verification status strictly from authoritative Supabase Auth data (`authUser.email_confirmed_at`), applied to AI tutor sessions, study materials, and assessment submissions.
@@ -91,5 +91,20 @@ All three deployment targets build independently from their configured project r
 ## 5. Security Action Items
 
 - **Credential Rotation:** Test credentials previously committed in repo memory (`alpmlaapmp@gmail.com`) should be rotated in remote Supabase Auth.
+
+## 6. Email/Auth Hardening Follow-up (2026-10-14)
+
+- Browser email/OTP requests now use the shared API base URL resolver, so production builds target `api.sharpmind.live` instead of falling back to localhost.
+- OTP limiting is fail-closed and uses only the atomic database RPC; Supabase resend failures return a retryable service error while preserving neutral account-existence messaging on successful requests.
+- Resend receives stable per-user idempotency keys. Email templates escape interpolated HTML; persistent idempotency markers are written to admin-controlled `app_metadata` (legacy `user_metadata` markers remain recognized during rollout).
+- Auth webhook calls require a separate `SUPABASE_AUTH_WEBHOOK_SECRET`; unsigned requests are rejected.
+- Assessment routes require verified email before profile resolution. Cleanup age is fixed at seven days, checked again before deletion, and dry-run reports no longer count candidates as deleted.
+- Apply `infra/supabase/migrations/20261014000003_secure_otp_rate_limiting.sql` after `20261014000002_otp_rate_limiting.sql`. OTP sending intentionally returns 503 until the atomic RPC is installed.
+- No retention scheduler is configured. Configure the documented daily job only after the backend has a separate `RETENTION_SECRET` and dry-run results have been reviewed.
+- Local validation: full backend suite 276/276; all workspace typechecks; backend build and template copy; web production export 39/39. `npm run lint` remains blocked because no ESLint configuration exists and `next lint` enters its first-run prompt. Production dashboards, DNS, migration application, Resend, and Supabase SMTP settings were not accessible for verification.
+
+### Next Checkpoint
+
+Apply migrations `20261014000002` and `20261014000003` in order, confirm Supabase Auth six-digit OTP/template and SMTP settings, configure backend email/webhook secrets and Resend sender verification, then run a controlled production signup/verification. Configure daily retention scheduling only after a reviewed dry run.
 
 

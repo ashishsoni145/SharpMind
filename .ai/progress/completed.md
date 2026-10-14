@@ -100,5 +100,7 @@
   - Part 04: Classroom UI Integration: Connected `apps/web` to live backend and Supabase via enhanced `SupabaseCurriculumAdapter`. Rendered academic prerequisites & diagnostic readiness card with student calibration hooks in `TopicDetailView`. Added exam filter pills (All, JEE Main, NEET, JEE Advanced, CBSE Board), high-yield tags, repeated frequency badges, marks allocation, and pattern chips.
   - Automated Verification: 22/22 tests passed across 4 vitest test suites (`api.test.ts`, `curriculum.test.ts`, `graph.test.ts`, `pyq.test.ts`). Zero TypeScript errors across backend and web workspaces. Next.js export 36/36 static pages. Live dev servers healthy and responding.
 
+- Cross-cutting Email/Auth Hardening Follow-up (2026-10-14): Corrected production API URL resolution, fail-open/non-atomic OTP fallback, swallowed provider failures, email dispatch idempotency and template interpolation, unsigned auth webhook access, assessment verification route coverage, and retention cutoff/recheck behavior. Added a follow-up SQL migration for OTP RPC/table privileges without rewriting historical migration `20261014000002`. Added regression tests. Final local backend suite: 276/276 passed; `npm run typecheck:all`, backend production build/template copy, and web production build/export (39/39) passed. Lint remains unavailable because ESLint has not been configured. Production settings remain unverified.
+
 
 

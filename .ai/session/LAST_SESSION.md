@@ -266,5 +266,17 @@
 
 - Verify live production deployments and test email delivery through Resend once `RESEND_API_KEY` is added to production.
 
+### Email/Auth Error Diagnosis and Fixes (2026-10-14)
+
+- **Root causes fixed:** browser auth-email calls used a localhost fallback rather than the centralized production API base; OTP database/RPC failures fell back to non-atomic in-memory/direct-table logic; Supabase resend failures were reported as success; email endpoints reported success for failed dispatches; Resend had no provider idempotency key; user-provided HTML template values were unescaped; auth webhook accepted unsigned calls; assessment routes did not gate every endpoint; retention accepted a caller-controlled age and did not recheck age immediately before deletion.
+- **Changes:** shared API URL resolver used by signup/verification; fail-closed OTP RPC path and safe 503 responses; stable Resend idempotency keys; HTML escaping; idempotency marker writes to admin-controlled `app_metadata`; webhook shared-secret check; verified-email guard at the assessment router; fixed seven-day retention cutoff, pre-delete age check, safe batch cap, correct dry-run counts; deployment env and scheduler documentation.
+- **Migrations:** apply `20261014000002_otp_rate_limiting.sql` if absent, then `20261014000003_secure_otp_rate_limiting.sql`. The second migration preserves already-applied history while restricting table/function permissions and setting safe function search paths.
+- **Checks:** `npm --prefix backend run test` passed (27 suites, 276 tests); `npm run typecheck:all` passed; `npm --prefix backend run build` passed and copied both HTML templates; `npm --prefix web run build` passed with 39/39 static routes. `npm run lint` could not run because Next prompts for initial ESLint configuration and the repository has none. Frontend test script is not defined.
+- **External blockers:** production Resend, Supabase Auth SMTP/OTP template, project environment variables, migration status, Vercel roots/domains, and backend host settings were not accessible. No retention scheduler is configured; a separate `RETENTION_SECRET`, a reviewed dry run, and a trusted daily schedule are required. Configure `SUPABASE_AUTH_WEBHOOK_SECRET` only if the optional webhook is used.
+
+### Next Checkpoint
+
+Apply both OTP migrations in order, verify Supabase Auth's six-digit `{{ .Token }}` email and SMTP settings, set the required server-only Resend/webhook/retention secrets on the backend host, verify the Resend sender domain, then run a controlled signup/OTP verification against the deployed environment. Enable retention scheduling only after reviewing a dry-run report.
+
 
 

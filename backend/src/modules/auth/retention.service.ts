@@ -2,7 +2,6 @@ import { supabase } from '../../db/client';
 import { logger } from '../../lib/logger';
 
 export interface RetentionCleanupOptions {
-  maxAgeDays?: number; // Default: 7
   batchSize?: number; // Default: 50
   dryRun?: boolean;
 }
@@ -30,8 +29,8 @@ export class RetentionService {
     options: RetentionCleanupOptions = {}
   ): Promise<RetentionCleanupReport> {
     const startTime = Date.now();
-    const maxAgeDays = options.maxAgeDays ?? this.DEFAULT_RETENTION_DAYS;
-    const batchSize = options.batchSize ?? this.DEFAULT_BATCH_SIZE;
+    const maxAgeDays = this.DEFAULT_RETENTION_DAYS;
+    const batchSize = Math.min(100, Math.max(1, Math.floor(options.batchSize ?? this.DEFAULT_BATCH_SIZE)));
     const dryRun = Boolean(options.dryRun);
 
     const cutoffMs = startTime - maxAgeDays * 24 * 60 * 60 * 1000;
@@ -85,7 +84,7 @@ export class RetentionService {
 
           // Check 2: Account creation date must be older than 7 days
           const createdAtMs = new Date(candidate.created_at).getTime();
-          if (createdAtMs > cutoffMs) {
+          if (!Number.isFinite(createdAtMs) || createdAtMs >= cutoffMs) {
             continue; // Account is still within the 7-day verification grace window
           }
 
@@ -96,7 +95,6 @@ export class RetentionService {
               { userId: candidate.id, createdAt: candidate.created_at },
               '[RetentionService] [DryRun] Eligible unverified account identified for deletion'
             );
-            report.deletedCount += 1;
             continue;
           }
 
@@ -118,6 +116,12 @@ export class RetentionService {
                 '[RetentionService] RACE CONDITION PREVENTED: Account was verified just before deletion! Preserving user.'
               );
               report.skippedVerifiedCount += 1;
+              continue;
+            }
+
+            const freshCreatedAtMs = new Date(freshData.user.created_at).getTime();
+            if (!Number.isFinite(freshCreatedAtMs) || freshCreatedAtMs >= cutoffMs) {
+              logger.info({ userId: candidate.id }, '[RetentionService] Account is no longer eligible by age; preserving user.');
               continue;
             }
 

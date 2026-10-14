@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useProtectedRoute } from '@/lib/auth/use-protected-route';
+import { getApiBaseUrl } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import type { UserRole } from '@/lib/types/auth';
@@ -92,8 +93,7 @@ function SignupForm() {
       setErrorMessage(res.error?.message || 'Could not create account. Please try again.');
     } else {
       if (res.user?.id) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        fetch(`${apiUrl}/api/v1/auth/welcome-email`, {
+        fetch(`${getApiBaseUrl()}/auth/welcome-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: res.user.id }),

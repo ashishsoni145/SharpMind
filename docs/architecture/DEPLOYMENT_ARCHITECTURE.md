@@ -67,7 +67,7 @@ SharpMind is configured into three independent deployment projects from a single
 - **Domain:** `https://api.sharpmind.live`
 - **Vercel Root Directory:** `backend`
 - **Install Command:** `npm install`
-- **Build Command:** `npm run build` (`tsc`)
+- **Build Command:** `npm run build` (`tsc && node scripts/copy-templates.js`)
 - **Output / Runtime Configuration:**
   - **Vercel Serverless Function:** Entry point `backend/api/index.ts` with routing via `backend/vercel.json` rewrites (`/(.*)` -> `/api`). Express application is exported directly for `@vercel/node`.
   - **Long-Running Server (Node/Docker/Render):** `dist/server.js` (`npm start` executes `node dist/server.js`), listening on `PORT` (default 4000).
@@ -92,11 +92,26 @@ SharpMind is configured into three independent deployment projects from a single
   - `API_PREFIX` (Server-Only, Optional): Default `/api/v1`.
   - `AI_PROVIDER_PRIMARY` (Server-Only, Required): `gemini`, `groq`, or `openrouter`.
   - `AI_GEMINI_API_KEY` / `AI_GROQ_API_KEY` / `AI_OPENROUTER_API_KEY` (Server-Only, Secret).
+  - `RESEND_API_KEY` (Server-Only, Secret): Required for custom welcome and verification-success email delivery.
+  - `EMAIL_FROM` (Server-Only): Sender identity; its domain must be verified in Resend. Defaults to `SharpMind <noreply@sharpmind.live>`.
+  - `APP_URL` and `LANDING_URL` (Server-Only): Public link bases used in HTML email templates.
+  - `RETENTION_SECRET` (Server-Only, Secret): Separate high-entropy secret required for scheduled retention cleanup; it must not reuse the Supabase service-role key.
+  - `SUPABASE_AUTH_WEBHOOK_SECRET` (Server-Only, Secret): Separate high-entropy secret for the optional auth webhook. Configure the webhook to send it as `x-supabase-webhook-secret`.
 - **Local Verification Commands:**
   - Typecheck: `npm --prefix backend run typecheck`
-  - Automated Tests: `npm --prefix backend run test` (Vitest, 25 test suites, 239 tests)
+  - Automated Tests: `npm --prefix backend run test` (Vitest, 27 test suites, 276 tests at the 2026-10-14 local verification)
   - Production Build: `npm --prefix backend run build`
   - Dev Server: `npm --prefix backend run dev`
+
+#### Manual scheduled task requirement
+
+No retention-cleanup scheduler is configured in this repository. To enable seven-day cleanup, configure a trusted daily job in the backend host or an external scheduler to call `POST https://api.sharpmind.live/api/v1/auth/retention-cleanup` with `x-retention-secret` set to the backend-only `RETENTION_SECRET`. Use a dry-run request first and review its report before enabling deletion. Do not configure the scheduler until the separate secret is present in the backend environment and the endpoint has been tested against the intended Supabase project.
+
+#### Supabase Auth and Resend settings to verify
+
+- Keep Supabase email confirmation enabled. The confirmation email template must include the OTP token (`{{ .Token }}`) and the project OTP length must be six digits to match `/verify-email`.
+- Configure Supabase Auth email delivery/SMTP independently of the custom Resend templates; `RESEND_API_KEY` is used by the backend for the welcome and post-verification messages only.
+- Verify `sharpmind.live` and the configured sender address in Resend, including its required DNS records, before expecting production delivery.
 
 ---
 

@@ -32,3 +32,7 @@ Phase 03 — COMPLETED (Parts 01–04).
  
 Next Checkpoint: Phase 04 — Student Model, continuous knowledge state calibration, forgetting curves, and diagnostic evidence logging.
 
+## Cross-cutting email/auth maintenance (2026-10-14)
+
+Completed a scoped auth/email hardening follow-up without changing the broader phase roadmap. Final local evidence: 276/276 backend tests, `npm run typecheck:all`, backend build/template copy, and web static production export 39/39 passed. Lint has no configured ESLint setup. Deployment follow-up is to apply OTP migrations `20261014000002` and `20261014000003` in order, verify Supabase Auth/SMTP and Resend settings, set server-only secrets, and perform a controlled production verification flow. No retention scheduler is currently configured.
+

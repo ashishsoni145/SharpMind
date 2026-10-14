@@ -19,6 +19,10 @@ describe('SharpMind Email Integration & Verification Suite', () => {
   });
 
   describe('1. Welcome Email Template & Rendering', () => {
+    it('escapes user-provided template values before inserting them into HTML', () => {
+      const html = EmailService.interpolateTemplate('<p>{{name}}</p>', { name: '<img src=x onerror=alert(1)>' });
+      expect(html).toBe('<p>&lt;img src=x onerror=alert(1)&gt;</p>');
+    });
     it('should correctly load welcome.html and interpolate all required branding, links, and notices', () => {
       const email = 'student@sharpmind.live';
       const name = 'Aashish Soni';
@@ -148,7 +152,7 @@ describe('SharpMind Email Integration & Verification Suite', () => {
         error: null,
       });
 
-      vi.spyOn(supabase.auth.admin, 'updateUserById').mockResolvedValueOnce({
+      const updateUser = vi.spyOn(supabase.auth.admin, 'updateUserById').mockResolvedValueOnce({
         data: { user: {} as any },
         error: null,
       });
@@ -166,6 +170,11 @@ describe('SharpMind Email Integration & Verification Suite', () => {
       expect(callArgs.subject).toContain('Welcome to SharpMind');
       expect(callArgs.html).toContain('Verify your account');
       expect(callArgs.html).toContain('https://app.sharpmind.live/verify-email?email=newstudent%40example.com');
+      expect(callArgs.idempotencyKey).toBe('welcome:valid-user-1');
+      expect(updateUser).toHaveBeenCalledWith(
+        'valid-user-1',
+        expect.objectContaining({ app_metadata: expect.objectContaining({ welcome_email_sent_at: expect.any(String) }) })
+      );
     });
 
     it('should REJECT verification success email if Supabase Auth email_confirmed_at is null/unconfirmed', async () => {
@@ -216,7 +225,7 @@ describe('SharpMind Email Integration & Verification Suite', () => {
         error: null,
       });
 
-      vi.spyOn(supabase.auth.admin, 'updateUserById').mockResolvedValueOnce({
+      const updateUser = vi.spyOn(supabase.auth.admin, 'updateUserById').mockResolvedValueOnce({
         data: { user: {} as any },
         error: null,
       });
@@ -234,6 +243,12 @@ describe('SharpMind Email Integration & Verification Suite', () => {
       expect(callArgs.subject).toContain('Email verified successfully');
       expect(callArgs.html).toContain('Open SharpMind');
       expect(callArgs.html).toContain('https://app.sharpmind.live/dashboard');
+      expect(updateUser).toHaveBeenCalledWith(
+        'verified-user-1',
+        expect.objectContaining({
+          app_metadata: expect.objectContaining({ verification_success_email_sent_at: expect.any(String) }),
+        })
+      );
     });
   });
 
@@ -589,6 +604,30 @@ describe('SharpMind Email Integration & Verification Suite', () => {
   });
 
   describe('6. Auth API Endpoints for Email Integration', () => {
+    it('rejects unsigned auth webhook requests and accepts only the configured secret', async () => {
+      const previousSecret = process.env.SUPABASE_AUTH_WEBHOOK_SECRET;
+      const sendWelcome = vi.spyOn(EmailService, 'sendWelcomeEmail').mockResolvedValue({ success: true });
+      try {
+        delete process.env.SUPABASE_AUTH_WEBHOOK_SECRET;
+        await request(app)
+          .post('/api/v1/auth/webhook')
+          .send({ type: 'INSERT', record: { id: 'hook-user' } })
+          .expect(401);
+        expect(sendWelcome).not.toHaveBeenCalled();
+
+        process.env.SUPABASE_AUTH_WEBHOOK_SECRET = 'separate-test-webhook-secret';
+        await request(app)
+          .post('/api/v1/auth/webhook')
+          .set('x-supabase-webhook-secret', 'separate-test-webhook-secret')
+          .send({ type: 'INSERT', record: { id: 'hook-user' } })
+          .expect(200);
+        expect(sendWelcome).toHaveBeenCalledWith({ userId: 'hook-user', email: undefined });
+      } finally {
+        if (previousSecret === undefined) delete process.env.SUPABASE_AUTH_WEBHOOK_SECRET;
+        else process.env.SUPABASE_AUTH_WEBHOOK_SECRET = previousSecret;
+      }
+    });
+
     it('POST /api/v1/auth/welcome-email should reject missing userId', async () => {
       const res = await request(app).post('/api/v1/auth/welcome-email').send({});
       expect(res.status).toBe(400);

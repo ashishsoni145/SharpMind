@@ -143,6 +143,9 @@ export class EmailService {
    */
   public static interpolateTemplate(template: string, variables: Record<string, string>): string {
     let result = template;
+    const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[char]!);
 
     // Handle conditional blocks: {{#if var}}content{{/if}}
     const ifRegex = /\{\{#if\s+([a-zA-Z0-9_-]+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
@@ -154,7 +157,7 @@ export class EmailService {
     // Handle variables: {{var}}
     const varRegex = /\{\{([a-zA-Z0-9_-]+)\}\}/g;
     result = result.replace(varRegex, (_match, varName) => {
-      return variables[varName] !== undefined ? variables[varName] : '';
+      return variables[varName] !== undefined ? escapeHtml(variables[varName]) : '';
     });
 
     return result;
@@ -196,6 +199,7 @@ export class EmailService {
     html: string;
     text?: string;
     idempotencyKey?: string;
+    resendIdempotencyKey?: string;
   }): Promise<EmailSendResult> {
     const maskedTo = this.maskEmail(options.to);
 
@@ -233,16 +237,19 @@ export class EmailService {
         subject: options.subject,
         html: options.html,
         text: options.text,
+        ...((options.resendIdempotencyKey || options.idempotencyKey)
+          ? { idempotencyKey: options.resendIdempotencyKey || options.idempotencyKey }
+          : {}),
       });
 
-      if (response.error) {
+      if (response.error || !response.data?.id) {
         logger.error(
-          { error: response.error, to: maskedTo, subject: options.subject },
+          { error: response.error || 'Resend returned no message id', to: maskedTo, subject: options.subject },
           '[EmailService] Resend API rejected message dispatch.'
         );
         return {
           success: false,
-          error: response.error.message || 'Resend API error',
+          error: response.error?.message || 'Resend did not confirm message dispatch.',
         };
       }
 
@@ -298,9 +305,10 @@ export class EmailService {
       return { success: false, error: 'User does not have a valid email address' };
     }
 
-    // 2. Persistent idempotency check from Supabase user metadata
+    // Prefer the admin-controlled app metadata marker; recognize the earlier user-metadata location during rollout.
     const userMetadata = user.user_metadata || {};
-    if (userMetadata.welcome_email_sent_at) {
+    const appMetadata = user.app_metadata || {};
+    if (appMetadata.welcome_email_sent_at || userMetadata.welcome_email_sent_at) {
       logger.info(
         { userId, email: this.maskEmail(recipientEmail) },
         '[EmailService] Welcome email already marked as sent in user metadata; skipping.'
@@ -362,6 +370,7 @@ export class EmailService {
           subject: 'Welcome to SharpMind — Verify your account',
           html: htmlContent,
           text: plainText,
+          resendIdempotencyKey: idempotencyKey,
         });
 
         // If email dispatch fails, release the reservation to allow subsequent retry
@@ -374,8 +383,8 @@ export class EmailService {
         if (result.success && !result.skipped) {
           try {
             await supabase.auth.admin.updateUserById(userId, {
-              user_metadata: {
-                ...userMetadata,
+              app_metadata: {
+                ...appMetadata,
                 welcome_email_sent_at: new Date().toISOString(),
               },
             });
@@ -451,9 +460,10 @@ export class EmailService {
       return { success: false, error: 'User has no valid email address' };
     }
 
-    // 2. Check persistent idempotency in user metadata
+    // Prefer the admin-controlled app metadata marker; recognize the earlier user-metadata location during rollout.
     const userMetadata = user.user_metadata || {};
-    if (userMetadata.verification_success_email_sent_at) {
+    const appMetadata = user.app_metadata || {};
+    if (appMetadata.verification_success_email_sent_at || userMetadata.verification_success_email_sent_at) {
       logger.info(
         { userId, email: this.maskEmail(recipientEmail) },
         '[EmailService] Verification success email already marked as sent in user metadata; skipping.'
@@ -513,6 +523,7 @@ export class EmailService {
           subject: 'Email verified successfully — Welcome to SharpMind',
           html: htmlContent,
           text: plainText,
+          resendIdempotencyKey: idempotencyKey,
         });
 
         // If email dispatch fails, release the reservation to allow subsequent retry
@@ -525,8 +536,8 @@ export class EmailService {
         if (result.success && !result.skipped) {
           try {
             await supabase.auth.admin.updateUserById(userId, {
-              user_metadata: {
-                ...userMetadata,
+              app_metadata: {
+                ...appMetadata,
                 verification_success_email_sent_at: new Date().toISOString(),
               },
             });

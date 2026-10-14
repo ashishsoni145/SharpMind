@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { timingSafeEqual } from 'node:crypto';
 import { EmailService } from '../../emails/email.service';
 import { logger } from '../../lib/logger';
 import { BadRequestError, UnauthorizedError } from '../../lib/errors';
 import { OtpRateLimitService } from './otp-rate-limit.service';
 import { RetentionService } from './retention.service';
 import { supabase } from '../../db/client';
-import { config } from '../../config';
 
 export class AuthController {
   /**
@@ -22,6 +22,11 @@ export class AuthController {
 
       logger.info({ userId }, '[AuthController] Requesting welcome email dispatch');
       const result = await EmailService.sendWelcomeEmail({ userId });
+
+      if (!result.success) {
+        res.status(503).json({ success: false, error: 'Welcome email could not be delivered. Please retry later.' });
+        return;
+      }
 
       // Always return 200 with delivery details; do not fail auth
       res.status(200).json({
@@ -66,6 +71,11 @@ export class AuthController {
         return;
       }
 
+      if (!result.success) {
+        res.status(503).json({ success: false, error: 'Verification confirmation email could not be delivered. Please retry later.' });
+        return;
+      }
+
       res.status(200).json({
         success: true,
         data: {
@@ -86,6 +96,19 @@ export class AuthController {
    * Supabase Auth webhook endpoint for auth events (INSERT, UPDATE).
    */
   public static async handleAuthWebhook(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const expectedSecret = process.env.SUPABASE_AUTH_WEBHOOK_SECRET;
+    const providedSecret = req.get('x-supabase-webhook-secret');
+    const authorized = Boolean(
+      expectedSecret &&
+        providedSecret &&
+        Buffer.byteLength(expectedSecret) === Buffer.byteLength(providedSecret) &&
+        timingSafeEqual(Buffer.from(expectedSecret), Buffer.from(providedSecret))
+    );
+    if (!authorized) {
+      res.status(401).json({ success: false, error: 'Unauthorized webhook request.' });
+      return;
+    }
+
     try {
       const event = req.body;
       const type = event?.type;
@@ -138,6 +161,15 @@ export class AuthController {
       const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
       const rateLimit = await OtpRateLimitService.checkAndRecord(normalizedEmail, clientIp);
 
+      if (rateLimit.unavailable) {
+        res.status(503).json({
+          success: false,
+          error: rateLimit.message,
+          retryAfterSeconds: rateLimit.retryAfterSeconds,
+        });
+        return;
+      }
+
       if (!rateLimit.allowed) {
         logger.warn(
           { email: EmailService.maskEmail(normalizedEmail), attempts: rateLimit.attempts },
@@ -151,23 +183,25 @@ export class AuthController {
         return;
       }
 
-      // Dispatch OTP through Supabase Auth
+      // Dispatch OTP through Supabase Auth. Keep valid-account outcomes neutral,
+      // while reporting provider/database outages accurately to the caller.
       try {
         const { error: resendError } = await supabase.auth.resend({
           type: 'signup',
           email: normalizedEmail,
         });
         if (resendError) {
-          logger.warn(
-            { error: resendError.message, email: EmailService.maskEmail(normalizedEmail) },
-            '[AuthController] Supabase resend returned non-fatal error'
-          );
+          logger.error({ error: resendError.message, email: EmailService.maskEmail(normalizedEmail) }, '[AuthController] Supabase resend failed');
+          res.status(503).json({ success: false, error: 'Verification email could not be requested. Please try again later.' });
+          return;
         }
       } catch (sendErr) {
         logger.error(
           { sendErr, email: EmailService.maskEmail(normalizedEmail) },
           '[AuthController] Exception dispatching OTP'
         );
+        res.status(503).json({ success: false, error: 'Verification email could not be requested. Please try again later.' });
+        return;
       }
 
       // Always return a neutral success response to prevent account enumeration
@@ -189,7 +223,7 @@ export class AuthController {
   public static async triggerRetentionCleanup(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const providedSecret = req.headers['x-retention-secret'];
-      const expectedSecret = process.env.RETENTION_SECRET || config.supabase.serviceRoleKey;
+      const expectedSecret = process.env.RETENTION_SECRET;
 
       const isAuthorizedSecret = Boolean(expectedSecret && providedSecret === expectedSecret);
       const isAdminUser = req.user?.role === 'admin';
@@ -198,11 +232,10 @@ export class AuthController {
         throw new UnauthorizedError('Unauthorized: valid retention secret or admin session required.');
       }
 
-      const { dryRun, batchSize, maxAgeDays } = req.body || {};
+      const { dryRun, batchSize } = req.body || {};
       const report = await RetentionService.cleanupUnverifiedAccounts({
         dryRun: typeof dryRun === 'boolean' ? dryRun : undefined,
         batchSize: typeof batchSize === 'number' ? batchSize : undefined,
-        maxAgeDays: typeof maxAgeDays === 'number' ? maxAgeDays : undefined,
       });
 
       res.status(200).json({
