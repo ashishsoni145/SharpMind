@@ -30,6 +30,8 @@ export class EmailService {
   // In-memory idempotency cache: key -> timestamp sent
   private static idempotencyCache = new Map<string, number>();
   private static readonly CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+  // In-flight dispatches: key -> Promise<EmailSendResult> to propagate identical outcome to concurrent callers
+  private static inFlightDispatches = new Map<string, Promise<EmailSendResult>>();
 
   /**
    * Safe email masking for logs to protect user PII (e.g., j***e@example.com)
@@ -65,10 +67,11 @@ export class EmailService {
   }
 
   /**
-   * Resets the in-memory idempotency cache (useful for testing)
+   * Resets the in-memory idempotency cache and pending in-flight dispatches (useful for testing)
    */
   public static clearIdempotencyCache(): void {
     this.idempotencyCache.clear();
+    this.inFlightDispatches.clear();
   }
 
   /**
@@ -208,9 +211,6 @@ export class EmailService {
     // 2. Check Resend Client & Configuration
     const resend = this.getResendClient();
     if (!resend) {
-      if (options.idempotencyKey) {
-        this.releaseIdempotent(options.idempotencyKey);
-      }
       logger.warn(
         { to: maskedTo, subject: options.subject },
         '[EmailService] RESEND_API_KEY is not configured; email dispatch skipped safely.'
@@ -236,9 +236,6 @@ export class EmailService {
       });
 
       if (response.error) {
-        if (options.idempotencyKey) {
-          this.releaseIdempotent(options.idempotencyKey);
-        }
         logger.error(
           { error: response.error, to: maskedTo, subject: options.subject },
           '[EmailService] Resend API rejected message dispatch.'
@@ -260,9 +257,6 @@ export class EmailService {
         messageId: response.data?.id,
       };
     } catch (err: any) {
-      if (options.idempotencyKey) {
-        this.releaseIdempotent(options.idempotencyKey);
-      }
       logger.error(
         { error: err?.message || err, to: maskedTo, subject: options.subject },
         '[EmailService] Unexpected failure during email dispatch.'
@@ -314,75 +308,106 @@ export class EmailService {
       return { success: true, duplicate: true, skipped: true };
     }
 
-    // 3. In-memory idempotency check & immediate reservation before any await
+    // 3. In-flight and in-memory idempotency check & immediate reservation
     const idempotencyKey = `welcome:${userId}`;
+
+    // If a dispatch is currently in flight, await its outcome so concurrent callers receive the same result
+    const inFlight = this.inFlightDispatches.get(idempotencyKey);
+    if (inFlight) {
+      return await inFlight;
+    }
+
     if (this.isIdempotent(idempotencyKey)) {
       return { success: true, duplicate: true, skipped: true };
     }
     this.markIdempotent(idempotencyKey);
 
-    const recipientName =
-      userMetadata.full_name ||
-      userMetadata.name ||
-      params.name ||
-      recipientEmail.split('@')[0] ||
-      '';
-
-    const verificationUrl = `${config.email.appUrl}/verify-email?email=${encodeURIComponent(recipientEmail)}`;
-
-    const htmlContent = this.loadTemplate('welcome.html', {
-      name: recipientName,
-      email: recipientEmail,
-      verificationUrl,
-      appUrl: config.email.appUrl,
-      landingUrl: config.email.landingUrl,
-      year: new Date().getFullYear().toString(),
-    });
-
-    const plainText = [
-      `Welcome to SharpMind`,
-      ``,
-      `Hello ${recipientName || 'there'},`,
-      `Thank you for joining SharpMind, your AI Academic Operating System.`,
-      `Please verify your email within 7 days by visiting:`,
-      verificationUrl,
-      ``,
-      `Note: Opening this link alone does not verify your account. Please complete the verification process on the portal.`,
-      ``,
-      `https://sharpmind.live`,
-    ].join('\n');
-
-    const result = await this.sendRawEmail({
-      to: recipientEmail,
-      subject: 'Welcome to SharpMind — Verify your account',
-      html: htmlContent,
-      text: plainText,
-    });
-
-    // If email dispatch fails, release the reservation to allow subsequent retry
-    if (!result.success) {
-      this.releaseIdempotent(idempotencyKey);
-      return result;
-    }
-
-    // 4. If email sent successfully, persist state to user metadata
-    if (result.success && !result.skipped) {
+    const dispatchPromise = (async (): Promise<EmailSendResult> => {
       try {
-        await supabase.auth.admin.updateUserById(userId, {
-          user_metadata: {
-            ...userMetadata,
-            welcome_email_sent_at: new Date().toISOString(),
-          },
-        });
-      } catch (err: any) {
-        logger.warn(
-          { userId, error: err?.message },
-          '[EmailService] Could not persist welcome_email_sent_at to user metadata; continuing.'
-        );
-      }
-    }
+        // Normalize name before fallback template rendering
+        const rawName =
+          userMetadata.full_name ||
+          userMetadata.name ||
+          params.name ||
+          (recipientEmail.includes('@') ? recipientEmail.split('@')[0] : '') ||
+          '';
+        const recipientName = typeof rawName === 'string' ? rawName.trim() : '';
 
-    return result;
+        const verificationUrl = `${config.email.appUrl}/verify-email?email=${encodeURIComponent(recipientEmail)}`;
+
+        const htmlContent = this.loadTemplate('welcome.html', {
+          name: recipientName,
+          email: recipientEmail,
+          verificationUrl,
+          appUrl: config.email.appUrl,
+          landingUrl: config.email.landingUrl,
+          year: new Date().getFullYear().toString(),
+        });
+
+        const plainText = [
+          `Welcome to SharpMind`,
+          ``,
+          `Hello ${recipientName || 'there'},`,
+          `Thank you for joining SharpMind, your AI Academic Operating System.`,
+          `Please verify your email within 7 days by visiting:`,
+          verificationUrl,
+          ``,
+          `Note: Opening this link alone does not verify your account. Please complete the verification process on the portal.`,
+          ``,
+          `https://sharpmind.live`,
+        ].join('\n');
+
+        const result = await this.sendRawEmail({
+          to: recipientEmail,
+          subject: 'Welcome to SharpMind — Verify your account',
+          html: htmlContent,
+          text: plainText,
+        });
+
+        // If email dispatch fails, release the reservation to allow subsequent retry
+        if (!result.success) {
+          this.releaseIdempotent(idempotencyKey);
+          return result;
+        }
+
+        // 4. If email sent successfully, persist state to user metadata
+        if (result.success && !result.skipped) {
+          try {
+            await supabase.auth.admin.updateUserById(userId, {
+              user_metadata: {
+                ...userMetadata,
+                welcome_email_sent_at: new Date().toISOString(),
+              },
+            });
+          } catch (err: any) {
+            logger.warn(
+              { userId, error: err?.message },
+              '[EmailService] Could not persist welcome_email_sent_at to user metadata; continuing.'
+            );
+          }
+        }
+
+        return result;
+      } catch (err: any) {
+        // Release reservation on pre-dispatch or unexpected exception so subsequent retries are allowed
+        this.releaseIdempotent(idempotencyKey);
+        logger.error(
+          { userId, error: err?.message || err },
+          '[EmailService] Exception during welcome email dispatch.'
+        );
+        return {
+          success: false,
+          error: err?.message || 'Welcome email dispatch failed due to an unexpected error',
+        };
+      }
+    })();
+
+    this.inFlightDispatches.set(idempotencyKey, dispatchPromise);
+    try {
+      return await dispatchPromise;
+    } finally {
+      this.inFlightDispatches.delete(idempotencyKey);
+    }
   }
 
   /**
@@ -436,73 +461,104 @@ export class EmailService {
       return { success: true, duplicate: true, skipped: true };
     }
 
-    // 3. In-memory idempotency check & immediate reservation before any await
+    // 3. In-flight and in-memory idempotency check & immediate reservation
     const idempotencyKey = `verification_success:${userId}`;
+
+    // If a dispatch is currently in flight, await its outcome so concurrent callers receive the same result
+    const inFlight = this.inFlightDispatches.get(idempotencyKey);
+    if (inFlight) {
+      return await inFlight;
+    }
+
     if (this.isIdempotent(idempotencyKey)) {
       return { success: true, duplicate: true, skipped: true };
     }
     this.markIdempotent(idempotencyKey);
 
-    const recipientName =
-      userMetadata.full_name ||
-      userMetadata.name ||
-      params.name ||
-      recipientEmail.split('@')[0] ||
-      '';
-
-    const dashboardUrl = `${config.email.appUrl}/dashboard`;
-
-    const htmlContent = this.loadTemplate('verification-success.html', {
-      name: recipientName,
-      email: recipientEmail,
-      dashboardUrl,
-      appUrl: config.email.appUrl,
-      landingUrl: config.email.landingUrl,
-      year: new Date().getFullYear().toString(),
-    });
-
-    const plainText = [
-      `Email verified successfully — SharpMind`,
-      ``,
-      `Hello ${recipientName || 'there'},`,
-      `Your email address (${recipientEmail}) has been successfully verified.`,
-      `Open SharpMind to access your academic dashboard:`,
-      dashboardUrl,
-      ``,
-      `https://sharpmind.live`,
-    ].join('\n');
-
-    const result = await this.sendRawEmail({
-      to: recipientEmail,
-      subject: 'Email verified successfully — Welcome to SharpMind',
-      html: htmlContent,
-      text: plainText,
-    });
-
-    // If email dispatch fails, release the reservation to allow subsequent retry
-    if (!result.success) {
-      this.releaseIdempotent(idempotencyKey);
-      return result;
-    }
-
-    // 4. Update user metadata
-    if (result.success && !result.skipped) {
+    const dispatchPromise = (async (): Promise<EmailSendResult> => {
       try {
-        await supabase.auth.admin.updateUserById(userId, {
-          user_metadata: {
-            ...userMetadata,
-            verification_success_email_sent_at: new Date().toISOString(),
-          },
-        });
-      } catch (err: any) {
-        logger.warn(
-          { userId, error: err?.message },
-          '[EmailService] Could not persist verification_success_email_sent_at to user metadata; continuing.'
-        );
-      }
-    }
+        // Normalize name before fallback template rendering
+        const rawName =
+          userMetadata.full_name ||
+          userMetadata.name ||
+          params.name ||
+          (recipientEmail.includes('@') ? recipientEmail.split('@')[0] : '') ||
+          '';
+        const recipientName = typeof rawName === 'string' ? rawName.trim() : '';
 
-    return result;
+        const dashboardUrl = `${config.email.appUrl}/dashboard`;
+
+        const htmlContent = this.loadTemplate('verification-success.html', {
+          name: recipientName,
+          email: recipientEmail,
+          dashboardUrl,
+          appUrl: config.email.appUrl,
+          landingUrl: config.email.landingUrl,
+          year: new Date().getFullYear().toString(),
+        });
+
+        const plainText = [
+          `Email verified successfully — SharpMind`,
+          ``,
+          `Hello ${recipientName || 'there'},`,
+          `Your email address (${recipientEmail}) has been successfully verified.`,
+          `Open SharpMind to access your academic dashboard:`,
+          dashboardUrl,
+          ``,
+          `https://sharpmind.live`,
+        ].join('\n');
+
+        const result = await this.sendRawEmail({
+          to: recipientEmail,
+          subject: 'Email verified successfully — Welcome to SharpMind',
+          html: htmlContent,
+          text: plainText,
+        });
+
+        // If email dispatch fails, release the reservation to allow subsequent retry
+        if (!result.success) {
+          this.releaseIdempotent(idempotencyKey);
+          return result;
+        }
+
+        // 4. Update user metadata
+        if (result.success && !result.skipped) {
+          try {
+            await supabase.auth.admin.updateUserById(userId, {
+              user_metadata: {
+                ...userMetadata,
+                verification_success_email_sent_at: new Date().toISOString(),
+              },
+            });
+          } catch (err: any) {
+            logger.warn(
+              { userId, error: err?.message },
+              '[EmailService] Could not persist verification_success_email_sent_at to user metadata; continuing.'
+            );
+          }
+        }
+
+        return result;
+      } catch (err: any) {
+        // Release reservation on pre-dispatch or unexpected exception so subsequent retries are allowed
+        this.releaseIdempotent(idempotencyKey);
+        logger.error(
+          { userId, error: err?.message || err },
+          '[EmailService] Exception during verification success email dispatch.'
+        );
+        return {
+          success: false,
+          error: err?.message || 'Verification success email dispatch failed due to an unexpected error',
+        };
+      }
+    })();
+
+    this.inFlightDispatches.set(idempotencyKey, dispatchPromise);
+    try {
+      return await dispatchPromise;
+    } finally {
+      this.inFlightDispatches.delete(idempotencyKey);
+    }
   }
 }
 

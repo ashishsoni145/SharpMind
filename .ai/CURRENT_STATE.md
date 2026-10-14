@@ -63,11 +63,11 @@ All three deployment targets build independently from their configured project r
 
 - `npm run typecheck:all`: 0 errors across landing, web, and backend.
 - `npm run build`: 16/16 landing static pages, 39/39 web static pages (including `/dashboard`, `/verify-email`, `/app/profile`, `/profile`), and backend `tsc` compilation with automated email template asset copying succeeded cleanly (exit code 0).
-- `npm --prefix backend run test`: 26 test suites, 257/257 tests passed with 0 failures (including 18 email integration tests).
+- `npm --prefix backend run test`: 26 test suites, 260/260 tests passed with 0 failures (including 21 email integration tests).
 - **Review Issue Fixes (2026-10-14)**:
-  - Immediate in-memory idempotency key reservation before `await` in `EmailService`, with automatic failure-release on dispatch errors.
-  - Functional test flow restoration in `/app/tests` for active dashboard links.
-  - OS `prefers-color-scheme` resolution for `system` theme in layout anti-flash script.
+  - In `EmailService`: Removed failure-path `releaseIdempotent` from `sendRawEmail` since caller owns reservations; added `inFlightDispatches` pending-result tracking in `sendWelcomeEmail` and `sendVerificationSuccessEmail` to propagate exact outcome to concurrent callers; added recipient name normalization (`.trim()`) and pre-dispatch exception cleanup.
+  - In `web/src/app/app/tests/page.tsx`: Derived marking text dynamically from `test.markingScheme` and `currentQ.negativeMarks`/`activeSession.assessment.markingScheme`; decoupled timer countdown from auto-submit into a separate ref-guarded effect; guarded `handleSubmitTest` against overlapping manual and auto submissions via `isSubmittingRef`; enabled autosave for blank numerical answers and explicit clear-response submissions.
+  - Webpack runtime error (`Cannot find module './157.js'`) resolved via clean `.next` cache reset and dev server restart.
   - Viewport-aware hamburger/cross toggle in `TopBar` using 900px breakpoint and accurate ARIA attributes.
   - Secure password hashing and strict persistence validation in local settings and auth adapters.
 - **Email System Integration (2026-10-14)**:

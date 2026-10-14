@@ -392,6 +392,136 @@ describe('SharpMind Email Integration & Verification Suite', () => {
       expect(second.duplicate).toBeFalsy();
       expect(mockSend).toHaveBeenCalledTimes(2);
     });
+
+    it('should propagate pending in-flight dispatch result to concurrent callers (welcome email)', async () => {
+      let resolveSend!: (val: any) => void;
+      const delayedSendPromise = new Promise((resolve) => {
+        resolveSend = resolve;
+      });
+
+      const mockSend = vi.fn().mockImplementation(() => delayedSendPromise);
+
+      EmailService.setResendClient({
+        emails: { send: mockSend },
+      } as any);
+
+      vi.spyOn(supabase.auth.admin, 'getUserById').mockResolvedValue({
+        data: {
+          user: {
+            id: 'concurrent-user-1',
+            email: 'concurrent@example.com',
+            user_metadata: { full_name: '  Concurrent Student  ' },
+            email_confirmed_at: null,
+          } as any,
+        },
+        error: null,
+      });
+
+      vi.spyOn(supabase.auth.admin, 'updateUserById').mockResolvedValue({
+        data: { user: {} as any },
+        error: null,
+      });
+
+      // Launch 2 dispatches concurrently
+      const call1Promise = EmailService.sendWelcomeEmail({ userId: 'concurrent-user-1' });
+      const call2Promise = EmailService.sendWelcomeEmail({ userId: 'concurrent-user-1' });
+
+      // Resolve the in-flight Resend call
+      resolveSend({ data: { id: 'msg_concurrent_123' }, error: null });
+
+      const [res1, res2] = await Promise.all([call1Promise, call2Promise]);
+
+      expect(res1.success).toBe(true);
+      expect(res1.messageId).toBe('msg_concurrent_123');
+      expect(res2.success).toBe(true);
+      expect(res2.messageId).toBe('msg_concurrent_123');
+      expect(mockSend).toHaveBeenCalledTimes(1);
+
+      // Name should be trimmed
+      expect(mockSend.mock.calls[0][0].html).toContain('Concurrent Student');
+      expect(mockSend.mock.calls[0][0].html).not.toContain('  Concurrent Student  ');
+    });
+
+    it('should propagate in-flight failure to concurrent callers without premature duplicate mark', async () => {
+      let resolveSend!: (val: any) => void;
+      const delayedSendPromise = new Promise((resolve) => {
+        resolveSend = resolve;
+      });
+
+      const mockSend = vi.fn().mockImplementation(() => delayedSendPromise);
+
+      EmailService.setResendClient({
+        emails: { send: mockSend },
+      } as any);
+
+      vi.spyOn(supabase.auth.admin, 'getUserById').mockResolvedValue({
+        data: {
+          user: {
+            id: 'concurrent-fail-user',
+            email: 'concurrent_fail@example.com',
+            user_metadata: {},
+            email_confirmed_at: '2026-10-14T10:00:00Z',
+          } as any,
+        },
+        error: null,
+      });
+
+      const call1Promise = EmailService.sendVerificationSuccessEmail({ userId: 'concurrent-fail-user' });
+      const call2Promise = EmailService.sendVerificationSuccessEmail({ userId: 'concurrent-fail-user' });
+
+      // Fail the in-flight Resend call
+      resolveSend({ data: null, error: { message: 'Out of quota' } });
+
+      const [res1, res2] = await Promise.all([call1Promise, call2Promise]);
+
+      expect(res1.success).toBe(false);
+      expect(res1.error).toBe('Out of quota');
+      expect(res2.success).toBe(false);
+      expect(res2.error).toBe('Out of quota');
+      expect(mockSend).toHaveBeenCalledTimes(1);
+
+      // Subsequent call should be allowed to retry since reservation was released
+      mockSend.mockResolvedValueOnce({ data: { id: 'msg_retry_after_fail' }, error: null });
+      const retryResult = await EmailService.sendVerificationSuccessEmail({ userId: 'concurrent-fail-user' });
+      expect(retryResult.success).toBe(true);
+      expect(retryResult.duplicate).toBeFalsy();
+    });
+
+    it('should release reservation on pre-dispatch exception allowing subsequent retry', async () => {
+      vi.spyOn(supabase.auth.admin, 'getUserById').mockResolvedValue({
+        data: {
+          user: {
+            id: 'pre-dispatch-user',
+            email: 'predispatch@example.com',
+            user_metadata: {},
+            email_confirmed_at: null,
+          } as any,
+        },
+        error: null,
+      });
+
+      // Force loadTemplate to throw on first call
+      const originalLoadTemplate = EmailService.loadTemplate;
+      EmailService.loadTemplate = vi.fn().mockImplementationOnce(() => {
+        throw new Error('Template rendering syntax error');
+      });
+
+      const first = await EmailService.sendWelcomeEmail({ userId: 'pre-dispatch-user' });
+      expect(first.success).toBe(false);
+      expect(first.error).toContain('Template rendering syntax error');
+
+      // Restore original loadTemplate
+      EmailService.loadTemplate = originalLoadTemplate;
+
+      const mockSend = vi.fn().mockResolvedValue({ data: { id: 'msg_ok' }, error: null });
+      EmailService.setResendClient({ emails: { send: mockSend } } as any);
+      vi.spyOn(supabase.auth.admin, 'updateUserById').mockResolvedValue({ data: { user: {} as any }, error: null });
+
+      const second = await EmailService.sendWelcomeEmail({ userId: 'pre-dispatch-user' });
+      expect(second.error).toBeUndefined();
+      expect(second.success).toBe(true);
+      expect(second.messageId).toBe('msg_ok');
+    });
   });
 
   describe('5. Error Resilience & Missing Configuration', () => {

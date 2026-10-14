@@ -31,6 +31,9 @@ export default function TestsPage() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isSubmittingRef = useRef(false);
+  const autoSubmittedRef = useRef(false);
+  const handleAutoSubmitRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     loadAssessments();
@@ -55,19 +58,17 @@ export default function TestsPage() {
     }
   }
 
-  // Timer countdown loop
+  // Keep latest auto-submit handler in ref
+  useEffect(() => {
+    handleAutoSubmitRef.current = handleAutoSubmit;
+  });
+
+  // Timer countdown loop - updater only changes the countdown
   useEffect(() => {
     if (!activeSession) return;
 
     timerRef.current = setInterval(() => {
-      setRemainingSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          handleAutoSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setRemainingSeconds((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     return () => {
@@ -75,10 +76,20 @@ export default function TestsPage() {
     };
   }, [activeSession]);
 
+  // Trigger auto-submit in a separate effect when the timer reaches zero
+  useEffect(() => {
+    if (activeSession && remainingSeconds === 0 && !autoSubmittedRef.current && !isSubmittingRef.current) {
+      autoSubmittedRef.current = true;
+      handleAutoSubmitRef.current();
+    }
+  }, [activeSession, remainingSeconds]);
+
   async function handleStartTest(test: Assessment) {
     try {
       setLoading(true);
       setRunnerError(null);
+      autoSubmittedRef.current = false;
+      isSubmittingRef.current = false;
       const session = await api.assessments.start(test.id);
       setActiveSession(session);
       setRemainingSeconds(session.timeRemainingSeconds);
@@ -127,22 +138,22 @@ export default function TestsPage() {
   function handleNumericalChange(val: string) {
     if (!activeSession) return;
     const q = activeSession.questions[currentQuestionIndex];
+    const isBlank = !val.trim();
+
     setAnswersMap((prev) => ({
       ...prev,
       [q.id]: {
         numericalAnswer: val,
-        status: val.trim() ? 'answered' : 'unanswered',
+        status: isBlank ? 'unanswered' : 'answered',
       },
     }));
 
-    if (val.trim()) {
-      api.assessments.autosave(activeSession.submissionId, {
-        questionId: q.id,
-        numericalAnswer: val,
-        timeSpentSeconds: 20,
-        status: 'answered',
-      }).catch(() => {});
-    }
+    api.assessments.autosave(activeSession.submissionId, {
+      questionId: q.id,
+      numericalAnswer: isBlank ? null : val,
+      timeSpentSeconds: 20,
+      status: isBlank ? 'unanswered' : 'answered',
+    }).catch(() => {});
   }
 
   function handleClearResponse() {
@@ -153,6 +164,14 @@ export default function TestsPage() {
       delete next[q.id];
       return next;
     });
+
+    api.assessments.autosave(activeSession.submissionId, {
+      questionId: q.id,
+      selectedOptions: [],
+      numericalAnswer: null,
+      timeSpentSeconds: 10,
+      status: 'unanswered',
+    }).catch(() => {});
   }
 
   function handleMarkForReview() {
@@ -187,7 +206,8 @@ export default function TestsPage() {
   }
 
   async function handleSubmitTest() {
-    if (!activeSession) return;
+    if (!activeSession || isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setSubmitting(true);
     setRunnerError(null);
     setShowSubmitModal(false);
@@ -214,6 +234,7 @@ export default function TestsPage() {
       setRunnerError(`Submission failed: ${err.message || 'Server error'}. Your session is still active; please click Submit Test again.`);
     } finally {
       setSubmitting(false);
+      isSubmittingRef.current = false;
     }
   }
 
@@ -354,7 +375,9 @@ export default function TestsPage() {
                       {test.type.replace('_', ' ')}
                     </span>
                     <span className={styles.specLabel}>
-                      +4 / -1 Marking
+                      {test.markingScheme
+                        ? `+${test.markingScheme.correct} / -${Math.abs(test.markingScheme.incorrect)} Marking`
+                        : '+4 / -1 Marking'}
                     </span>
                   </div>
 
@@ -430,7 +453,7 @@ export default function TestsPage() {
                       {currentQ.subjectId.toUpperCase()} • {currentQ.difficultyLevel.toUpperCase()}
                     </span>
                     <span className={styles.badgePyq}>
-                      +{currentQ.marks} / -1
+                      +{currentQ.marks} / -{Math.abs(currentQ.negativeMarks !== undefined ? currentQ.negativeMarks : (activeSession.assessment.markingScheme?.incorrect ?? 1))}
                     </span>
                   </div>
 

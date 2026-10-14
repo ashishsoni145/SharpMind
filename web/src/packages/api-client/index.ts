@@ -520,7 +520,7 @@ export class SharpMindApiClient {
       const res = await this.request<ActiveTestSession>(`/assessments/${id}/start`, { method: 'POST' });
       return res.data!;
     },
-    autosave: async (submissionId: string, data: { questionId: string; selectedOptions?: string[]; numericalAnswer?: string; timeSpentSeconds: number; status?: string }) => {
+    autosave: async (submissionId: string, data: { questionId: string; selectedOptions?: string[]; numericalAnswer?: string | null; timeSpentSeconds: number; status?: string }) => {
       const res = await this.request<{ success: boolean; lastSavedAt: string }>(
         `/assessments/submissions/${submissionId}/autosave`,
         { method: 'POST', body: JSON.stringify(data) }

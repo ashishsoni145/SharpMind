@@ -176,10 +176,19 @@
 - **TypeScript Typecheck:**
   - `npm --prefix web run typecheck`: Passed (exit code 0).
   - `npm --prefix backend run typecheck`: Passed (exit code 0).
+  - `npm run typecheck:all`: Passed across all packages.
 - **Backend Build & Asset Copying:** `npm --prefix backend run build` passed (`tsc && node scripts/copy-templates.js` copied all templates to `dist/emails/templates/`).
 - **Web Production Build:** `npm --prefix web run build` passed cleanly (39/39 static pages exported with exit code 0).
-- **Backend Test Suite:** `npm --prefix backend run test` passed (26 test suites, 255/255 tests passed with exit code 0, including 16 new email integration tests).
-- **Dev Server Active:** `http://localhost:3000/` (HTTP 200), `http://localhost:3000/app/profile` (HTTP 200), `http://localhost:3000/app` (HTTP 200), `http://localhost:3000/login` (HTTP 200).
+- **Backend Test Suite:** `npm --prefix backend run test` passed (26 test suites, 260/260 tests passed with exit code 0, including 21 email integration tests).
+- **Review Issues Resolved:**
+  1. Removed `sendRawEmail` failure-path calls to `releaseIdempotent` so concurrent caller reservations are preserved.
+  2. Implemented `inFlightDispatches` pending-result tracking in `sendWelcomeEmail` and `sendVerificationSuccessEmail` to propagate exact outcome to concurrent callers without premature duplicate success.
+  3. Added recipient name normalization (`.trim()`) and pre-dispatch exception cleanup releasing reservations on render/pipeline errors.
+  4. Derived dynamic marking scheme text in `web/src/app/app/tests/page.tsx` from `test.markingScheme` and `currentQ.negativeMarks` / `activeSession.assessment.markingScheme`.
+  5. Decoupled timer countdown loop into a pure updater and triggered auto-submission in a separate ref-guarded effect with in-flight submission guard (`isSubmittingRef`).
+  6. Added autosave for blank numerical inputs (`numericalAnswer: null`, `status: 'unanswered'`) and explicit clear-response submissions.
+  7. Resolved Webpack runtime error `Cannot find module './157.js'` by clearing `.next` cache and verified live HTTP 200 responses on `/app` and `/app/tests`.
+- **Dev Server Active:** `http://localhost:3000/` (HTTP 200), `http://localhost:3000/app/tests` (HTTP 200), `http://localhost:3000/app` (HTTP 200), `http://localhost:3000/app/profile` (HTTP 200), `http://localhost:3000/login` (HTTP 200).
 
 ---
 

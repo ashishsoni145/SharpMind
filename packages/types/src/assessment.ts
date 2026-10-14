@@ -101,6 +101,7 @@ export interface SanitizedQuestion {
   pedagogicalType: PedagogicalType;
   difficultyLevel: 'easy' | 'medium' | 'hard' | 'olympiad';
   marks: number;
+  negativeMarks?: number;
   sourceExam?: string | null;
   sourceYear?: number | null;
   patternTags: string[];
