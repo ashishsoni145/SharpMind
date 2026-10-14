@@ -58,6 +58,27 @@
 
 ---
 
+### Visual Presentation & UI/UX Enhancement (Matrix Modern Engineering Aesthetic):
+- **Design Tokens & Theme System**: Replaced cartoon claymorphic tokens with disciplined dark engineering surfaces, precision radii (4px-18px), and restrained Matrix emerald accents (`#10b981`, `rgba(16, 185, 129, 0.18)`).
+- **Stable Interaction States**: Eliminated layout-shifting `scale(1.03)` / `scale(1.02)` hover transforms in favor of stable 1-2px lifts, crisp border highlights, and non-jittery transitions.
+- **Accessibility & Focus**: Added WCAG AA compliant `:focus-visible` emerald rings on all interactive components (`Button`, `Input`, `searchBtn`, navigation) and added a global `prefers-reduced-motion` block.
+- **Component Polish**: Refined `Button`, `Card`, `Badge`, `Input`, `Sidebar`, `TopBar`, `CommandPalette`, `NotificationsDrawer`, `LoginPage`, and `WorkspaceDashboard` across `web/` and `landing/`.
+- **Zero Business Logic/API/Route/Dependency Changes**: Strictly scoped to visual CSS and design tokens. All tests (239/239) and production builds (36/36 web, 16/16 landing) pass with 0 errors.
+
+---
+
+### Local Development Server Execution & Windows OneDrive Reparse Point Patch:
+- **Root Cause & Diagnosis:** When launching `next dev` on Windows within a OneDrive-synced folder, OneDrive assigns reparse points (`IO_REPARSE_TAG_ONEDRIVE`) to generated build folders (e.g. `.next/static/<buildId>`). Node.js libuv flagged these entries as `UV_DIRENT_LINK` (`dirent.isSymbolicLink() === true`), causing Next.js `recursiveDelete` to invoke `fs.promises.readlink`, which threw unhandled `EINVAL: invalid argument` (-4071) errors.
+- **Resolution:** Enhanced `web/patch-fs.js` and `landing/patch-fs.js` to intercept `fs.Dirent.prototype.isSymbolicLink` and `fs.Dirent.prototype.isDirectory` on Windows, falling back to `fs.lstatSync` to distinguish real symbolic links from OneDrive directory reparse points.
+- **Local Dev Server Verified:** `npm --prefix web run dev` started cleanly on `http://localhost:3000`, serving:
+  - `GET /` → HTTP 200 OK
+  - `GET /login/` → HTTP 200 OK
+  - `GET /app/` → HTTP 200 OK
+  - `GET /onboarding/` → HTTP 200 OK
+  - `GET /app/classroom/` → HTTP 200 OK
+
+---
+
 ### Remaining External Blockers:
 
 - **DNS & Vercel Dashboard Linking:** Project domains (`sharpmind.live`, `app.sharpmind.live`, `api.sharpmind.live`) must be added to their respective Vercel projects in the Vercel dashboard and DNS records pointed.
@@ -68,4 +89,5 @@
 
 ### Next Checkpoint:
 
-- Connect the three Vercel projects in the Vercel dashboard with Root Directories `landing`, `web`, and `backend`, apply production environment variables, and verify live DNS/SSL resolution.
+- Verify live production deployments on `https://sharpmind.live` and `https://app.sharpmind.live`.
+

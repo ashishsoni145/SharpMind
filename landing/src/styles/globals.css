@@ -18,7 +18,7 @@ body {
 
 /* ---- Focus Styles ---- */
 :focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline: 2px solid var(--brand-accent, #10b981);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -50,14 +50,14 @@ body {
 
 /* ---- Selection ---- */
 ::selection {
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--color-text-primary);
+  background: rgba(16, 185, 129, 0.25);
+  color: #ffffff;
 }
 
 /* ---- Scrollbar (Webkit) ---- */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -65,13 +65,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-full);
-  transition: background 0.2s;
+  transition: background 0.15s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(16, 185, 129, 0.4);
 }
 
 /* ---- Layout Utilities ---- */
@@ -136,12 +136,12 @@ body {
 }
 
 .clay-hover {
-  transition: all var(--duration-normal) var(--ease-clay);
+  transition: transform var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default), border-color var(--duration-fast) var(--ease-default);
 }
 
 .clay-hover:hover {
   box-shadow: var(--clay-shadow-hover);
-  transform: translateY(-3px) scale(1.02);
+  transform: translateY(-2px);
 }
 
 /* ==========================================================================
@@ -459,4 +459,16 @@ body {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   margin-bottom: var(--space-8);
+}
+
+/* ---- Accessibility: Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Button — Claymorphic with springy press & inflate
+   Button — Modern Engineering UI with Disciplined Feedback
    ========================================================================== */
 
 .button {
@@ -7,108 +7,119 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  font-family: var(--font-accent);
-  font-weight: var(--weight-semibold);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
   line-height: 1;
   white-space: nowrap;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
   position: relative;
   text-decoration: none;
   transition:
-    transform 0.35s var(--ease-clay),
-    box-shadow 0.35s var(--ease-clay),
-    background 0.3s var(--ease-smooth),
-    border-color 0.3s var(--ease-smooth),
-    color 0.2s var(--ease-default);
+    transform 0.15s var(--ease-default),
+    box-shadow 0.15s var(--ease-default),
+    background-color 0.15s var(--ease-default),
+    border-color 0.15s var(--ease-default),
+    color 0.15s var(--ease-default);
 }
 
 .button:hover {
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-1px);
 }
 
 .button:active:not(:disabled) {
-  transform: scale(0.96);
-  box-shadow: var(--clay-shadow-pressed);
-  transition-duration: 0.12s;
+  transform: translateY(0);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition-duration: 0.08s;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--brand-accent, #10b981);
+  outline-offset: 2px;
 }
 
 .button:disabled,
 .button.loading {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
 
 /* ---- Sizes ---- */
 .sm {
-  padding: var(--space-2) var(--space-5);
-  font-size: var(--text-sm);
-  border-radius: var(--radius-lg);
+  padding: 0.4rem 0.75rem;
+  font-size: var(--text-xs);
+  border-radius: var(--radius-sm);
 }
 
 .md {
-  padding: var(--space-3) var(--space-6);
-  font-size: var(--text-base);
+  padding: 0.5625rem 1rem;
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
 }
 
 .lg {
-  padding: var(--space-4) var(--space-10);
-  font-size: var(--text-lg);
-  border-radius: var(--radius-2xl);
+  padding: 0.75rem 1.5rem;
+  font-size: var(--text-base);
+  border-radius: var(--radius-lg);
 }
 
-/* ---- Primary — White clay pill ---- */
+/* ---- Primary — High-contrast solid button ---- */
 .primary {
   background: #ffffff;
-  color: #0a0a0a;
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: var(--clay-shadow-md);
+  color: #09090b;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .primary:hover {
-  background: #f0f0f0;
+  background: #f4f4f5;
+  border-color: rgba(255, 255, 255, 0.8);
   box-shadow:
-    10px 10px 22px rgba(0, 0, 0, 0.5),
-    -8px -8px 18px rgba(255, 255, 255, 0.08),
-    inset 2px 2px 5px rgba(255, 255, 255, 0.15),
-    0 0 30px rgba(255, 255, 255, 0.08);
+    0 3px 8px rgba(0, 0, 0, 0.6),
+    0 0 10px rgba(16, 185, 129, 0.12);
 }
 
 .primary:active:not(:disabled) {
-  background: #e5e5e5;
-  transform: scale(0.96);
+  background: #e4e4e7;
 }
 
-/* ---- Secondary — Dark clay pill with white border ---- */
+/* ---- Secondary — Technical dark surface with subtle border ---- */
 .secondary {
-  background: var(--color-bg-elevated);
+  background: var(--surface-muted);
   color: var(--color-text-primary);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: var(--clay-shadow-sm);
+  border-color: var(--border-subtle);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .secondary:hover {
-  background: var(--color-bg-glass-hover);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: var(--clay-shadow-hover);
+  background: var(--surface-hover);
+  border-color: rgba(16, 185, 129, 0.28);
+  color: #ffffff;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 8px rgba(16, 185, 129, 0.08);
 }
 
-/* ---- Outline — Ghost clay with border ---- */
+/* ---- Outline — Precision ghost with border ---- */
 .outline {
   background: transparent;
   color: var(--color-text-primary);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .outline:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: var(--clay-shadow-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* ---- Ghost — Minimal ---- */
+/* ---- Ghost — Minimal text action ---- */
 .ghost {
   background: transparent;
   color: var(--color-text-secondary);
@@ -116,7 +127,7 @@
 }
 
 .ghost:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-primary);
 }
 

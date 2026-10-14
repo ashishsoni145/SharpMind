@@ -63,7 +63,9 @@ All three deployment targets build independently from their configured project r
 
 - `npm run typecheck:all`: 0 errors across landing, web, and backend.
 - `npm run build`: 16/16 landing static pages, 36/36 web static pages, and backend `tsc` compilation succeeded cleanly (exit code 0).
-- `npm --prefix backend run test`: 25 test suites, 239/239 tests passed with 0 failures in 36.42s.
+- `npm --prefix backend run test`: 25 test suites, 239/239 tests passed with 0 failures.
+- **Local Dev Server & Windows OneDrive Reparse Point Patch:** Fixed `patch-fs.js` to normalize `fs.Dirent.prototype.isSymbolicLink` and `isDirectory` against OneDrive reparse points on Windows. Web dev server (`npm --prefix web run dev`) actively running and serving `http://localhost:3000` with HTTP 200 on `/`, `/login`, `/app`, `/onboarding`, and `/app/classroom`.
+- **UI/UX Visual Presentation Verification:** Transformed theme from cartoon claymorphism to disciplined dark Matrix-inspired engineering UI with restrained emerald accents, precision radii, stable hover feedback, and accessibility compliance. Zero business logic, API, routing, or dependency changes.
 
 ---
 

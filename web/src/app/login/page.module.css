@@ -19,7 +19,7 @@
   transform: translate(-50%, -50%);
   width: 500px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.07) 0%, rgba(16, 185, 129, 0.01) 50%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -30,15 +30,17 @@
   width: 100%;
   max-width: 440px;
   padding: 0 var(--space-4);
-  animation: claySlideUp 0.7s var(--ease-clay) both;
+  animation: fadeInUp 0.35s var(--ease-default) both;
 }
 
 .card {
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-2xl);
+  background: #0f1318;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
   padding: var(--space-8);
-  box-shadow: var(--clay-shadow-lg);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .header {
@@ -52,6 +54,7 @@
   font-weight: var(--weight-bold);
   color: var(--color-text-primary);
   margin-bottom: var(--space-2);
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
@@ -64,16 +67,13 @@
   align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  background: rgba(255, 68, 68, 0.08);
-  border: 1px solid rgba(255, 68, 68, 0.2);
-  border-radius: var(--radius-xl);
-  color: #ff8888;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-md);
+  color: #fca5a5;
   font-size: var(--text-sm);
   margin-bottom: var(--space-5);
-  animation: shake 0.35s var(--ease-clay);
-  box-shadow:
-    inset 2px 2px 6px rgba(255, 68, 68, 0.05),
-    2px 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .form {
@@ -94,19 +94,16 @@
   border: none;
   color: var(--color-text-muted);
   cursor: pointer;
-  font-family: var(--font-accent);
+  font-family: var(--font-sans);
   font-size: var(--text-xs);
   padding: var(--space-1);
   border-radius: var(--radius-sm);
-  letter-spacing: var(--tracking-wide);
-  transition:
-    color 0.2s var(--ease-smooth),
-    transform 0.2s var(--ease-clay);
+  letter-spacing: var(--tracking-normal);
+  transition: color 0.15s ease;
 }
 
 .passwordToggle:hover {
   color: var(--color-text-primary);
-  transform: scale(1.05);
 }
 
 .formRow {
@@ -127,14 +124,13 @@
 .forgotLink {
   color: var(--color-text-secondary);
   text-decoration: none;
-  font-family: var(--font-accent);
+  font-family: var(--font-sans);
   font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-wide);
-  transition: color 0.2s var(--ease-smooth);
+  transition: color 0.15s ease;
 }
 
 .forgotLink:hover {
-  color: var(--color-text-primary);
+  color: #10b981;
   text-decoration: underline;
 }
 

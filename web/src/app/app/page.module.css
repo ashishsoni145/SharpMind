@@ -7,13 +7,14 @@
 
 /* AI Next Action Hero Card */
 .nextActionHero {
-  padding: 2.25rem 2rem;
+  padding: 2rem 2rem;
   border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, #181818 0%, #0d0d0d 100%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(135deg, #10161a 0%, #0b0f12 100%);
+  border: 1px solid rgba(16, 185, 129, 0.22);
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.2),
-    0 18px 40px rgba(0, 0, 0, 0.7);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(16, 185, 129, 0.04);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -29,7 +30,7 @@
   width: 260px;
   height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -45,13 +46,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.3125rem 0.75rem;
+  padding: 0.25rem 0.6875rem;
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--color-text-primary);
+  color: #10b981;
   letter-spacing: 0.04em;
 }
 
@@ -59,8 +60,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 8px #34d399;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
 }
 
 .priorityPill {
@@ -96,11 +97,11 @@
 }
 
 .reasonBox {
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1.125rem;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  background: rgba(16, 185, 129, 0.04);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: flex-start;
   gap: 0.875rem;
@@ -171,26 +172,27 @@
 }
 
 .backlogCard {
-  padding: 1.5rem;
+  padding: 1.375rem;
   border-radius: var(--radius-lg);
-  background: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f1318;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.06),
-    0 8px 20px rgba(0, 0, 0, 0.4);
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 1.25rem;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.18s ease;
 }
 
 .backlogCard:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(16, 185, 129, 0.3);
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.1),
-    0 12px 28px rgba(0, 0, 0, 0.5);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(16, 185, 129, 0.05);
 }
 
 .cardHeaderRow {
@@ -242,11 +244,11 @@
 
 /* Knowledge Calibration Matrix */
 .matrixCard {
-  padding: 1.75rem;
+  padding: 1.5rem;
   border-radius: var(--radius-lg);
-  background: #111111;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  background: #0e1216;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -259,9 +261,9 @@
 }
 
 .subjectCard {
-  padding: 1.25rem;
+  padding: 1.125rem;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
@@ -305,27 +307,28 @@
 }
 
 .modeCard {
-  padding: 1.5rem;
+  padding: 1.375rem;
   border-radius: var(--radius-lg);
-  background: #131313;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f1318;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 1rem;
   text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.18s ease;
 }
 
 .modeCard:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.3);
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.12),
-    0 12px 24px rgba(0, 0, 0, 0.6);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 20px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(16, 185, 129, 0.05);
 }
 
 .modeIcon {
