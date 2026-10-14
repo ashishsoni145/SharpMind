@@ -59,7 +59,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const t = localStorage.getItem('sharpmind_theme_v1') || localStorage.getItem('theme');
+                let t = localStorage.getItem('sharpmind_theme_v1') || localStorage.getItem('theme');
+                if (t === 'system') {
+                  t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
                 if (t === 'light' || t === 'dark') {
                   document.documentElement.setAttribute('data-theme', t);
                   if (t === 'light') {

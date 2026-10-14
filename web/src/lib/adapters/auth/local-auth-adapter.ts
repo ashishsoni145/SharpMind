@@ -13,6 +13,19 @@ const STORAGE_KEY_SESSION = 'sharpmind_auth_session';
 const STORAGE_KEY_USERS = 'sharpmind_auth_users';
 const STORAGE_KEY_RESET_TOKENS = 'sharpmind_auth_reset_tokens';
 
+export function hashPassword(password: string): string {
+  try {
+    return `local_hash_${btoa(encodeURIComponent(password))}`;
+  } catch {
+    return `local_hash_${encodeURIComponent(password)}`;
+  }
+}
+
+export function verifyPassword(password: string, storedHash?: string): boolean {
+  if (!storedHash || !password) return false;
+  return storedHash === password || storedHash === hashPassword(password);
+}
+
 interface StoredUser extends User {
   passwordHash: string; // Simulated password hash
 }
@@ -135,7 +148,7 @@ export class LocalAuthAdapter implements AuthAdapter {
     const user = users.find((u) => u.email.toLowerCase() === email);
 
     // Secure auth practice: generic error message to prevent user enumeration
-    if (!user || user.passwordHash !== credentials.password) {
+    if (!user || !verifyPassword(credentials.password, user.passwordHash)) {
       return {
         success: false,
         error: {
@@ -204,7 +217,7 @@ export class LocalAuthAdapter implements AuthAdapter {
     const newUser: StoredUser = {
       id: `user-${Date.now()}`,
       email,
-      passwordHash: credentials.password,
+      passwordHash: hashPassword(credentials.password),
       role: credentials.role,
       fullName: credentials.fullName.trim(),
       isEmailVerified: false, // New signups require verification

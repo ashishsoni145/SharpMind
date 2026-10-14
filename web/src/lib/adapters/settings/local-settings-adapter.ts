@@ -5,6 +5,7 @@ import type {
   UserPreferences,
   NotificationSettings,
 } from '@/lib/types/settings';
+import { hashPassword, verifyPassword } from '../auth/local-auth-adapter';
 
 const SETTINGS_STORAGE_KEY = 'sharpmind_user_settings_v1';
 
@@ -178,29 +179,49 @@ export class LocalSettingsAdapter implements SettingsAdapter {
     if (newPass.length < 8) {
       return { success: false, message: 'New password must be at least 8 characters long.' };
     }
-    if (typeof window !== 'undefined') {
-      try {
-        const storedUsersRaw = localStorage.getItem('sharpmind_auth_users');
-        if (storedUsersRaw) {
-          const users = JSON.parse(storedUsersRaw);
-          const found = users.find((u: any) => u.id === userId || (u.email && u.email === userId));
-          if (found && found.passwordHash && found.passwordHash !== oldPass) {
-            return { success: false, message: 'Current password is incorrect. Please verify and try again.' };
-          }
-          if (found) {
-            found.passwordHash = newPass;
-            localStorage.setItem('sharpmind_auth_users', JSON.stringify(users));
-          }
-        }
-      } catch {
-        // Fall through
-      }
+
+    if (typeof window === 'undefined') {
+      return { success: false, message: 'Password change is not supported in this environment.' };
     }
-    const current = await this.getSettings(userId);
-    current.security.lastPasswordChange = new Date().toLocaleDateString();
-    const map = this.getAllSettings();
-    map[userId] = current;
-    this.saveAllSettings(map);
-    return { success: true, message: 'Password updated successfully.' };
+
+    try {
+      const storedUsersRaw = localStorage.getItem('sharpmind_auth_users');
+      if (!storedUsersRaw) {
+        return { success: false, message: 'User account store not found. Unable to update credentials.' };
+      }
+
+      const users = JSON.parse(storedUsersRaw);
+      if (!Array.isArray(users)) {
+        return { success: false, message: 'Invalid user account records. Unable to update credentials.' };
+      }
+
+      const found = users.find((u: any) => u.id === userId || (u.email && u.email.toLowerCase() === userId.toLowerCase()));
+      if (!found) {
+        return { success: false, message: 'User account not found. Unable to update credentials.' };
+      }
+
+      // Verify current password against stored credentials
+      if (found.passwordHash && !verifyPassword(oldPass, found.passwordHash)) {
+        return { success: false, message: 'Current password is incorrect. Please verify and try again.' };
+      }
+
+      // Store hashed password, never containing newPass verbatim
+      found.passwordHash = hashPassword(newPass);
+      found.updatedAt = new Date().toISOString();
+
+      // Persist credential update
+      localStorage.setItem('sharpmind_auth_users', JSON.stringify(users));
+
+      // Update lastPasswordChange ONLY after user credential persistence succeeds
+      const current = await this.getSettings(userId);
+      current.security.lastPasswordChange = new Date().toLocaleDateString();
+      const map = this.getAllSettings();
+      map[userId] = current;
+      this.saveAllSettings(map);
+
+      return { success: true, message: 'Password updated successfully.' };
+    } catch {
+      return { success: false, message: 'Failed to persist updated credentials. Please try again.' };
+    }
   }
 }

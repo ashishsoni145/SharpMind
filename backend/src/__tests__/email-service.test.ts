@@ -304,6 +304,94 @@ describe('SharpMind Email Integration & Verification Suite', () => {
       expect(res.duplicate).toBe(true);
       expect(mockSend).not.toHaveBeenCalled();
     });
+
+    it('should release idempotency reservation if welcome email sending fails, allowing retry', async () => {
+      // First attempt fails due to Resend error
+      const mockSend = vi
+        .fn()
+        .mockResolvedValueOnce({
+          data: null,
+          error: { message: 'Network error or unverified domain' },
+        })
+        .mockResolvedValueOnce({
+          data: { id: 'msg_retry_success' },
+          error: null,
+        });
+
+      EmailService.setResendClient({
+        emails: { send: mockSend },
+      } as any);
+
+      vi.spyOn(supabase.auth.admin, 'getUserById').mockResolvedValue({
+        data: {
+          user: {
+            id: 'retry-user-1',
+            email: 'retry@example.com',
+            user_metadata: {},
+            email_confirmed_at: null,
+          } as any,
+        },
+        error: null,
+      });
+
+      vi.spyOn(supabase.auth.admin, 'updateUserById').mockResolvedValue({
+        data: { user: {} as any },
+        error: null,
+      });
+
+      // First call fails
+      const first = await EmailService.sendWelcomeEmail({ userId: 'retry-user-1' });
+      expect(first.success).toBe(false);
+      expect(first.error).toBe('Network error or unverified domain');
+
+      // Second call should NOT be blocked as duplicate because failure released reservation
+      const second = await EmailService.sendWelcomeEmail({ userId: 'retry-user-1' });
+      expect(second.success).toBe(true);
+      expect(second.duplicate).toBeFalsy();
+      expect(mockSend).toHaveBeenCalledTimes(2);
+    });
+
+    it('should release idempotency reservation if verification success sending fails, allowing retry', async () => {
+      const mockSend = vi
+        .fn()
+        .mockResolvedValueOnce({
+          data: null,
+          error: { message: 'Temporary service error' },
+        })
+        .mockResolvedValueOnce({
+          data: { id: 'msg_success_retry' },
+          error: null,
+        });
+
+      EmailService.setResendClient({
+        emails: { send: mockSend },
+      } as any);
+
+      vi.spyOn(supabase.auth.admin, 'getUserById').mockResolvedValue({
+        data: {
+          user: {
+            id: 'retry-verify-user',
+            email: 'verified_retry@example.com',
+            user_metadata: {},
+            email_confirmed_at: '2026-10-14T10:00:00Z',
+          } as any,
+        },
+        error: null,
+      });
+
+      vi.spyOn(supabase.auth.admin, 'updateUserById').mockResolvedValue({
+        data: { user: {} as any },
+        error: null,
+      });
+
+      const first = await EmailService.sendVerificationSuccessEmail({ userId: 'retry-verify-user' });
+      expect(first.success).toBe(false);
+
+      const second = await EmailService.sendVerificationSuccessEmail({ userId: 'retry-verify-user' });
+      expect(second.success).toBe(true);
+      expect(second.duplicate).toBeFalsy();
+      expect(mockSend).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe('5. Error Resilience & Missing Configuration', () => {

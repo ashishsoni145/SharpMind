@@ -87,8 +87,15 @@ export class EmailService {
   /**
    * Records an action in the in-memory idempotency cache
    */
-  private static markIdempotent(key: string): void {
+  public static markIdempotent(key: string): void {
     this.idempotencyCache.set(key, Date.now());
+  }
+
+  /**
+   * Releases an action from the in-memory idempotency cache (e.g. on dispatch failure)
+   */
+  public static releaseIdempotent(key: string): void {
+    this.idempotencyCache.delete(key);
   }
 
   /**
@@ -201,6 +208,9 @@ export class EmailService {
     // 2. Check Resend Client & Configuration
     const resend = this.getResendClient();
     if (!resend) {
+      if (options.idempotencyKey) {
+        this.releaseIdempotent(options.idempotencyKey);
+      }
       logger.warn(
         { to: maskedTo, subject: options.subject },
         '[EmailService] RESEND_API_KEY is not configured; email dispatch skipped safely.'
@@ -226,6 +236,9 @@ export class EmailService {
       });
 
       if (response.error) {
+        if (options.idempotencyKey) {
+          this.releaseIdempotent(options.idempotencyKey);
+        }
         logger.error(
           { error: response.error, to: maskedTo, subject: options.subject },
           '[EmailService] Resend API rejected message dispatch.'
@@ -247,6 +260,9 @@ export class EmailService {
         messageId: response.data?.id,
       };
     } catch (err: any) {
+      if (options.idempotencyKey) {
+        this.releaseIdempotent(options.idempotencyKey);
+      }
       logger.error(
         { error: err?.message || err, to: maskedTo, subject: options.subject },
         '[EmailService] Unexpected failure during email dispatch.'
@@ -298,11 +314,12 @@ export class EmailService {
       return { success: true, duplicate: true, skipped: true };
     }
 
-    // 3. In-memory idempotency check
+    // 3. In-memory idempotency check & immediate reservation before any await
     const idempotencyKey = `welcome:${userId}`;
     if (this.isIdempotent(idempotencyKey)) {
       return { success: true, duplicate: true, skipped: true };
     }
+    this.markIdempotent(idempotencyKey);
 
     const recipientName =
       userMetadata.full_name ||
@@ -340,8 +357,13 @@ export class EmailService {
       subject: 'Welcome to SharpMind — Verify your account',
       html: htmlContent,
       text: plainText,
-      idempotencyKey,
     });
+
+    // If email dispatch fails, release the reservation to allow subsequent retry
+    if (!result.success) {
+      this.releaseIdempotent(idempotencyKey);
+      return result;
+    }
 
     // 4. If email sent successfully, persist state to user metadata
     if (result.success && !result.skipped) {
@@ -414,11 +436,12 @@ export class EmailService {
       return { success: true, duplicate: true, skipped: true };
     }
 
-    // 3. In-memory idempotency check
+    // 3. In-memory idempotency check & immediate reservation before any await
     const idempotencyKey = `verification_success:${userId}`;
     if (this.isIdempotent(idempotencyKey)) {
       return { success: true, duplicate: true, skipped: true };
     }
+    this.markIdempotent(idempotencyKey);
 
     const recipientName =
       userMetadata.full_name ||
@@ -454,8 +477,13 @@ export class EmailService {
       subject: 'Email verified successfully — Welcome to SharpMind',
       html: htmlContent,
       text: plainText,
-      idempotencyKey,
     });
+
+    // If email dispatch fails, release the reservation to allow subsequent retry
+    if (!result.success) {
+      this.releaseIdempotent(idempotencyKey);
+      return result;
+    }
 
     // 4. Update user metadata
     if (result.success && !result.skipped) {

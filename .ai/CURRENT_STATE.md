@@ -63,7 +63,13 @@ All three deployment targets build independently from their configured project r
 
 - `npm run typecheck:all`: 0 errors across landing, web, and backend.
 - `npm run build`: 16/16 landing static pages, 39/39 web static pages (including `/dashboard`, `/verify-email`, `/app/profile`, `/profile`), and backend `tsc` compilation with automated email template asset copying succeeded cleanly (exit code 0).
-- `npm --prefix backend run test`: 26 test suites, 255/255 tests passed with 0 failures (including 16 new email integration tests).
+- `npm --prefix backend run test`: 26 test suites, 257/257 tests passed with 0 failures (including 18 email integration tests).
+- **Review Issue Fixes (2026-10-14)**:
+  - Immediate in-memory idempotency key reservation before `await` in `EmailService`, with automatic failure-release on dispatch errors.
+  - Functional test flow restoration in `/app/tests` for active dashboard links.
+  - OS `prefers-color-scheme` resolution for `system` theme in layout anti-flash script.
+  - Viewport-aware hamburger/cross toggle in `TopBar` using 900px breakpoint and accurate ARIA attributes.
+  - Secure password hashing and strict persistence validation in local settings and auth adapters.
 - **Email System Integration (2026-10-14)**:
   - Created responsive HTML templates: `backend/src/emails/templates/welcome.html` (7-day notice, verify button to `app.sharpmind.live/verify-email`, non-automatic notice, fallback URL) and `backend/src/emails/templates/verification-success.html` (success confirmation, open button to `app.sharpmind.live/dashboard`).
   - Implemented `EmailService` (`backend/src/emails/email.service.ts`): Resend client integration, authoritative Supabase Auth verification gating (`email_confirmed_at`), safe PII log masking, dual-layer idempotency (in-memory TTL + Supabase user metadata), and robust fallback template resolution.

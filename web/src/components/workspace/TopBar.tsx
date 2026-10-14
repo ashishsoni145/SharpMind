@@ -47,8 +47,19 @@ export function TopBar({
 
   const currentTitle = ROUTE_TITLES[pathname] || 'Workspace';
 
-  // Toggle state for menu button animation (cross vs 3 lines)
-  const isMenuCross = Boolean(isMobileOpen || !isCollapsed);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(typeof window !== 'undefined' && window.innerWidth <= 900);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Toggle state for menu button animation: on mobile reflects isMobileOpen; on desktop reflects !isCollapsed
+  const isMenuCross = isMobile ? Boolean(isMobileOpen) : !isCollapsed;
 
   const handleMenuClick = () => {
     if (typeof window !== 'undefined' && window.innerWidth <= 900) {
@@ -95,8 +106,25 @@ export function TopBar({
           type="button"
           className={`${styles.animatedMenuBtn} ${isMenuCross ? styles.cross : ''}`}
           onClick={handleMenuClick}
-          aria-label={isMenuCross ? 'Collapse navigation sidebar' : 'Expand navigation sidebar'}
-          title={isMenuCross ? 'Collapse menu' : 'Expand menu'}
+          aria-label={
+            isMobile
+              ? isMobileOpen
+                ? 'Close navigation menu'
+                : 'Open navigation menu'
+              : !isCollapsed
+                ? 'Collapse navigation sidebar'
+                : 'Expand navigation sidebar'
+          }
+          aria-expanded={isMobile ? isMobileOpen : !isCollapsed}
+          title={
+            isMobile
+              ? isMobileOpen
+                ? 'Close menu'
+                : 'Open menu'
+              : !isCollapsed
+                ? 'Collapse menu'
+                : 'Expand menu'
+          }
         >
           <span className={styles.menuBar} />
           <span className={styles.menuBar} />
