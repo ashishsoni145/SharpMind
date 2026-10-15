@@ -76,11 +76,32 @@ describe('SharpMind Email OTP Verification, Rate Limiting & Retention Suite', ()
       expect(res.body.cooldownSeconds).toBe(60);
     });
 
-    it('POST /api/v1/auth/request-otp should fail closed when the atomic limiter RPC is unavailable', async () => {
-      vi.spyOn(supabase, 'rpc').mockResolvedValue({ data: null, error: { message: 'function not found' } } as any);
+    it('POST /api/v1/auth/request-otp returns the service-unavailable response when PostgREST cannot find the limiter RPC', async () => {
+      const rpc = vi.spyOn(supabase, 'rpc').mockResolvedValue({
+        data: null,
+        error: {
+          code: 'PGRST202',
+          message: 'Could not find the function public.check_and_record_otp_send with the requested parameters in the schema cache',
+        },
+      } as any);
       const resend = vi.spyOn(supabase.auth, 'resend');
-      const res = await request(app).post('/api/v1/auth/request-otp').send({ email: 'student@example.com' }).expect(503);
+
+      const res = await request(app)
+        .post('/api/v1/auth/request-otp')
+        .send({ email: ' Student@Example.com ' })
+        .expect(503);
+
       expect(res.body.success).toBe(false);
+      expect(res.body.error).toBe('Verification service is temporarily unavailable. Please try again shortly.');
+      expect(rpc).toHaveBeenCalledWith(
+        'check_and_record_otp_send',
+        expect.objectContaining({
+          p_email: 'student@example.com',
+          p_max_attempts: 3,
+          p_window_seconds: 3600,
+          p_cooldown_seconds: 60,
+        })
+      );
       expect(resend).not.toHaveBeenCalled();
     });
 

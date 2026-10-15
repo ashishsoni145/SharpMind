@@ -280,3 +280,27 @@ Apply both OTP migrations in order, verify Supabase Auth's six-digit `{{ .Token 
 
 
 
+
+## Verification Continue Failure Follow-up — 2026-10-15
+
+### Findings
+
+- Continue sends `POST /api/v1/auth/request-otp` to the configured API base (production default `https://api.sharpmind.live/api/v1`). The backend calls `check_and_record_otp_send` before `supabase.auth.resend({ type: 'signup', email })`.
+- The exact page message is emitted with HTTP 503 when the atomic RPC is unavailable or returns no row. Local Supertest reproduced this with a PostgREST `PGRST202` error and verified resend is not called. Signup confirmation email can arrive independently.
+- Likely production cause: missing/unexposed migrations `20261014000002_otp_rate_limiting.sql` and `20261014000003_secure_otp_rate_limiting.sql`, or backend targeting a different Supabase project. Not confirmed: production response capture, logs, dashboard, and DB were inaccessible.
+- Added RPC name/error-code diagnostics without email logging and exact route regression assertions. Removed auth-context fallback that marked the current session verified without refreshed session. Dashboard redirect and success-email request now require a refreshed verified session for the same user returned by Supabase OTP verification.
+- OTP verification remains `supabase.auth.verifyOtp({ email, token, type: 'signup' })`; API URL, route, method, payload, and CORS align. Retention stays fixed at seven days, with Admin API checks before deletion. No cleanup was run, and no scheduler is configured.
+
+### Validation
+
+- `npm --prefix backend exec vitest run src/__tests__/otp-verification-flow.test.ts`: 14/14 passed.
+- `npm --prefix backend run test`: 27 files, 276/276 passed (loopback socket permission required).
+- `npm run typecheck:all`: passed.
+- `npm --prefix backend run build`: passed and copied both HTML templates.
+- `npm --prefix web run build`: passed, exported 39/39 static routes.
+- `git diff --check`: passed.
+- `npm run lint`: unavailable because `next lint` opens the first-run ESLint setup prompt; repository has no ESLint configuration. Web has no test script.
+
+### Next Checkpoint
+
+Inspect live request status/body and backend logs for safe PostgREST error code. Confirm backend `SUPABASE_URL` matches app project. In Supabase SQL editor, check `to_regprocedure('public.check_and_record_otp_send(text,integer,integer,integer,text)')` and `public.otp_send_logs`; apply migrations 00002 then 00003 if missing. Then controlled signup/OTP verification and verify same-user session, disappearing notice, and success email. Keep retention scheduler disabled until its separate secret and dry-run are reviewed.

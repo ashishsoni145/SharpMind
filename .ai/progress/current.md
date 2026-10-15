@@ -36,3 +36,7 @@ Next Checkpoint: Phase 04 — Student Model, continuous knowledge state calibrat
 
 Completed a scoped auth/email hardening follow-up without changing the broader phase roadmap. Final local evidence: 276/276 backend tests, `npm run typecheck:all`, backend build/template copy, and web static production export 39/39 passed. Lint has no configured ESLint setup. Deployment follow-up is to apply OTP migrations `20261014000002` and `20261014000003` in order, verify Supabase Auth/SMTP and Resend settings, set server-only secrets, and perform a controlled production verification flow. No retention scheduler is currently configured.
 
+
+## Verification Continue Failure Follow-up (2026-10-15)
+
+The Continue request is `POST /api/v1/auth/request-otp`. If the atomic database RPC fails, backend returns HTTP 503 before Supabase resend. Reproduced via local Express/Supertest with a simulated PostgREST `PGRST202`; production error code and migration state remain unverified. Likely external cause: missing/unexposed limiter RPC or backend `SUPABASE_URL` targeting a different project. Added safe error-code logging and route assertions. Verification now requires refreshed verified session for the same user before dashboard redirect or success-email request. Backend 276/276 tests, all typechecks, both builds passed; lint has no ESLint config, web has no test script. Next: inspect live error/project URL, apply missing migrations in order, controlled production OTP flow. Retention scheduler remains unconfigured.

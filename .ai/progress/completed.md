@@ -104,3 +104,5 @@
 
 
 
+
+- Verification Continue failure hardening (2026-10-15): Reproduced exact `/api/v1/auth/request-otp` HTTP 503 when the PostgREST atomic limiter RPC is missing, added safe error-code diagnostics and regression assertions, and required a refreshed verified session for the same user before dashboard redirect or success-email dispatch. Backend tests 276/276, all typechecks, backend build, and web export 39/39 passed. Live database migration state remains unverified.

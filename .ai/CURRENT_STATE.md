@@ -1,6 +1,6 @@
 # Current State — SharpMind
 
-**Last Verified:** 2026-10-11  
+**Last Verified:** 2026-10-15
 **Architecture:** Tri-Project Monorepo with Strict Domain Separation & Continuous Vercel Deployability  
 **Topology:**
 - `landing/` → `https://sharpmind.live` (Public Marketing & Landing Site)
@@ -107,4 +107,17 @@ All three deployment targets build independently from their configured project r
 
 Apply migrations `20261014000002` and `20261014000003` in order, confirm Supabase Auth six-digit OTP/template and SMTP settings, configure backend email/webhook secrets and Resend sender verification, then run a controlled production signup/verification. Configure daily retention scheduling only after a reviewed dry run.
 
+
+
+## Verification Continue Failure Follow-up (2026-10-15)
+
+- Continue calls `POST /api/v1/auth/request-otp`; this exact unavailable message is emitted when atomic RPC `public.check_and_record_otp_send` errors or returns no row, before Supabase resend. Local route reproduction with a PostgREST `PGRST202` missing-function response returns HTTP 503 and does not call resend.
+- Production migration state, logs, and deployed settings were inaccessible. A missing/unexposed RPC or a backend URL targeting a different Supabase project is the likely external cause; confirm against the backend's configured project. Apply `20261014000002` then `20261014000003` only if the RPC/table/privileges are absent.
+- Added safe RPC name/code diagnostics and strengthened the exact HTTP 503 test. Verification now requires a refreshed Supabase session for the same verified user before dashboard navigation or success-email request; removed local session mutation that could mark an unrelated user verified.
+- Local checks: focused OTP flow 14/14; full backend 276/276; all workspace typechecks; backend build/template copy; web production export 39/39; `git diff --check` passed. Lint is blocked by missing ESLint config and the `next lint` setup prompt. No frontend test script exists.
+- Retention remains fixed at seven days with Admin API eligibility rechecks. No scheduler is configured; keep scheduling a documented manual step pending `RETENTION_SECRET` and a reviewed dry run.
+
+### Next Checkpoint
+
+Inspect live `/api/v1/auth/request-otp` status and safe PostgREST error code; confirm backend `SUPABASE_URL` matches the app project; apply both OTP migrations in order if needed; run controlled production signup/verification. Configure retention scheduling only after its separate secret and dry-run review.
 

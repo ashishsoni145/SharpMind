@@ -59,7 +59,16 @@ export class OtpRateLimitService {
         };
       }
 
-      logger.error({ error: error?.message || 'RPC returned no result' }, '[OtpRateLimitService] Atomic OTP limiter is unavailable');
+      // PostgREST error codes distinguish a missing/unexposed migration (PGRST202)
+      // from permission and database failures, without logging the email or secrets.
+      logger.error(
+        {
+          rpc: 'check_and_record_otp_send',
+          errorCode: error?.code || (error ? 'UNKNOWN_RPC_ERROR' : 'EMPTY_RPC_RESULT'),
+          errorMessage: error?.message || 'RPC returned no result',
+        },
+        '[OtpRateLimitService] Atomic OTP limiter is unavailable'
+      );
     } catch (err) {
       logger.warn(
         { err, email: normalizedEmail.replace(/(?<=.).(?=[^@]*?@)/g, '*') },

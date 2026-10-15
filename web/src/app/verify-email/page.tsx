@@ -184,23 +184,30 @@ function VerifyEmailContent() {
         return;
       }
 
-      // Authoritative verification succeeded
-      setStatusMessage('Email verified successfully! Refreshing session...');
-
-      // Notify backend non-blocking to trigger the verification-success email
-      const verifiedUserId = res.user?.id || user?.id;
-      if (verifiedUserId) {
-        fetch(`${getApiBaseUrl()}/auth/verification-success-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: verifiedUserId }),
-        }).catch(() => {
-          // Non-blocking
-        });
+      // Verification must establish the same verified user in the persisted
+      // Supabase session before this page grants dashboard navigation.
+      const refreshedSession = await refreshSession();
+      if (
+        !res.user?.id ||
+        !refreshedSession?.user?.isEmailVerified ||
+        refreshedSession.user.id !== res.user.id
+      ) {
+        setErrorMessage('Your email was verified, but we could not confirm the signed-in session. Please sign in again.');
+        setStatusMessage(null);
+        return;
       }
 
-      // Refresh authoritative session and navigate to dashboard
-      await refreshSession();
+      setStatusMessage('Email verified successfully! Redirecting to your dashboard...');
+
+      // The backend independently rechecks authoritative Supabase Auth state.
+      fetch(`${getApiBaseUrl()}/auth/verification-success-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: res.user.id }),
+      }).catch(() => {
+        // Non-blocking
+      });
+
       setTimeout(() => {
         router.push('/app');
       }, 1000);

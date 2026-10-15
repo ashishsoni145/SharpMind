@@ -149,14 +149,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const refreshed = await authAdapter.getSession();
             if (refreshed) {
               setSession(refreshed);
-            } else if (session?.user) {
-              setSession({
-                ...session,
-                user: {
-                  ...session.user,
-                  isEmailVerified: true,
-                },
-              });
             }
           }
         }
@@ -165,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
       }
     },
-    [session]
+    []
   );
 
   const value = useMemo<AuthContextValue>(
