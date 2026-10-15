@@ -121,3 +121,17 @@ Apply migrations `20261014000002` and `20261014000003` in order, confirm Supabas
 
 Inspect live `/api/v1/auth/request-otp` status and safe PostgREST error code; confirm backend `SUPABASE_URL` matches the app project; apply both OTP migrations in order if needed; run controlled production signup/verification. Configure retention scheduling only after its separate secret and dry-run review.
 
+
+### Read-only Supabase project check — 2026-10-15
+
+- The Supabase project URL embedded in the deployed web client matches the repository's configured public Supabase URL. Its read-only PostgREST OpenAPI response does not expose `public.check_and_record_otp_send` or `public.otp_send_logs`; a read-only HEAD request for the table returned 404. This confirms the OTP limiter schema is absent or unexposed in that project. It does not prove the production backend targets the same project because its `SUPABASE_URL` setting is not accessible here.
+- Do not submit a production OTP request during diagnosis: it may record a real limiter attempt and send mail if the backend is pointed elsewhere. Apply migrations `20261014000002` then `20261014000003` to the backend's intended Supabase project after verifying its URL matches the web project, then test with a controlled account.
+- Read-only live checks: production health/API/DB checks returned 200; verification page returned 200; app-origin CORS preflight to `/api/v1/auth/request-otp` returned 204. These checks do not verify OTP dispatch or delivery.
+- Fresh validation on unchanged HEAD: focused email + OTP tests passed 37/37, `npm run typecheck:all` passed, backend build passed and copied both templates, web build passed and exported 39 pages. Full backend suite was not safely completed because unrelated PYQ ingestion tests can reach the configured Supabase project; the sandbox run failed with local-socket permission errors, and the unrestricted run was stopped before reaching database-writing tests. Lint still prompts for initial ESLint setup.
+
+### Signup welcome-dispatch recovery — 2026-10-15
+
+- Signup now awaits the trusted backend welcome-email dispatch, checks HTTP and JSON success, prevents repeated form submission during dispatch, normalizes the email consistently, and passes only a delivery-status flag to the existing verification page. If Resend dispatch cannot be confirmed, the verification page explains that the user can still request the Supabase OTP.
+- On this continuation, `npm run typecheck:all`, the focused email/OTP suites (37/37), and the web production build (39 static pages) passed. The first sandbox attempts for local-socket tests and Next output writes failed with EACCES/EPERM; permitted reruns passed. No browser E2E or production email/OTP request was run.
+- The user requested read-only Supabase/Vercel tool access. Plugin discovery reports both installed and enabled, but no Supabase or Vercel service APIs are callable in this execution context; browser window inspection timed out on the retry. Production backend project, Resend settings, and logs remain unverified. The public frontend Supabase project still lacks/excludes the OTP limiter RPC/table per read-only schema inspection.
+- Signup input now also applies the backend's conservative email syntax validation after trim/lowercase; it accepts provider and custom-domain formats without provider allowlisting. Disposable-domain enforcement remains a required Supabase before-user-created hook/configuration and is not implemented because it cannot be enforced reliably from the static frontend alone.

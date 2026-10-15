@@ -304,3 +304,12 @@ Apply both OTP migrations in order, verify Supabase Auth's six-digit `{{ .Token 
 ### Next Checkpoint
 
 Inspect live request status/body and backend logs for safe PostgREST error code. Confirm backend `SUPABASE_URL` matches app project. In Supabase SQL editor, check `to_regprocedure('public.check_and_record_otp_send(text,integer,integer,integer,text)')` and `public.otp_send_logs`; apply migrations 00002 then 00003 if missing. Then controlled signup/OTP verification and verify same-user session, disappearing notice, and success email. Keep retention scheduler disabled until its separate secret and dry-run are reviewed.
+
+### Read-only follow-up — 2026-10-15
+
+The Supabase project referenced by the deployed web bundle lacks or does not expose the OTP limiter table and RPC through read-only PostgREST schema inspection (table HEAD returned 404). The production backend's Supabase URL is not visible, so verify it before applying migrations 00002 and 00003 in order. No production OTP request or migration was run. Production health/API/DB checks returned 200 and app-origin CORS preflight returned 204, but these do not validate OTP behavior. On unchanged HEAD, focused email/OTP tests passed 37/37, all typechecks passed, and backend/web production builds passed. The broad suite was not completed: its sandbox run failed on local sockets and remote Supabase fetches; the unrestricted rerun was stopped before any data-ingestion tests. Lint remains blocked by missing ESLint configuration.
+
+### Signup dispatch recovery — 2026-10-15
+
+Signup now handles a failed/unconfirmed welcome-email API response visibly on the existing verification page while preserving the OTP continuation path. Fresh checks passed: all workspace typechecks, focused email/OTP suites 37/37, web production build 39 static pages. Supabase/Vercel tools were user-requested but are not callable here; browser inspection timed out. Production backend project and Resend delivery remain unverified. Existing blocker persists: verify the backend's Supabase URL and apply limiter migrations 00002/00003 to that exact project if absent; then run a controlled OTP flow.
+- Added frontend normalized email syntax validation (no Gmail-only restriction). Disposable domain blocking and immediate dashboard pending state remain unimplemented: server-side domain blocking needs Supabase before-user-created hook configuration and a maintained list; with email confirmation enabled, Supabase returns no session at signup, so current protected dashboard cannot be entered safely before verification.

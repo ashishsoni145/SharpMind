@@ -14,6 +14,7 @@ function VerifyEmailContent() {
 
   // Prefer search param or authenticated user's email
   const paramEmail = searchParams?.get('email');
+  const welcomeEmailUnavailable = searchParams?.get('welcomeEmail') === 'unavailable';
   const initialEmail = paramEmail || user?.email || '';
 
   const [email, setEmail] = useState<string>(initialEmail);
@@ -226,6 +227,12 @@ function VerifyEmailContent() {
       </div>
 
       <h1 className={styles.title}>Verify your email</h1>
+
+      {welcomeEmailUnavailable && !otpSent && (
+        <div className={styles.errorAlert} role="alert" aria-live="polite">
+          We could not confirm delivery of your welcome email. You can still continue here to request your verification code.
+        </div>
+      )}
 
       <p className={styles.description}>
         {otpSent ? (

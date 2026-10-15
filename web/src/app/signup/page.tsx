@@ -23,6 +23,7 @@ function SignupForm() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isProcessingSignup, setIsProcessingSignup] = useState(false);
 
   // Password criteria computation
   const criteria = useMemo(() => {
@@ -68,8 +69,9 @@ function SignupForm() {
       setErrorMessage('Please enter your full name.');
       return;
     }
-    if (!email.trim()) {
-      setErrorMessage('Please enter your email address.');
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      setErrorMessage('Please enter a valid email address.');
       return;
     }
     if (strengthScore < 3) {
@@ -81,27 +83,43 @@ function SignupForm() {
       return;
     }
 
-    const res = await signUp({
-      fullName,
-      email,
-      password,
-      role,
-      termsAccepted,
-    });
+    setIsProcessingSignup(true);
+    try {
+      const res = await signUp({
+        fullName,
+        email: normalizedEmail,
+        password,
+        role,
+        termsAccepted,
+      });
 
-    if (!res.success) {
-      setErrorMessage(res.error?.message || 'Could not create account. Please try again.');
-    } else {
-      if (res.user?.id) {
-        fetch(`${getApiBaseUrl()}/auth/welcome-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: res.user.id }),
-        }).catch((err) => {
-          console.warn('[Signup] Welcome email dispatch non-blocking notification error:', err);
-        });
+      if (!res.success) {
+        setErrorMessage(res.error?.message || 'Could not create account. Please try again.');
+        return;
       }
-      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+
+      let welcomeEmailUnavailable = !res.user?.id;
+      if (res.user?.id) {
+        try {
+          const response = await fetch(`${getApiBaseUrl()}/auth/welcome-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: res.user.id }),
+          });
+          const result = await response.json().catch(() => null);
+          welcomeEmailUnavailable = !response.ok || result?.success !== true;
+        } catch {
+          welcomeEmailUnavailable = true;
+        }
+      }
+
+      const verificationParams = new URLSearchParams({ email: normalizedEmail });
+      if (welcomeEmailUnavailable) verificationParams.set('welcomeEmail', 'unavailable');
+      router.push(`/verify-email?${verificationParams.toString()}`);
+    } catch {
+      setErrorMessage('We could not confirm the signup response. Please try signing in or request a verification code before creating another account.');
+    } finally {
+      setIsProcessingSignup(false);
     }
   };
 
@@ -280,8 +298,8 @@ function SignupForm() {
           variant="primary"
           size="lg"
           fullWidth
-          loading={isLoading}
-          disabled={isLoading}
+          loading={isLoading || isProcessingSignup}
+          disabled={isLoading || isProcessingSignup}
           className={styles.submitBtn}
         >
           Create Account
