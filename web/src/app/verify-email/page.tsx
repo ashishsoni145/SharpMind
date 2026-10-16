@@ -7,6 +7,8 @@ import { getApiBaseUrl } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import styles from './page.module.css';
 
+const OTP_LENGTH = 8;
+
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,11 +23,11 @@ function VerifyEmailContent() {
   const [email, setEmail] = useState<string>(initialEmail);
   const [isRequestingOtp, setIsRequestingOtp] = useState<boolean>(false);
   const [otpSent, setOtpSent] = useState<boolean>(openOtpEntry);
-  const [otpDigits, setOtpDigits] = useState<string[]>(['', '', '', '', '', '']);
+  const [otpDigits, setOtpDigits] = useState<string[]>(Array.from({ length: OTP_LENGTH }, () => ''));
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
 
   const [statusMessage, setStatusMessage] = useState<string | null>(
-    openOtpEntry ? 'Enter the 6-digit code from your verification email.' : null
+    openOtpEntry ? `Enter the ${OTP_LENGTH}-digit code from your verification email.` : null
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
@@ -124,13 +126,13 @@ function VerifyEmailContent() {
     setErrorMessage(null);
 
     // Auto advance to next input
-    if (numericChar && index < 5 && inputRefs.current[index + 1]) {
+    if (numericChar && index < OTP_LENGTH - 1 && inputRefs.current[index + 1]) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Auto verify when all 6 digits entered
+    // Auto verify when all OTP digits have been entered.
     const combined = updated.join('');
-    if (combined.length === 6) {
+    if (combined.length === OTP_LENGTH) {
       handleVerifyCode(combined);
     }
   };
@@ -143,30 +145,30 @@ function VerifyEmailContent() {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
     if (!pasted) return;
 
     const updated = [...otpDigits];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < OTP_LENGTH; i++) {
       updated[i] = pasted[i] || '';
     }
     setOtpDigits(updated);
 
-    if (pasted.length === 6) {
+    if (pasted.length === OTP_LENGTH) {
       handleVerifyCode(pasted);
     } else {
-      const nextIndex = Math.min(pasted.length, 5);
+      const nextIndex = Math.min(pasted.length, OTP_LENGTH - 1);
       inputRefs.current[nextIndex]?.focus();
     }
   };
 
   /**
-   * Verify the 6-digit OTP code using Supabase Auth.
+   * Verify the OTP code using Supabase Auth.
    */
   const handleVerifyCode = async (explicitCode?: string) => {
     const code = explicitCode || otpDigits.join('');
-    if (code.length !== 6) {
-      setErrorMessage('Please enter all 6 digits of the verification code.');
+    if (code.length !== OTP_LENGTH) {
+      setErrorMessage(`Please enter all ${OTP_LENGTH} digits of the verification code.`);
       return;
     }
 
@@ -240,7 +242,7 @@ function VerifyEmailContent() {
       <p className={styles.description}>
         {otpSent ? (
           <>
-            Enter the 6-digit verification code sent to <br />
+            Enter the {OTP_LENGTH}-digit verification code sent to <br />
             <span className={styles.emailHighlight}>{email}</span>
           </>
         ) : (
@@ -305,10 +307,10 @@ function VerifyEmailContent() {
           </Button>
         </div>
       ) : (
-        /* Second Step: 6-Digit Numeric OTP Input */
+        /* Second Step: Numeric OTP Input */
         <div className={styles.otpSection}>
           <label className={styles.otpLabel} htmlFor="otp-input-0">
-            6-digit verification code
+            {OTP_LENGTH}-digit verification code
           </label>
 
           <div className={styles.otpInputsWrapper} onPaste={handlePaste}>
@@ -340,7 +342,7 @@ function VerifyEmailContent() {
               size="md"
               fullWidth
               loading={isVerifying}
-              disabled={isVerifying || otpDigits.join('').length !== 6}
+              disabled={isVerifying || otpDigits.join('').length !== OTP_LENGTH}
               onClick={() => handleVerifyCode()}
             >
               Verify Code

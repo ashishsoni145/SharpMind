@@ -323,3 +323,12 @@ Signup now handles a failed/unconfirmed welcome-email API response visibly on th
 - Changed welcome email CTA to include `step=otp`; verification page renders its existing OTP-input step for that link and prompts for the received code. Signup Continue still requests OTP and only advances on accepted response. Added backend email-rendering regression assertion.
 - Checks: focused email/OTP suites 37/37 passed; `npm run typecheck:all` passed; `npm --prefix backend run build` passed and copied both templates; `npm --prefix web run build` passed with 39 static routes; `git diff --check` passed. `npm run lint` exited 1 at `next lint` first-run ESLint setup prompt; no frontend test script exists. No browser E2E or production OTP request was performed.
 - Next checkpoint: after explicit approval, apply migrations 00002 and 00003 to the confirmed `mindsharp` project, verify RPC output/grants/RLS with read-only SQL, then test Continue → OTP entry → code outcomes → same-user verified session/dashboard notice removal with a controlled account. Reauthenticate Vercel access to inspect deployment settings. Do not deploy or push without separate authorization.
+
+## OTP length alignment — 2026-10-17
+
+- User reports the delivered Supabase OTP has 8 digits while the verification page accepted only six. Updated the page's inputs, paste handling, auto-advance, validation, and copy to accept eight digits; updated the local auth adapter and responsive box sizing.
+- The Supabase adapter still forwards the submitted code unchanged to `verifyOtp`; verification type, session handling, rate limiting, and migrations are unchanged.
+- `npm --prefix web run typecheck` passed. Initial production build failed with Windows `EPERM` creating `web/.next/server/app/app/library`; retry outside sandbox is required to confirm build status.
+- Next checkpoint: complete the web production build, then commit/push and wait for the configured production deployment before validating with a new 8-digit OTP.
+
+- Validation completion: the permitted retry of `npm --prefix web run build` exited 0 and exported all 39 static routes, including `/verify-email`. The earlier `EPERM` was sandbox write access only.

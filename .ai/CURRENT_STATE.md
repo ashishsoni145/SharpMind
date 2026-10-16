@@ -144,3 +144,12 @@ Inspect live `/api/v1/auth/request-otp` status and safe PostgREST error code; co
 - Vercel project/deployment/environment reads return 403 for the current authenticated scope, so production Vercel configuration remains unverified. No deployment, production OTP request, or account cleanup was performed.
 - Welcome-email links now include `step=otp`; the existing verification page opens its OTP-entry view directly and prompts for the code. Standard signup still uses Continue → rate-limited OTP request → OTP-entry view.
 - Validation: focused backend email/OTP tests 37/37 passed; `npm run typecheck:all`, backend build/template copy, and web production build (39 routes) passed. `npm run lint` exits 1 at the Next.js interactive first-run ESLint setup prompt; no lint configuration was created. `git diff --check` passed.
+
+## OTP length alignment — 2026-10-17
+
+- User reports the delivered Supabase OTP has 8 digits while the verification page accepted only six. Updated the page's inputs, paste handling, auto-advance, validation, and copy to accept eight digits; updated the local auth adapter and responsive box sizing.
+- The Supabase adapter still forwards the submitted code unchanged to `verifyOtp`; verification type, session handling, rate limiting, and migrations are unchanged.
+- `npm --prefix web run typecheck` passed. Initial production build failed with Windows `EPERM` creating `web/.next/server/app/app/library`; retry outside sandbox is required to confirm build status.
+- Next checkpoint: complete the web production build, then commit/push and wait for the configured production deployment before validating with a new 8-digit OTP.
+
+- Validation completion: the permitted retry of `npm --prefix web run build` exited 0 and exported all 39 static routes, including `/verify-email`. The earlier `EPERM` was sandbox write access only.

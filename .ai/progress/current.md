@@ -49,3 +49,12 @@ Signup now awaits the backend welcome-email result and routes the user to verifi
 ## Production OTP 503 confirmation — 2026-10-16
 
 Supabase production logs confirm POST to `check_and_record_otp_send` returned 404/PGRST202 during the reported window. SQL and migration ledger confirm the limiter RPC/table and migrations are absent on the same project. Resend shows the welcome and Supabase confirmation messages delivered; sender domain is verified. Applying existing migrations 00002 then 00003 was rejected by automatic review due to production schema/security-function impact; explicit approval is required before applying them. Vercel project/env/log reads return 403 for the current scope. Welcome CTA now opens `/verify-email?email=…&step=otp`; focused tests 37/37, typechecks, backend/web builds passed. Lint remains blocked by interactive missing ESLint config.
+
+## OTP length alignment — 2026-10-17
+
+- User reports the delivered Supabase OTP has 8 digits while the verification page accepted only six. Updated the page's inputs, paste handling, auto-advance, validation, and copy to accept eight digits; updated the local auth adapter and responsive box sizing.
+- The Supabase adapter still forwards the submitted code unchanged to `verifyOtp`; verification type, session handling, rate limiting, and migrations are unchanged.
+- `npm --prefix web run typecheck` passed. Initial production build failed with Windows `EPERM` creating `web/.next/server/app/app/library`; retry outside sandbox is required to confirm build status.
+- Next checkpoint: complete the web production build, then commit/push and wait for the configured production deployment before validating with a new 8-digit OTP.
+
+- Validation completion: the permitted retry of `npm --prefix web run build` exited 0 and exported all 39 static routes, including `/verify-email`. The earlier `EPERM` was sandbox write access only.

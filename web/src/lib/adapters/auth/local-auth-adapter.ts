@@ -331,12 +331,12 @@ export class LocalAuthAdapter implements AuthAdapter {
     const normalizedEmail = email.trim().toLowerCase();
     const cleanToken = token.trim();
 
-    if (cleanToken.length !== 6 && cleanToken !== 'demo_verification_token') {
+    if (cleanToken.length !== 8 && cleanToken !== 'demo_verification_token') {
       return {
         success: false,
         error: {
           code: 'token_invalid_or_expired',
-          message: 'Invalid verification code. Please enter the 6-digit code sent to your email.',
+          message: 'Invalid verification code. Please enter the 8-digit code sent to your email.',
         },
       };
     }
