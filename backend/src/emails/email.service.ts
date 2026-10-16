@@ -341,7 +341,7 @@ export class EmailService {
           '';
         const recipientName = typeof rawName === 'string' ? rawName.trim() : '';
 
-        const verificationUrl = `${config.email.appUrl}/verify-email?email=${encodeURIComponent(recipientEmail)}`;
+        const verificationUrl = `${config.email.appUrl}/verify-email?email=${encodeURIComponent(recipientEmail)}&step=otp`;
 
         const htmlContent = this.loadTemplate('welcome.html', {
           name: recipientName,

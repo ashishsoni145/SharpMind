@@ -169,7 +169,7 @@ describe('SharpMind Email Integration & Verification Suite', () => {
       expect(callArgs.to).toBe('newstudent@example.com');
       expect(callArgs.subject).toContain('Welcome to SharpMind');
       expect(callArgs.html).toContain('Verify your account');
-      expect(callArgs.html).toContain('https://app.sharpmind.live/verify-email?email=newstudent%40example.com');
+      expect(callArgs.html).toContain('https://app.sharpmind.live/verify-email?email=newstudent%40example.com&amp;step=otp');
       expect(callArgs.idempotencyKey).toBe('welcome:valid-user-1');
       expect(updateUser).toHaveBeenCalledWith(
         'valid-user-1',

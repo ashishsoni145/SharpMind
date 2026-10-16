@@ -14,16 +14,19 @@ function VerifyEmailContent() {
 
   // Prefer search param or authenticated user's email
   const paramEmail = searchParams?.get('email');
+  const openOtpEntry = searchParams?.get('step') === 'otp';
   const welcomeEmailUnavailable = searchParams?.get('welcomeEmail') === 'unavailable';
   const initialEmail = paramEmail || user?.email || '';
 
   const [email, setEmail] = useState<string>(initialEmail);
   const [isRequestingOtp, setIsRequestingOtp] = useState<boolean>(false);
-  const [otpSent, setOtpSent] = useState<boolean>(false);
+  const [otpSent, setOtpSent] = useState<boolean>(openOtpEntry);
   const [otpDigits, setOtpDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
 
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(
+    openOtpEntry ? 'Enter the 6-digit code from your verification email.' : null
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
 
