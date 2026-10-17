@@ -1,23 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/Toast';
 import { apiClient } from '@/lib/api-client';
 import { AcademicHealthScore, DailyDebrief, WeeklyReview } from '@sharpmind/types';
 import styles from './AnalyticsPage.module.css';
 
 export default function AnalyticsPage() {
+  const { showToast } = useToast();
   const [healthScore, setHealthScore] = useState<AcademicHealthScore | null>(null);
   const [dailyDebrief, setDailyDebrief] = useState<DailyDebrief | null>(null);
   const [weeklyReview, setWeeklyReview] = useState<WeeklyReview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     setIsLoading(true);
-    setErrorMsg(null);
     try {
       const [scoreData, debriefData, reviewData] = await Promise.all([
         apiClient.analytics.getHealthScore().catch(() => null),
@@ -29,18 +29,20 @@ export default function AnalyticsPage() {
       setWeeklyReview(reviewData);
     } catch (err: any) {
       console.error('Failed to load academic analytics:', err);
-      setErrorMsg('Could not sync with academic intelligence engine. Please check backend connectivity.');
+      showToast('Could not sync with academic intelligence engine. Please check backend connectivity.', 'error', {
+        label: 'Retry', onClick: () => void loadAnalytics(),
+      });
       setHealthScore(null);
       setDailyDebrief(null);
       setWeeklyReview(null);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     loadAnalytics();
-  }, []);
+  }, [loadAnalytics]);
 
   const overallScore = healthScore?.overallScore ?? 0;
   const gaugeAngle = `${Math.round((overallScore / 100) * 360)}deg`;
@@ -60,35 +62,6 @@ export default function AnalyticsPage() {
             spaced repetition retention, and focus sessions. Zero artificial guesswork.
           </p>
         </div>
-
-        {errorMsg && (
-          <div style={{
-            padding: '1rem 1.25rem',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: 'var(--radius-md)',
-            color: '#f87171',
-            fontSize: '0.875rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <span>⚠️ {errorMsg}</span>
-            <button
-              onClick={loadAnalytics}
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: '#fff',
-                padding: '0.25rem 0.75rem',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer',
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
 
         {isLoading ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>

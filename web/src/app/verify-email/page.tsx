@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { getApiBaseUrl } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import styles from './page.module.css';
 
 const OTP_LENGTH = 8;
@@ -13,6 +14,7 @@ function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, verifyOtp, refreshSession } = useAuth();
+  const { showToast } = useToast();
 
   // Prefer search param or authenticated user's email
   const paramEmail = searchParams?.get('email');
@@ -26,14 +28,15 @@ function VerifyEmailContent() {
   const [otpDigits, setOtpDigits] = useState<string[]>(Array.from({ length: OTP_LENGTH }, () => ''));
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
 
-  const [statusMessage, setStatusMessage] = useState<string | null>(
-    openOtpEntry ? `Enter the ${OTP_LENGTH}-digit code from your verification email.` : null
-  );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
-
   const [cooldown, setCooldown] = useState<number>(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (openOtpEntry) showToast(`Enter the ${OTP_LENGTH}-digit code from your verification email.`, 'info');
+    if (welcomeEmailUnavailable && !openOtpEntry) {
+      showToast('We could not confirm delivery of your welcome email. You can still request your verification code here.', 'warning');
+    }
+  }, [openOtpEntry, showToast, welcomeEmailUnavailable]);
 
   // Keep email synced if auth state finishes restoring
   useEffect(() => {
@@ -58,12 +61,6 @@ function VerifyEmailContent() {
     }
   }, [otpSent]);
 
-  const clearAlerts = () => {
-    setStatusMessage(null);
-    setErrorMessage(null);
-    setRateLimitMessage(null);
-  };
-
   /**
    * Request a confirmation OTP via the backend rate-limited endpoint.
    * Frontend never calls Supabase's resend directly to ensure atomic rate limiting.
@@ -71,13 +68,12 @@ function VerifyEmailContent() {
   const handleRequestOtp = async () => {
     const targetEmail = email.trim().toLowerCase();
     if (!targetEmail || !targetEmail.includes('@')) {
-      setErrorMessage('Please enter a valid email address.');
+      showToast('Please enter a valid email address.', 'error');
       return;
     }
 
     if (cooldown > 0) return;
 
-    clearAlerts();
     setIsRequestingOtp(true);
 
     try {
@@ -93,25 +89,26 @@ function VerifyEmailContent() {
         // Rate limit reached (max 3 sends per rolling 60 minutes)
         const retryAfter = data.retryAfterSeconds || 3600;
         const minutes = Math.ceil(retryAfter / 60);
-        setRateLimitMessage(
+        showToast(
           `Rate limit exceeded: Maximum 3 verification codes allowed per hour. Please wait ${minutes} minute${
             minutes > 1 ? 's' : ''
-          } before requesting another code.`
+          } before requesting another code.`,
+          'warning'
         );
         setCooldown(retryAfter);
         return;
       }
 
       if (!response.ok || data.success === false) {
-        setErrorMessage(data.error || 'Failed to request verification code. Please try again.');
+        showToast(data.error || 'Failed to request verification code. Please try again.', 'error');
         return;
       }
 
       setOtpSent(true);
-      setStatusMessage(`If an account exists for ${targetEmail}, a verification code has been requested.`);
+      showToast('If an account exists for this email, a verification code has been requested.', 'success');
       setCooldown(data.cooldownSeconds || 60);
     } catch {
-      setErrorMessage('Network error communicating with the verification service. Please try again.');
+      showToast('Network error communicating with the verification service. Please try again.', 'error');
     } finally {
       setIsRequestingOtp(false);
     }
@@ -123,7 +120,6 @@ function VerifyEmailContent() {
     const updated = [...otpDigits];
     updated[index] = numericChar;
     setOtpDigits(updated);
-    setErrorMessage(null);
 
     // Auto advance to next input
     if (numericChar && index < OTP_LENGTH - 1 && inputRefs.current[index + 1]) {
@@ -168,13 +164,12 @@ function VerifyEmailContent() {
   const handleVerifyCode = async (explicitCode?: string) => {
     const code = explicitCode || otpDigits.join('');
     if (code.length !== OTP_LENGTH) {
-      setErrorMessage(`Please enter all ${OTP_LENGTH} digits of the verification code.`);
+      showToast(`Please enter all ${OTP_LENGTH} digits of the verification code.`, 'error');
       return;
     }
 
-    clearAlerts();
     setIsVerifying(true);
-    setStatusMessage('Verifying code with security services...');
+    showToast('Verifying your code…', 'info');
 
     try {
       const res = await verifyOtp(email, code, 'signup');
@@ -185,8 +180,7 @@ function VerifyEmailContent() {
           res.error?.code === 'token_invalid_or_expired'
             ? 'The verification code is incorrect or has expired. Please enter a valid code or request a new one.'
             : res.error?.message || 'Verification failed. Please check the code and try again.';
-        setErrorMessage(errorMsg);
-        setStatusMessage(null);
+        showToast(errorMsg, 'error');
         return;
       }
 
@@ -198,12 +192,11 @@ function VerifyEmailContent() {
         !refreshedSession?.user?.isEmailVerified ||
         refreshedSession.user.id !== res.user.id
       ) {
-        setErrorMessage('Your email was verified, but we could not confirm the signed-in session. Please sign in again.');
-        setStatusMessage(null);
+        showToast('Your email was verified, but we could not confirm the signed-in session. Please sign in again.', 'error');
         return;
       }
 
-      setStatusMessage('Email verified successfully! Redirecting to your dashboard...');
+      showToast('Email verified successfully! Redirecting to profile setup…', 'success');
 
       // The backend independently rechecks authoritative Supabase Auth state.
       fetch(`${getApiBaseUrl()}/auth/verification-success-email`, {
@@ -218,8 +211,7 @@ function VerifyEmailContent() {
         router.push('/complete-profile');
       }, 1000);
     } catch {
-      setErrorMessage('An unexpected error occurred during verification. Please try again.');
-      setStatusMessage(null);
+      showToast('An unexpected error occurred during verification. Please try again.', 'error');
     } finally {
       setIsVerifying(false);
     }
@@ -233,12 +225,6 @@ function VerifyEmailContent() {
 
       <h1 className={styles.title}>Verify your email</h1>
 
-      {welcomeEmailUnavailable && !otpSent && (
-        <div className={styles.errorAlert} role="alert" aria-live="polite">
-          We could not confirm delivery of your welcome email. You can still continue here to request your verification code.
-        </div>
-      )}
-
       <p className={styles.description}>
         {otpSent ? (
           <>
@@ -251,25 +237,6 @@ function VerifyEmailContent() {
           </>
         )}
       </p>
-
-      {/* Accessible Feedback Alerts */}
-      {statusMessage && (
-        <div className={styles.alert} role="status" aria-live="polite">
-          {statusMessage}
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className={styles.errorAlert} role="alert" aria-live="assertive">
-          {errorMessage}
-        </div>
-      )}
-
-      {rateLimitMessage && (
-        <div className={styles.rateLimitAlert} role="alert" aria-live="assertive">
-          {rateLimitMessage}
-        </div>
-      )}
 
       {/* Initial Step: Display account email and Continue button */}
       {!otpSent ? (

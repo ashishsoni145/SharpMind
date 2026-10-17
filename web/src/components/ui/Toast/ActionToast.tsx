@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ActionToastItem } from '@sharpmind/types';
 import { Icon } from '../Icon';
@@ -13,6 +13,11 @@ interface ActionToastProps {
 
 export const ActionToast: React.FC<ActionToastProps> = ({ toast, onDismiss }) => {
   const router = useRouter();
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => onDismiss(toast.id), 5000);
+    return () => window.clearTimeout(timer);
+  }, [onDismiss, toast.id]);
 
   const handleAction = () => {
     if (toast.onAction) {
@@ -76,6 +81,7 @@ export const ActionToast: React.FC<ActionToastProps> = ({ toast, onDismiss }) =>
           <Icon name="arrowRight" size="xs" />
         </button>
       </div>
+      <span className={styles.progress} aria-hidden="true" />
     </div>
   );
 };

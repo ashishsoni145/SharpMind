@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/Toast';
 import styles from './tests.module.css';
 import type {
   Assessment,
@@ -13,10 +14,10 @@ import type {
 import { apiClient as api } from '@/lib/api-client';
 
 export default function TestsPage() {
+  const { showToast } = useToast();
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Active Runner State
   const [activeSession, setActiveSession] = useState<ActiveTestSession | null>(null);
@@ -24,7 +25,6 @@ export default function TestsPage() {
   const [answersMap, setAnswersMap] = useState<Record<string, { selectedOptions?: string[]; numericalAnswer?: string; status: string }>>({});
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-  const [runnerError, setRunnerError] = useState<string | null>(null);
 
   // Scorecard modal
   const [completedSubmission, setCompletedSubmission] = useState<AssessmentSubmission | null>(null);
@@ -42,7 +42,6 @@ export default function TestsPage() {
   async function loadAssessments() {
     try {
       setLoading(true);
-      setErrorMsg(null);
       const res = await api.assessments.list({ limit: 50 });
       if (res && res.assessments) {
         setAssessments(res.assessments);
@@ -51,7 +50,9 @@ export default function TestsPage() {
       }
     } catch (err: any) {
       console.error('Failed to load assessments from API:', err);
-      setErrorMsg('Could not sync with assessment engine. Please check backend connectivity.');
+      showToast('Could not sync with assessment engine. Please check backend connectivity.', 'error', {
+        label: 'Retry', onClick: () => void loadAssessments(),
+      });
       setAssessments([]);
     } finally {
       setLoading(false);
@@ -87,7 +88,6 @@ export default function TestsPage() {
   async function handleStartTest(test: Assessment) {
     try {
       setLoading(true);
-      setRunnerError(null);
       autoSubmittedRef.current = false;
       isSubmittingRef.current = false;
       const session = await api.assessments.start(test.id);
@@ -109,7 +109,9 @@ export default function TestsPage() {
       setAnswersMap(initMap);
     } catch (err: any) {
       console.error('Failed to start test session:', err);
-      setRunnerError(`Unable to start test session: ${err.message || 'Server error'}.`);
+      showToast(`Unable to start test session: ${err.message || 'Server error'}.`, 'error', {
+        label: 'Retry', onClick: () => void handleStartTest(test),
+      });
     } finally {
       setLoading(false);
     }
@@ -209,7 +211,6 @@ export default function TestsPage() {
     if (!activeSession || isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     setSubmitting(true);
-    setRunnerError(null);
     setShowSubmitModal(false);
 
     try {
@@ -231,7 +232,9 @@ export default function TestsPage() {
       setCompletedSubmission(submission);
     } catch (err: any) {
       console.error('Failed to submit test:', err);
-      setRunnerError(`Submission failed: ${err.message || 'Server error'}. Your session is still active; please click Submit Test again.`);
+      showToast(`Submission failed: ${err.message || 'Server error'}. Your session is still active.`, 'error', {
+        label: 'Retry submission', onClick: () => void handleSubmitTest(),
+      });
     } finally {
       setSubmitting(false);
       isSubmittingRef.current = false;
@@ -292,48 +295,6 @@ export default function TestsPage() {
             ))}
           </div>
         </header>
-
-        {errorMsg && (
-          <div style={{
-            padding: '1rem 1.25rem',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: 'var(--radius-md)',
-            color: '#f87171',
-            fontSize: '0.875rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <span>⚠️ {errorMsg}</span>
-            <button
-              onClick={loadAssessments}
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: '#fff',
-                padding: '0.25rem 0.75rem',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer',
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {runnerError && (
-          <div style={{
-            padding: '1rem 1.25rem',
-            background: 'rgba(239, 68, 68, 0.15)',
-            border: '1px solid rgba(239, 68, 68, 0.4)',
-            borderRadius: 'var(--radius-md)',
-            color: '#f87171',
-            fontSize: '0.875rem',
-          }}>
-            ⚠️ {runnerError}
-          </div>
-        )}
 
         {/* Assessment Cards Grid */}
         {loading && !activeSession ? (

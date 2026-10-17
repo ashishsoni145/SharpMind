@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import styles from './page.module.css';
 
 function ResetPasswordForm() {
@@ -16,20 +17,17 @@ function ResetPasswordForm() {
   const { updatePassword, isLoading } = useAuth();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null);
-
     if (password.length < 8) {
-      setErrorMessage('Password must be at least 8 characters long.');
+      showToast('Password must be at least 8 characters long.', 'error');
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match.');
+      showToast('Passwords do not match.', 'error');
       return;
     }
 
@@ -40,33 +38,12 @@ function ResetPasswordForm() {
     });
 
     if (!res.success) {
-      setErrorMessage(res.error?.message || 'Could not update password. Please try again.');
+      showToast(res.error?.message || 'Could not update password. Please try again.', 'error');
     } else {
-      setIsSuccess(true);
-      setTimeout(() => {
-        router.push('/login');
-      }, 2000);
+      showToast('Your password has been changed securely.', 'success');
+      window.setTimeout(() => router.push('/login'), 800);
     }
   };
-
-  if (isSuccess) {
-    return (
-      <div className={styles.card}>
-        <div className={styles.successBox}>
-          <div className={styles.successIcon} aria-hidden="true">
-            🎉
-          </div>
-          <h1 className={styles.successTitle}>Password Updated</h1>
-          <p className={styles.successText}>
-            Your password has been changed securely. Redirecting to sign in...
-          </p>
-          <Button href="/login" variant="primary" size="md" fullWidth>
-            Sign In Now
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.card}>
@@ -74,13 +51,6 @@ function ResetPasswordForm() {
         <h1 className={styles.title}>Set New Password</h1>
         <p className={styles.subtitle}>Enter a strong password to secure your account</p>
       </div>
-
-      {errorMessage && (
-        <div className={styles.errorAlert} role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠️</span>
-          <span>{errorMessage}</span>
-        </div>
-      )}
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <Input

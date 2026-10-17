@@ -1,5 +1,5 @@
 import { supabase } from '../../db/client';
-import { NotFoundError, BadRequestError, ConflictError } from '../../lib/errors';
+import { NotFoundError, BadRequestError, ConflictError, InternalError } from '../../lib/errors';
 import { UpdateProfileInput, UpdateStudentProfileInput } from './user.schema';
 
 export interface UserProfileResponse {
@@ -40,6 +40,22 @@ export interface StudentProfileResponse {
 }
 
 export class UserService {
+  public static async isUsernameAvailable(username: string, currentUserId: string): Promise<boolean> {
+    const exactUsernamePattern = username.replace(/[\\%_]/g, '\\$&');
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .ilike('username', exactUsernamePattern)
+      .neq('id', currentUserId)
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalError('Could not check username availability. Please try again.');
+    }
+    return !data;
+  }
+
   public static async getProfile(userId: string): Promise<UserProfileResponse> {
     const { data: profile, error } = await supabase
       .from('profiles')

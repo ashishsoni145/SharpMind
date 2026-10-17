@@ -161,3 +161,17 @@ Inspect live `/api/v1/auth/request-otp` status and safe PostgREST error code; co
 - Added migration 20261017000001_required_student_profile_setup.sql; it has NOT been applied to Supabase. Apply before deploying these changes.
 - Validation: all workspace typechecks passed; backend build/template copy passed; web production build exported 40 routes; focused profile route tests 3/3 passed after sandbox loopback restriction. Full backend suite was stopped after unrelated existing tests failed from sandbox loopback and external Supabase network errors; it was not rerun unrestricted because suites include external data-ingestion tests. Lint remains interactive due missing ESLint configuration. No frontend test script or browser E2E run.
 - No production setting/data/migration was changed and no push/deployment was done.
+
+## Signup availability and transient toast UX — 2026-10-18
+
+- Root cause for duplicate OTPs: confirmed Supabase signup already sends its confirmation OTP; the web app then opened the verification page in its initial step, and Continue called the backend resend route, dispatching a second OTP. Signup now opens the OTP-entry step directly for Supabase-backed signup; the welcome-email link already enters that same step. Local auth retains Continue behavior.
+- Added normalized email availability lookup before signup and duplicate-email handling for Supabase's obfuscated existing-account response. Added authenticated, case-insensitive username availability lookup during required profile setup; database uniqueness and completion RPC remain authoritative against races.
+- Email availability responds with only `{available}` and receives the address in a POST body to avoid putting it in request URLs. This endpoint intentionally discloses whether an email exists and should have edge/WAF abuse controls; it fails closed if the DB lookup fails.
+- Added global 5-second toast notifications with shrinking progress and close button, replacing inline status/error messages across signup/auth/profile and existing user-action surfaces. Action notices are global and transient; retry actions remain available where provided.
+- No SQL migration or production setting change was made. Existing profile-setup migration `20261017000001_required_student_profile_setup.sql` is still required if it has not already been applied. OTP send rate limiting was not changed.
+- Validation: `npm run typecheck:all` exit 0; focused backend tests (availability + required profile setup + OTP verification) 23/23 passed; `npm --prefix backend run build` exit 0 and copied email templates; `npm --prefix web run build` exit 0 and exported 40 routes; `git diff --check` passed (CRLF normalization warnings only). `npm --prefix web run lint` exit 1 because `next lint` prompted for initial ESLint configuration; none was created. No frontend test script or production/browser E2E is available/performed. Full backend suite was not run due existing tests that can access external Supabase/data ingestion.
+- No production secrets/settings, data, deployment, or Git remote were changed.
+
+### Next checkpoint
+
+Review the complete diff, apply the existing profile-setup migration only if still pending, then deploy through the normal Git-triggered pipeline and verify signup email count, email/username availability behavior, toasts, and profile completion with a controlled account. Add platform-level abuse controls to the public email-availability endpoint before relying on it at scale.

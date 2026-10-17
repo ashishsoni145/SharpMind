@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/Toast';
 import styles from './SecuritySettingsForm.module.css';
 
 interface SecuritySettingsFormProps {
@@ -14,8 +15,8 @@ export const SecuritySettingsForm: React.FC<SecuritySettingsFormProps> = ({
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showToast } = useToast();
 
   // Criteria validation
   const hasLength = newPassword.length >= 8;
@@ -26,21 +27,13 @@ export const SecuritySettingsForm: React.FC<SecuritySettingsFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatusMessage(null);
-
     if (!allCriteriaMet) {
-      setStatusMessage({
-        type: 'error',
-        text: 'Please satisfy all password complexity criteria before updating.',
-      });
+      showToast('Please satisfy all password complexity criteria before updating.', 'error');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setStatusMessage({
-        type: 'error',
-        text: 'New password and confirmation do not match.',
-      });
+      showToast('New password and confirmation do not match.', 'error');
       return;
     }
 
@@ -48,15 +41,15 @@ export const SecuritySettingsForm: React.FC<SecuritySettingsFormProps> = ({
     try {
       const res = await onChangePassword(currentPassword, newPassword);
       if (res.success) {
-        setStatusMessage({ type: 'success', text: res.message });
+        showToast(res.message, 'success');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       } else {
-        setStatusMessage({ type: 'error', text: res.message });
+        showToast(res.message, 'error');
       }
     } catch {
-      setStatusMessage({ type: 'error', text: 'An unexpected error occurred while updating password.' });
+      showToast('An unexpected error occurred while updating password.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -75,12 +68,6 @@ export const SecuritySettingsForm: React.FC<SecuritySettingsFormProps> = ({
             Last updated: <strong>{lastPasswordChange}</strong>. Update your credentials to protect your study plans and academic diagnostics.
           </p>
         </div>
-
-        {statusMessage && (
-          <div className={statusMessage.type === 'error' ? styles.errorBanner : styles.successBanner}>
-            {statusMessage.text}
-          </div>
-        )}
 
         <div className={styles.fieldGroup}>
           <label htmlFor="sec-current-pass" className={styles.label}>

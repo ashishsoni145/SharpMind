@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from './Footer.module.css';
 import { Button } from '@/components/ui/Button';
 import { subscribeNewsletter } from '@/lib/adapters/form-adapter';
+import { useToast } from '@/components/ui/Toast';
 
 const footerSections = [
   {
@@ -35,28 +36,30 @@ const footerSections = [
 ];
 
 export function Footer() {
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading'>('idle');
 
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim()) {
+      showToast('Enter your email address to subscribe.', 'error');
+      return;
+    }
 
     setStatus('loading');
     try {
       const result = await subscribeNewsletter(email);
       if (result.success) {
-        setStatus('success');
-        setMessage(result.message);
+        showToast(result.message, 'success');
         setEmail('');
       } else {
-        setStatus('error');
-        setMessage(result.message);
+        showToast(result.message, 'error');
       }
     } catch {
-      setStatus('error');
-      setMessage('Something went wrong. Please try again.');
+      showToast('Something went wrong. Please try again.', 'error');
+    } finally {
+      setStatus('idle');
     }
   };
 
@@ -131,11 +134,6 @@ export function Footer() {
                 required
                 className={styles.newsletterInput}
                 disabled={status === 'loading'}
-                aria-describedby={
-                  status === 'success' || status === 'error'
-                    ? 'newsletter-status'
-                    : undefined
-                }
               />
               <Button
                 type="submit"
@@ -146,17 +144,6 @@ export function Footer() {
                 Subscribe
               </Button>
             </form>
-            {(status === 'success' || status === 'error') && (
-              <p
-                id="newsletter-status"
-                className={
-                  status === 'success' ? styles.successMsg : styles.errorMsg
-                }
-                role="status"
-              >
-                {message}
-              </p>
-            )}
           </div>
         </div>
 

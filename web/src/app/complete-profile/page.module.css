@@ -90,6 +90,10 @@
   font-weight: 400;
 }
 
+.field .usernameAvailable { color: #34d399; }
+.field .usernameUnavailable { color: #fb7185; }
+.field .usernameChecking { color: var(--color-text-tertiary, #a1a1aa); }
+
 .error,
 .status {
   margin-bottom: 18px;

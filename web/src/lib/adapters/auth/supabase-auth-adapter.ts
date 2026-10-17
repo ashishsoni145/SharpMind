@@ -45,7 +45,12 @@ function mapSupabaseError(error: { message: string; status?: number; code?: stri
     code = 'invalid_credentials';
   } else if (msg.includes('user not found')) {
     code = 'user_not_found';
-  } else if (msg.includes('already registered') || msg.includes('unique constraint') || msg.includes('already in use')) {
+  } else if (
+    msg.includes('already registered') ||
+    msg.includes('already exists') ||
+    msg.includes('unique constraint') ||
+    msg.includes('already in use')
+  ) {
     code = 'email_already_in_use';
   } else if (msg.includes('password') && (msg.includes('short') || msg.includes('weak') || msg.includes('least'))) {
     code = 'weak_password';
@@ -129,6 +134,18 @@ export class SupabaseAuthAdapter implements AuthAdapter {
       return {
         success: false,
         error: mapSupabaseError(error),
+      };
+    }
+
+    // Supabase intentionally returns an obfuscated user with no identities
+    // when email confirmation is enabled and that address is already registered.
+    if (data.user?.identities?.length === 0) {
+      return {
+        success: false,
+        error: {
+          code: 'email_already_in_use',
+          message: 'An account already exists with this email. Sign in or use a different email.',
+        },
       };
     }
 

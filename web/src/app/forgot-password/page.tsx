@@ -5,49 +5,37 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import styles from './page.module.css';
 
 function ForgotPasswordForm() {
   const { requestPasswordReset } = useAuth();
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      showToast('Enter a valid email address to request a password reset.', 'error');
+      return;
+    }
 
     setIsSubmitting(true);
-    await requestPasswordReset({ email });
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+    try {
+      const result = await requestPasswordReset({ email: normalizedEmail });
+      if (!result.success) {
+        showToast(result.error?.message || 'Could not request password reset. Please try again.', 'error');
+        return;
+      }
+      showToast('If an account is associated with this email, reset instructions have been sent.', 'success');
+    } catch {
+      showToast('Could not request password reset. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  if (isSubmitted) {
-    return (
-      <div className={styles.card}>
-        <div className={styles.successBox}>
-          <div className={styles.successIcon} aria-hidden="true">
-            📬
-          </div>
-          <h1 className={styles.successTitle}>Check Your Inbox</h1>
-          <p className={styles.successText}>
-            If an account is associated with <strong>{email}</strong>, we have sent instructions to reset your password.
-          </p>
-          <Button href="/login" variant="primary" size="md" fullWidth>
-            Return to Sign In
-          </Button>
-
-          <div className={styles.demoLink}>
-            Testing locally?{' '}
-            <Link href="/reset-password?token=demo_token" className={styles.backLink}>
-              Simulate Password Reset Link &rarr;
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.card}>

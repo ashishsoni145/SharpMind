@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import { ClassroomBreadcrumbs } from '@/components/classroom/ClassroomBreadcrumbs';
 import { ClassroomFilterBar } from '@/components/classroom/ClassroomFilterBar';
 import { SubjectCardGrid } from '@/components/classroom/SubjectCardGrid';
@@ -23,6 +24,7 @@ import styles from './classroom.module.css';
 
 function ClassroomHierarchyContent() {
   const router = useRouter();
+  const { showToast } = useToast();
   const searchParams = useSearchParams();
 
   // Query parameter state for deep linking
@@ -84,6 +86,10 @@ function ClassroomHierarchyContent() {
         if (!isMounted) return;
         console.error('Failed to load classroom subjects:', err);
         setError('Failed to load curriculum taxonomy. Please try again.');
+        showToast('Failed to load curriculum taxonomy. Please try again.', 'error', {
+          label: 'Retry',
+          onClick: () => window.location.reload(),
+        });
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -336,15 +342,6 @@ function ClassroomHierarchyContent() {
         <div className={styles.loadingSkeleton} role="status" aria-live="polite">
           <div className={styles.spinner} />
           <p>Loading curriculum learning hierarchy...</p>
-        </div>
-      )}
-
-      {error && (
-        <div className={styles.errorState} role="alert">
-          <p>{error}</p>
-          <Button size="sm" variant="outline" onClick={() => window.location.reload()}>
-            Retry
-          </Button>
         </div>
       )}
 

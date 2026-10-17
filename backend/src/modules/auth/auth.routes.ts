@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { optionalAuth } from '../../middleware/auth';
+import { validateBody } from '../../lib/validate';
+import { emailAvailabilitySchema } from './auth.schema';
 
 const router = Router();
+
+router.post('/email-availability', validateBody(emailAvailabilitySchema), AuthController.checkEmailAvailability);
 
 // Endpoint for requesting a signup confirmation OTP (rate limited)
 router.post('/request-otp', AuthController.requestOtp);

@@ -1,10 +1,8 @@
 import { Suspense } from 'react';
-import { ActionToastProvider } from '@/components/ui/Toast';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ActionToastProvider>
-      <Suspense
+    <Suspense
         fallback={
           <div
             style={{
@@ -34,8 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         }
       >
-        {children}
-      </Suspense>
-    </ActionToastProvider>
+      {children}
+    </Suspense>
   );
 }

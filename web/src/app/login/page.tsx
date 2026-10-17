@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useProtectedRoute } from '@/lib/auth/use-protected-route';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import styles from './page.module.css';
 
 function LoginForm() {
@@ -22,14 +23,12 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null);
-
     if (!email.trim() || !password) {
-      setErrorMessage('Please enter both email and password.');
+      showToast('Please enter both email and password.', 'error');
       return;
     }
 
@@ -38,7 +37,7 @@ function LoginForm() {
       if (res.requiresEmailVerification) {
         router.push(`/verify-email?email=${encodeURIComponent(email)}`);
       } else {
-        setErrorMessage(res.error?.message || 'Authentication failed. Please check your credentials.');
+        showToast(res.error?.message || 'Authentication failed. Please check your credentials.', 'error');
       }
     } else {
       router.push(redirectTo);
@@ -49,7 +48,7 @@ function LoginForm() {
   const fillDemo = (demoEmail: string) => {
     setEmail(demoEmail);
     setPassword('Password123!');
-    setErrorMessage(null);
+    showToast('Demo credentials filled in.', 'info');
   };
 
   return (
@@ -58,13 +57,6 @@ function LoginForm() {
         <h1 className={styles.title}>Welcome Back</h1>
         <p className={styles.subtitle}>Sign in to your SharpMind learning workspace</p>
       </div>
-
-      {errorMessage && (
-        <div className={styles.errorAlert} role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠️</span>
-          <span>{errorMessage}</span>
-        </div>
-      )}
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <Input

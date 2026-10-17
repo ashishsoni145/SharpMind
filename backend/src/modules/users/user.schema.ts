@@ -6,6 +6,10 @@ export const updateProfileSchema = z.object({
   avatarUrl: z.string().url().nullable().optional(),
 });
 
+export const usernameAvailabilitySchema = z.object({
+  username: z.string().trim().toLowerCase().regex(/^[a-z0-9_]{3,24}$/),
+});
+
 export const updateStudentProfileSchema = z.object({
   boardId: z.string().nullable().optional(),
   gradeId: z.string().nullable().optional(),

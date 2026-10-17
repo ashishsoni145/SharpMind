@@ -8,6 +8,7 @@ import { studentProfileAdapter } from '@/lib/adapters/student';
 import type { StudentProfile } from '@/lib/types/onboarding';
 import { Button } from '@/components/ui/Button';
 import { Icon, type IconName } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/Toast';
 import { apiClient } from '@/lib/api-client';
 import styles from './page.module.css';
 
@@ -58,9 +59,9 @@ interface DashboardRevisionItem {
 
 export default function WorkspaceDashboard() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Student Model State
   const [modelSummary, setModelSummary] = useState({
@@ -87,7 +88,6 @@ export default function WorkspaceDashboard() {
 
   const loadProfileAndState = useCallback(async (userId: string) => {
     setIsLoading(true);
-    setFetchError(null);
     try {
       // 1. Fetch Student Profile
       const p = await studentProfileAdapter.getProfile(userId);
@@ -202,11 +202,14 @@ export default function WorkspaceDashboard() {
       }
     } catch (err) {
       console.error('Critical failure in workspace dashboard sync:', err);
-      setFetchError('Could not sync with intelligence engine. Please check backend connectivity.');
+      showToast('Could not sync with intelligence engine. Please check backend connectivity.', 'error', {
+        label: 'Retry',
+        onClick: () => window.location.reload(),
+      });
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
   useEffect(() => {
     if (user?.id) {
@@ -310,16 +313,6 @@ export default function WorkspaceDashboard() {
   return (
     <WorkspaceShell>
       <div className={styles.container}>
-        {/* Error Banner */}
-        {fetchError && (
-          <div className={styles.errorBanner} role="alert">
-            <span>⚠️ {fetchError}</span>
-            <Button onClick={() => user?.id && loadProfileAndState(user.id)} variant="outline" size="sm">
-              Retry
-            </Button>
-          </div>
-        )}
-
         {isLoading ? (
           <div className={styles.loadingSkeleton} role="status">
             <div className={styles.spinner} />

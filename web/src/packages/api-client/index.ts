@@ -113,6 +113,13 @@ export class SharpMindApiClient {
 
   // User & Profile Module
   public readonly users = {
+    checkUsernameAvailability: async (username: string): Promise<boolean> => {
+      const res = await this.request<{ available: boolean }>('/users/username-availability', {
+        method: 'POST',
+        body: JSON.stringify({ username }),
+      });
+      return Boolean(res.data?.available);
+    },
     getMe: async () => {
       const res = await this.request('/users/me');
       return res.data;
@@ -138,6 +145,17 @@ export class SharpMindApiClient {
     getById: async (id: string) => {
       const res = await this.request(`/users/${id}`);
       return res.data;
+    },
+  };
+
+  // Public signup availability check. Only a boolean is returned.
+  public readonly auth = {
+    checkEmailAvailability: async (email: string): Promise<boolean> => {
+      const res = await this.request<{ available: boolean }>('/auth/email-availability', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      });
+      return Boolean(res.data?.available);
     },
   };
 

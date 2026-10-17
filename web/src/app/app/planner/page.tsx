@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/lib/auth/auth-context';
 import { apiClient } from '@/lib/api-client';
 import styles from './planner.module.css';
@@ -49,17 +50,16 @@ interface WeeklyPlanData {
 
 export default function PlannerPage() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [viewMode, setViewMode] = useState<'today' | 'week'>('today');
   const [todayPlan, setTodayPlan] = useState<DailyPlanData | null>(null);
   const [weekPlan, setWeekPlan] = useState<WeeklyPlanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [replanning, setReplanning] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const loadPlannerData = useCallback(async () => {
     if (!user?.id) return;
     setLoading(true);
-    setErrorMsg(null);
 
     try {
       if (viewMode === 'today') {
@@ -137,11 +137,13 @@ export default function PlannerPage() {
       }
     } catch (err: any) {
       console.error('Failed to load study plan:', err);
-      setErrorMsg('Could not sync with Adaptive Planner. Please check backend connectivity.');
+      showToast('Could not sync with Adaptive Planner. Please check backend connectivity.', 'error', {
+        label: 'Retry', onClick: () => void loadPlannerData(),
+      });
     } finally {
       setLoading(false);
     }
-  }, [user?.id, viewMode]);
+  }, [showToast, user?.id, viewMode]);
 
   useEffect(() => {
     loadPlannerData();
@@ -176,14 +178,15 @@ export default function PlannerPage() {
   const handleReplan = async () => {
     if (!user?.id) return;
     setReplanning(true);
-    setErrorMsg(null);
 
     try {
       await apiClient.planner.replan(user.id);
       await loadPlannerData();
     } catch (err: any) {
       console.error('Failed to execute replan:', err);
-      setErrorMsg(`Replan failed: ${err.message || 'Server error'}.`);
+      showToast(`Replan failed: ${err.message || 'Server error'}.`, 'error', {
+        label: 'Retry', onClick: () => void handleReplan(),
+      });
     } finally {
       setReplanning(false);
     }
@@ -239,35 +242,6 @@ export default function PlannerPage() {
             </button>
           </div>
         </header>
-
-        {errorMsg && (
-          <div style={{
-            padding: '1rem 1.25rem',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: 'var(--radius-md)',
-            color: '#f87171',
-            fontSize: '0.875rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <span>⚠️ {errorMsg}</span>
-            <button
-              onClick={loadPlannerData}
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: '#fff',
-                padding: '0.25rem 0.75rem',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer',
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
 
         {/* Metrics Banner */}
         <div className={styles.metricsBanner}>

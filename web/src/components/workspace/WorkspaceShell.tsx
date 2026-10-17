@@ -8,6 +8,7 @@ import { useProtectedRoute } from '@/lib/auth/use-protected-route';
 import { studentProfileAdapter } from '@/lib/adapters/student';
 import type { StudentProfile } from '@/lib/types/onboarding';
 import { getApiClient } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { CommandPalette } from './CommandPalette';
@@ -21,6 +22,7 @@ interface WorkspaceShellProps {
 export function WorkspaceShell({ children }: WorkspaceShellProps) {
   const { user, isLoading, isAuthenticated, adapterName } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [profileSetupState, setProfileSetupState] = useState<'checking' | 'ready' | 'failed'>('checking');
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -63,7 +65,13 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
           router.replace('/complete-profile');
         }
       } catch {
-        if (active) setProfileSetupState('failed');
+        if (active) {
+          setProfileSetupState('failed');
+          showToast('We could not confirm your profile setup. Please complete the required setup to continue.', 'error', {
+            label: 'Complete profile',
+            onClick: () => router.push('/complete-profile'),
+          });
+        }
       }
     };
 
@@ -71,7 +79,16 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
     return () => {
       active = false;
     };
-  }, [adapterName, isAuthenticated, isLoading, router, user]);
+  }, [adapterName, isAuthenticated, isLoading, router, showToast, user]);
+
+  useEffect(() => {
+    if (!isLoading && user?.role === 'student' && !user.isEmailVerified) {
+      showToast(`Please verify ${user.email} to unlock all study features.`, 'warning', {
+        label: 'Verify email',
+        onClick: () => router.push(`/verify-email?email=${encodeURIComponent(user.email)}`),
+      });
+    }
+  }, [isLoading, router, showToast, user]);
 
   // Restore sidebar collapse preference from storage
   useEffect(() => {
@@ -136,8 +153,7 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
 
   if (profileSetupState === 'failed') {
     return (
-      <div className={styles.loadingScreen} role="alert">
-        <p>We could not confirm your profile setup. Please try again or complete your profile.</p>
+      <div className={styles.loadingScreen}>
         <Link href="/complete-profile">Continue to profile setup</Link>
       </div>
     );
@@ -162,25 +178,6 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
           isMobileOpen={isMobileOpen}
           onToggleCollapse={handleToggleCollapse}
         />
-
-        {!user.isEmailVerified && (
-          <aside className={styles.verificationNotice} role="alert" aria-live="polite">
-            <div className={styles.noticeContent}>
-              <span className={styles.noticeIcon} aria-hidden="true">
-                ⚠️
-              </span>
-              <span className={styles.noticeText}>
-                <strong>Email verification required:</strong> Please verify your email address ({user.email}) within 7 days of signup to ensure continuous access to AI tutoring and study features.
-              </span>
-            </div>
-            <Link
-              href={`/verify-email?email=${encodeURIComponent(user.email)}`}
-              className={styles.noticeActionBtn}
-            >
-              Verify Email &rarr;
-            </Link>
-          </aside>
-        )}
 
         <main id="workspace-content" className={styles.contentWrapper}>
           {children}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { ActionToastItem } from '@sharpmind/types';
 import { ActionToast } from './ActionToast';
 import styles from './ActionToast.module.css';
@@ -17,6 +17,7 @@ const ActionToastContext = createContext<ActionToastContextValue | undefined>(un
 
 export const ActionToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<ActionToastItem[]>([]);
+  const seenNotificationIds = useRef(new Set<string>());
   const { user } = useAuth();
 
   const dismissActionToast = useCallback((id: string) => {
@@ -47,6 +48,8 @@ export const ActionToastProvider: React.FC<{ children: React.ReactNode }> = ({ c
         if (!isMounted || !pending || pending.length === 0) return;
 
         for (const notif of pending) {
+          if (seenNotificationIds.current.has(notif.id)) continue;
+          seenNotificationIds.current.add(notif.id);
           showActionToast({
             id: `action-notif-${notif.id}`,
             title: notif.title,

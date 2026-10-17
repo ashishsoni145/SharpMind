@@ -3,11 +3,12 @@ import { UserController } from './user.controller';
 import { requireAuth } from '../../middleware/auth';
 import { requireSelfOrAdmin } from '../../middleware/tenant';
 import { validateBody } from '../../lib/validate';
-import { updateProfileSchema, updateStudentProfileSchema } from './user.schema';
+import { updateProfileSchema, updateStudentProfileSchema, usernameAvailabilitySchema } from './user.schema';
 
 const router = Router();
 
 // Current user profile endpoints
+router.post('/username-availability', requireAuth, validateBody(usernameAvailabilitySchema), UserController.checkUsernameAvailability);
 router.get('/me', requireAuth, UserController.getMe);
 router.patch('/me', requireAuth, validateBody(updateProfileSchema), UserController.updateMe);
 router.get('/me/student-profile', requireAuth, UserController.getStudentProfile);

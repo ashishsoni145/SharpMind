@@ -9,6 +9,39 @@ import { supabase } from '../../db/client';
 
 export class AuthController {
   /**
+   * POST /api/v1/auth/email-availability
+   * Signup helper. Returns only availability, never profile details.
+   */
+  public static async checkEmailAvailability(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const email = String(req.body.email).trim().toLowerCase();
+
+      // Escape LIKE metacharacters so underscores and percent signs in valid
+      // email addresses are treated literally by PostgREST's case-insensitive filter.
+      const exactEmailPattern = email.replace(/[\\%_]/g, '\\$&');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .ilike('email', exactEmailPattern)
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        logger.error(
+          { code: error.code, email: EmailService.maskEmail(email) },
+          '[AuthController] Signup email availability lookup failed'
+        );
+        res.status(503).json({ success: false, error: 'We could not check this email right now. Please try again.' });
+        return;
+      }
+
+      res.status(200).json({ success: true, data: { available: !data } });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
    * POST /api/v1/auth/welcome-email
    * Dispatches welcome email for a verified Supabase user after signup.
    * Email failure never throws or marks the operation failed.

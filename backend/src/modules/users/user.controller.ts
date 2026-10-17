@@ -4,6 +4,23 @@ import { sendSuccess } from '../../lib/api-response';
 import { UnauthorizedError } from '../../lib/errors';
 
 export class UserController {
+  public static async checkUsernameAvailability(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const username = String(req.body.username).trim().toLowerCase();
+      if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+        res.status(400).json({
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'Username must be 3–24 letters, numbers, or underscores.' },
+        });
+        return;
+      }
+      sendSuccess(res, { available: await UserService.isUsernameAvailable(username, req.user.id) });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public static async getMe(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.user) throw new UnauthorizedError();

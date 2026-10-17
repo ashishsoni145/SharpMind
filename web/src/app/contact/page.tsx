@@ -5,6 +5,7 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import { submitContactForm, submitFeedbackForm } from '@/lib/adapters/form-adapter';
 import type { ContactFormData, FeedbackFormData } from '@/lib/types/forms';
 import styles from './page.module.css';
@@ -13,18 +14,18 @@ function ContactForm() {
   const [formData, setFormData] = useState<ContactFormData>({
     name: '', email: '', subject: '', message: '',
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [resultMessage, setResultMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading'>('idle');
+  const { showToast } = useToast();
 
   const validate = (): boolean => {
-    const e: typeof errors = {};
+    const e: Partial<Record<keyof ContactFormData, string>> = {};
     if (!formData.name.trim()) e.name = 'Name is required.';
     if (!formData.email.trim()) e.email = 'Email is required.';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) e.email = 'Enter a valid email.';
     if (!formData.subject.trim()) e.subject = 'Subject is required.';
     if (!formData.message.trim()) e.message = 'Message is required.';
-    setErrors(e);
+    const firstError = Object.values(e)[0];
+    if (firstError) showToast(String(firstError), 'error');
     return Object.keys(e).length === 0;
   };
 
@@ -34,38 +35,32 @@ function ContactForm() {
     setStatus('loading');
     try {
       const result = await submitContactForm(formData);
-      setStatus(result.success ? 'success' : 'error');
-      setResultMessage(result.message);
+      showToast(result.message, result.success ? 'success' : 'error');
       if (result.success) setFormData({ name: '', email: '', subject: '', message: '' });
     } catch {
-      setStatus('error');
-      setResultMessage('Something went wrong. Please try again.');
+      showToast('Something went wrong. Please try again.', 'error');
+    } finally {
+      setStatus('idle');
     }
   };
 
   const update = (field: keyof ContactFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   return (
     <form onSubmit={handleSubmit} className={styles.form} noValidate aria-label="Contact form">
-      <Input label="Name" required value={formData.name} error={errors.name}
+      <Input label="Name" required value={formData.name}
         onChange={(e) => update('name', e.target.value)} placeholder="Your name" />
-      <Input label="Email" type="email" required value={formData.email} error={errors.email}
+      <Input label="Email" type="email" required value={formData.email}
         onChange={(e) => update('email', e.target.value)} placeholder="you@example.com" />
-      <Input label="Subject" required value={formData.subject} error={errors.subject}
+      <Input label="Subject" required value={formData.subject}
         onChange={(e) => update('subject', e.target.value)} placeholder="What is this about?" />
-      <Textarea label="Message" required value={formData.message} error={errors.message}
+      <Textarea label="Message" required value={formData.message}
         onChange={(e) => update('message', e.target.value)} placeholder="Your message..." rows={5} />
       <Button type="submit" variant="primary" size="lg" fullWidth loading={status === 'loading'}>
         Send Message
       </Button>
-      {(status === 'success' || status === 'error') && (
-        <p className={status === 'success' ? styles.success : styles.error} role="status">
-          {resultMessage}
-        </p>
-      )}
     </form>
   );
 }
@@ -74,21 +69,24 @@ function FeedbackForm() {
   const [formData, setFormData] = useState<FeedbackFormData>({
     rating: 0, category: 'general', message: '', email: '',
   });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [resultMessage, setResultMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading'>('idle');
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.message.trim()) return;
+    if (!formData.message.trim()) {
+      showToast('Please enter your feedback before submitting.', 'error');
+      return;
+    }
     setStatus('loading');
     try {
       const result = await submitFeedbackForm(formData);
-      setStatus(result.success ? 'success' : 'error');
-      setResultMessage(result.message);
+      showToast(result.message, result.success ? 'success' : 'error');
       if (result.success) setFormData({ rating: 0, category: 'general', message: '', email: '' });
     } catch {
-      setStatus('error');
-      setResultMessage('Something went wrong.');
+      showToast('Something went wrong. Please try again.', 'error');
+    } finally {
+      setStatus('idle');
     }
   };
 
@@ -136,11 +134,6 @@ function FeedbackForm() {
       <Button type="submit" variant="primary" size="lg" fullWidth loading={status === 'loading'}>
         Send Feedback
       </Button>
-      {(status === 'success' || status === 'error') && (
-        <p className={status === 'success' ? styles.success : styles.error} role="status">
-          {resultMessage}
-        </p>
-      )}
     </form>
   );
 }

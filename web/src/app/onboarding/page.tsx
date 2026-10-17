@@ -7,6 +7,7 @@ import { curriculumAdapter } from '@/lib/adapters/curriculum';
 import { studentProfileAdapter } from '@/lib/adapters/student';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import type { Board, Grade, Subject, TargetExam } from '@/lib/types/curriculum';
 import type {
   LearningStyle,
@@ -28,6 +29,7 @@ const STEP_TITLES = [
 function OnboardingWizard() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
+  const { showToast } = useToast();
   const userId = user?.id || 'demo_student';
 
   // Catalog state from CurriculumAdapter
@@ -41,7 +43,6 @@ function OnboardingWizard() {
   // Wizard State
   const [step, setStep] = useState(1);
   const [draftSavedTime, setDraftSavedTime] = useState<string | null>(null);
-  const [validationError, setValidationError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form Fields
@@ -195,19 +196,17 @@ function OnboardingWizard() {
 
   // Validation per step
   const validateStep = (currentStep: number): boolean => {
-    setValidationError(null);
-
     if (currentStep === 1) {
       if (!fullName.trim()) {
-        setValidationError('Please enter your full name.');
+        showToast('Please enter your full name.', 'error');
         return false;
       }
       if (!selectedGrade) {
-        setValidationError('Please select your grade or class.');
+        showToast('Please select your grade or class.', 'error');
         return false;
       }
       if (!selectedBoard) {
-        setValidationError('Please select your examination board.');
+        showToast('Please select your examination board.', 'error');
         return false;
       }
       return true;
@@ -215,11 +214,11 @@ function OnboardingWizard() {
 
     if (currentStep === 2) {
       if (selectedSubjects.length === 0) {
-        setValidationError('Please select at least one subject.');
+        showToast('Please select at least one subject.', 'error');
         return false;
       }
       if (selectedExamGoals.length === 0) {
-        setValidationError('Please select at least one target exam.');
+        showToast('Please select at least one target exam.', 'error');
         return false;
       }
       return true;
@@ -227,7 +226,7 @@ function OnboardingWizard() {
 
     if (currentStep === 3) {
       if (!preparationLevel) {
-        setValidationError('Please select your current preparation level.');
+        showToast('Please select your current preparation level.', 'error');
         return false;
       }
       return true;
@@ -235,11 +234,11 @@ function OnboardingWizard() {
 
     if (currentStep === 4) {
       if (!dailyHours || dailyHours <= 0) {
-        setValidationError('Please specify your daily study hours.');
+        showToast('Please specify your daily study hours.', 'error');
         return false;
       }
       if (!preferredStudyTime) {
-        setValidationError('Please select your preferred study time of day.');
+        showToast('Please select your preferred study time of day.', 'error');
         return false;
       }
       return true;
@@ -258,7 +257,6 @@ function OnboardingWizard() {
   };
 
   const handleBack = () => {
-    setValidationError(null);
     if (step > 1) {
       const prevStep = step - 1;
       setStep(prevStep);
@@ -361,13 +359,6 @@ function OnboardingWizard() {
             {step === 5 && 'Review your profile and initialize your continuous Student Knowledge Model.'}
           </p>
         </header>
-
-        {validationError && (
-          <div className={styles.errorAlert} role="alert">
-            <span aria-hidden="true">⚠️</span>
-            <span>{validationError}</span>
-          </div>
-        )}
 
         {/* STEP 1: ACADEMIC IDENTITY */}
         {step === 1 && (

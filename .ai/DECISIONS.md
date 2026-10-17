@@ -11,3 +11,4 @@
 
 
 - 2026-10-17: Formalized ADR 0009 for required one-time student profile setup after verified email: globally case-insensitive usernames, distinct profile_setup_completed state, and service-role-only atomic completion RPC.
+- 2026-10-18: Formalized ADR 0010 for signup availability and transient notification UX. Supabase confirmation signup enters OTP input directly to avoid sending a second OTP; email availability uses a response-minimized POST and username availability is authenticated while DB constraints remain authoritative; global actionable toasts auto-dismiss after five seconds.

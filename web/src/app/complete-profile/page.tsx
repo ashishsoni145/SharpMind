@@ -9,6 +9,7 @@ import { settingsAdapter } from '@/lib/adapters/settings';
 import { studentProfileAdapter } from '@/lib/adapters/student';
 import type { StudentProfile } from '@/lib/types/onboarding';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import styles from './page.module.css';
 
 const CLASS_OPTIONS = [
@@ -46,6 +47,7 @@ function makeLocalProfile(userId: string, fullName: string, gradeId: string): St
 export default function CompleteProfilePage() {
   const router = useRouter();
   const { user, isLoading, adapterName } = useAuth();
+  const { showToast } = useToast();
   useProtectedRoute({ requireAuth: true });
 
   const [fullName, setFullName] = useState('');
@@ -53,8 +55,31 @@ export default function CompleteProfilePage() {
   const [gradeId, setGradeId] = useState<(typeof CLASS_OPTIONS)[number]['value'] | ''>('');
   const [isChecking, setIsChecking] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'failed'>('idle');
+
+  useEffect(() => {
+    const cleanUsername = username.trim().toLowerCase();
+    if (adapterName === 'LocalAuthAdapter' || !/^[a-z0-9_]{3,24}$/.test(cleanUsername)) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    let active = true;
+    setUsernameStatus('checking');
+    const timer = window.setTimeout(async () => {
+      try {
+        const available = await api.users.checkUsernameAvailability(cleanUsername);
+        if (active) setUsernameStatus(available ? 'available' : 'taken');
+      } catch {
+        if (active) setUsernameStatus('failed');
+      }
+    }, 350);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [adapterName, username]);
 
   useEffect(() => {
     if (isLoading || !user) return;
@@ -90,7 +115,7 @@ export default function CompleteProfilePage() {
         setIsChecking(false);
       } catch {
         if (!active) return;
-        setErrorMessage('We could not check your saved profile. You can still submit these details.');
+        showToast('We could not check your saved profile. Please retry, then continue setup.', 'error');
         setUsername(user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24));
         setIsChecking(false);
       }
@@ -100,25 +125,38 @@ export default function CompleteProfilePage() {
     return () => {
       active = false;
     };
-  }, [adapterName, isLoading, router, user]);
+  }, [adapterName, isLoading, router, showToast, user]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setErrorMessage(null);
-    setStatusMessage(null);
-
     const cleanName = fullName.trim();
     const cleanUsername = username.trim().toLowerCase();
     if (cleanName.length < 2 || cleanName.length > 100) {
-      setErrorMessage('Enter a name between 2 and 100 characters.');
+      showToast('Enter a name between 2 and 100 characters.', 'error');
       return;
     }
     if (!/^[a-z0-9_]{3,24}$/.test(cleanUsername)) {
-      setErrorMessage('Username must be 3–24 characters using letters, numbers, and underscores.');
+      showToast('Username must be 3–24 characters using letters, numbers, and underscores.', 'error');
       return;
     }
+    if (usernameStatus === 'taken') {
+      showToast('Username already taken. Please choose another.', 'error');
+      return;
+    }
+    if (adapterName !== 'LocalAuthAdapter') {
+      try {
+        if (!(await api.users.checkUsernameAvailability(cleanUsername))) {
+          setUsernameStatus('taken');
+          showToast('Username already taken. Please choose another.', 'error');
+          return;
+        }
+      } catch {
+        showToast('Could not check username availability. Please try again.', 'error');
+        return;
+      }
+    }
     if (!gradeId) {
-      setErrorMessage('Select your current class to continue.');
+      showToast('Select your current class to continue.', 'error');
       return;
     }
     if (!user) return;
@@ -146,10 +184,10 @@ export default function CompleteProfilePage() {
         });
       }
 
-      setStatusMessage('Your profile is saved. Opening your dashboard…');
+      showToast('Your profile is saved. Opening your dashboard…', 'success');
       router.replace('/app');
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Could not save your profile. Please try again.');
+      showToast(error instanceof Error ? error.message : 'Could not save your profile. Please try again.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -169,9 +207,6 @@ export default function CompleteProfilePage() {
         <div className={styles.eyebrow}>One-time setup</div>
         <h1 id="profile-setup-title" className={styles.title}>Complete your profile</h1>
         <p className={styles.description}>Add these details once to continue to your SharpMind dashboard.</p>
-
-        {errorMessage && <div className={styles.error} role="alert">{errorMessage}</div>}
-        {statusMessage && <div className={styles.status} role="status">{statusMessage}</div>}
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <label className={styles.field} htmlFor="profile-name">
@@ -197,11 +232,26 @@ export default function CompleteProfilePage() {
               minLength={3}
               maxLength={24}
               pattern="[a-zA-Z0-9_]{3,24}"
-              onChange={(event) => setUsername(event.target.value.toLowerCase())}
+              onChange={(event) => {
+                setUsername(event.target.value.toLowerCase());
+                setUsernameStatus('idle');
+              }}
               aria-describedby="username-hint"
               required
             />
             <small id="username-hint">3–24 letters, numbers, or underscores. Usernames are unique.</small>
+            {usernameStatus !== 'idle' && (
+              <small
+                className={usernameStatus === 'available' ? styles.usernameAvailable : usernameStatus === 'taken' || usernameStatus === 'failed' ? styles.usernameUnavailable : styles.usernameChecking}
+                role={usernameStatus === 'taken' || usernameStatus === 'failed' ? 'status' : 'status'}
+                aria-live="polite"
+              >
+                {usernameStatus === 'checking' && 'Checking username…'}
+                {usernameStatus === 'available' && 'Username is available'}
+                {usernameStatus === 'taken' && 'Username already taken'}
+                {usernameStatus === 'failed' && 'Could not check username availability'}
+              </small>
+            )}
           </label>
 
           <label className={styles.field} htmlFor="profile-email">

@@ -7,6 +7,7 @@ import { useTheme } from '@/lib/theme/theme-context';
 import { settingsAdapter } from '@/lib/adapters/settings';
 import type { UserSettings } from '@/lib/types/settings';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/Toast';
 import styles from './profile.module.css';
 
 const CLASS_OPTIONS = [
@@ -24,6 +25,7 @@ const BOARD_OPTIONS = [
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const { resolvedTheme, setTheme } = useTheme();
 
   const [settings, setSettings] = useState<UserSettings | null>(null);
@@ -41,13 +43,10 @@ export default function ProfilePage() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordStatus, setPasswordStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   // Save profile status
   const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   const userId = user?.id || '';
 
@@ -89,9 +88,6 @@ export default function ProfilePage() {
     if (!name.trim()) return;
 
     setIsSaving(true);
-    setSaveSuccess(false);
-    setSaveError(null);
-
     try {
       const sanitizedUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
 
@@ -108,11 +104,10 @@ export default function ProfilePage() {
         board: selectedBoard,
       });
 
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      showToast('Profile updated successfully.', 'success');
     } catch (err) {
       console.error('Failed to save profile changes:', err);
-      setSaveError(err instanceof Error ? err.message : 'Could not save profile changes. Please try again.');
+      showToast(err instanceof Error ? err.message : 'Could not save profile changes. Please try again.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -121,20 +116,18 @@ export default function ProfilePage() {
   // Handle Password Update
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordStatus(null);
-
     if (!currentPassword.trim()) {
-      setPasswordStatus({ type: 'error', message: 'Current password is required to change your password.' });
+      showToast('Current password is required to change your password.', 'error');
       return;
     }
 
     if (newPassword.length < 8) {
-      setPasswordStatus({ type: 'error', message: 'New password must be at least 8 characters long.' });
+      showToast('New password must be at least 8 characters long.', 'error');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordStatus({ type: 'error', message: 'New password and confirmation do not match.' });
+      showToast('New password and confirmation do not match.', 'error');
       return;
     }
 
@@ -142,15 +135,15 @@ export default function ProfilePage() {
     try {
       const res = await settingsAdapter.changePassword(userId, currentPassword, newPassword);
       if (res.success) {
-        setPasswordStatus({ type: 'success', message: res.message });
+        showToast(res.message, 'success');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       } else {
-        setPasswordStatus({ type: 'error', message: res.message });
+        showToast(res.message, 'error');
       }
     } catch {
-      setPasswordStatus({ type: 'error', message: 'An unexpected error occurred while updating password.' });
+      showToast('An unexpected error occurred while updating password.', 'error');
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -363,12 +356,6 @@ export default function ProfilePage() {
 
             {/* Save Profile Button Row */}
             <div className={styles.actionsRow}>
-              {saveError && <span className={styles.saveError} role="alert">{saveError}</span>}
-              {saveSuccess && (
-                <span className={styles.toastMsg}>
-                  <Icon name="check" size="xs" /> Profile updated successfully
-                </span>
-              )}
               <button type="submit" className={styles.saveBtn} disabled={isSaving}>
                 <Icon name="check" size="xs" />
                 {isSaving ? 'Saving Changes...' : 'Save Profile Changes'}
@@ -394,7 +381,6 @@ export default function ProfilePage() {
               className={styles.passwordTriggerBtn}
               onClick={() => {
                 setIsPasswordDrawerOpen((prev) => !prev);
-                setPasswordStatus(null);
               }}
               aria-expanded={isPasswordDrawerOpen}
             >
@@ -405,13 +391,6 @@ export default function ProfilePage() {
 
           {isPasswordDrawerOpen && (
             <form className={styles.passwordDrawer} onSubmit={handlePasswordSubmit}>
-              {passwordStatus && (
-                <div className={passwordStatus.type === 'error' ? styles.alertError : styles.alertSuccess} role="alert">
-                  <Icon name={passwordStatus.type === 'error' ? 'close' : 'check'} size="xs" />
-                  <span>{passwordStatus.message}</span>
-                </div>
-              )}
-
               {/* Current Password */}
               <div className={styles.fieldGroup}>
                 <label htmlFor="current-password" className={styles.label}>

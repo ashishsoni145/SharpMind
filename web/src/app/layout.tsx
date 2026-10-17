@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { AuthProvider } from '@/lib/auth/auth-context';
 import { ThemeProvider } from '@/lib/theme/theme-context';
 import { sharedMetadata } from './metadata';
+import { ActionToastProvider, ToastProvider } from '@/components/ui/Toast';
 import '@/styles/globals.css';
 
 const spaceGrotesk = Space_Grotesk({
@@ -82,7 +83,11 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <AuthProvider>
-            <Layout>{children}</Layout>
+            <ToastProvider>
+              <ActionToastProvider>
+                <Layout>{children}</Layout>
+              </ActionToastProvider>
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
