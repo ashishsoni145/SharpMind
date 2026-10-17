@@ -41,5 +41,12 @@ export const completeOnboardingSchema = z.object({
     .default({ email: true, dailyGoalPrompt: true }),
 });
 
+export const completeSignupProfileSchema = z.object({
+  fullName: z.string().trim().min(2).max(100),
+  username: z.string().trim().toLowerCase().regex(/^[a-z0-9_]{3,24}$/),
+  gradeId: z.enum(['class_11', 'class_12', 'dropper']),
+});
+
 export type SaveDraftInput = z.infer<typeof saveDraftSchema>;
 export type CompleteOnboardingInput = z.infer<typeof completeOnboardingSchema>;
+export type CompleteSignupProfileInput = z.infer<typeof completeSignupProfileSchema>;

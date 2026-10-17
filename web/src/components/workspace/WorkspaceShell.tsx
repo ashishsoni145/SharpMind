@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useProtectedRoute } from '@/lib/auth/use-protected-route';
 import { studentProfileAdapter } from '@/lib/adapters/student';
 import type { StudentProfile } from '@/lib/types/onboarding';
+import { getApiClient } from '@/lib/api';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { CommandPalette } from './CommandPalette';
@@ -17,8 +19,10 @@ interface WorkspaceShellProps {
 }
 
 export function WorkspaceShell({ children }: WorkspaceShellProps) {
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { user, isLoading, isAuthenticated, adapterName } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
+  const [profileSetupState, setProfileSetupState] = useState<'checking' | 'ready' | 'failed'>('checking');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -26,6 +30,48 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
 
   // Enforce authentication on all workspace views
   useProtectedRoute({ requireAuth: true });
+
+  // Enforce the one-time required student profile step on every workspace entry.
+  useEffect(() => {
+    if (isLoading || !isAuthenticated || !user) return;
+
+    if (user.role !== 'student') {
+      setProfileSetupState('ready');
+      return;
+    }
+
+    let active = true;
+    setProfileSetupState('checking');
+
+    const checkProfileSetup = async () => {
+      try {
+        let isComplete = false;
+        if (adapterName === 'LocalAuthAdapter') {
+          const localProfile = await studentProfileAdapter.getProfile(user.id);
+          isComplete = Boolean(localProfile?.onboardingStatus.isCompleted);
+        } else {
+          const studentProfile = (await getApiClient().users.getStudentProfile()) as
+            | { profileSetupCompleted?: boolean }
+            | null;
+          isComplete = Boolean(studentProfile?.profileSetupCompleted);
+        }
+
+        if (!active) return;
+        if (isComplete) {
+          setProfileSetupState('ready');
+        } else {
+          router.replace('/complete-profile');
+        }
+      } catch {
+        if (active) setProfileSetupState('failed');
+      }
+    };
+
+    void checkProfileSetup();
+    return () => {
+      active = false;
+    };
+  }, [adapterName, isAuthenticated, isLoading, router, user]);
 
   // Restore sidebar collapse preference from storage
   useEffect(() => {
@@ -75,6 +121,24 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
       <div className={styles.loadingScreen} role="status" aria-live="polite">
         <div className={styles.spinner} />
         <p>Restoring SharpMind workspace...</p>
+      </div>
+    );
+  }
+
+  if (profileSetupState === 'checking') {
+    return (
+      <div className={styles.loadingScreen} role="status" aria-live="polite">
+        <div className={styles.spinner} />
+        <p>Checking your profile setup...</p>
+      </div>
+    );
+  }
+
+  if (profileSetupState === 'failed') {
+    return (
+      <div className={styles.loadingScreen} role="alert">
+        <p>We could not confirm your profile setup. Please try again or complete your profile.</p>
+        <Link href="/complete-profile">Continue to profile setup</Link>
       </div>
     );
   }

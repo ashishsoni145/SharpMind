@@ -1,6 +1,10 @@
 import { supabase } from '../../db/client';
-import { BadRequestError } from '../../lib/errors';
-import { SaveDraftInput, CompleteOnboardingInput } from './onboarding.schema';
+import { BadRequestError, ConflictError } from '../../lib/errors';
+import {
+  SaveDraftInput,
+  CompleteOnboardingInput,
+  CompleteSignupProfileInput,
+} from './onboarding.schema';
 import { UserService, StudentProfileResponse } from '../users/user.service';
 
 export interface OnboardingDraftResponse {
@@ -11,6 +15,46 @@ export interface OnboardingDraftResponse {
 }
 
 export class OnboardingService {
+  public static async completeSignupProfile(
+    userId: string,
+    input: CompleteSignupProfileInput
+  ): Promise<{
+    profileId: string;
+    fullName: string;
+    username: string;
+    gradeId: string;
+    profileSetupCompleted: boolean;
+  }> {
+    const { data, error } = await supabase.rpc('complete_signup_profile', {
+      p_user_id: userId,
+      p_full_name: input.fullName,
+      p_username: input.username,
+      p_grade_id: input.gradeId,
+    });
+
+    if (error?.code === '23505') {
+      throw new ConflictError('That username is already taken. Please choose another.');
+    }
+    if (error) {
+      throw new BadRequestError('Could not save your profile details. Please try again.');
+    }
+
+    const saved = Array.isArray(data) ? data[0] : data;
+    if (!saved) {
+      throw new BadRequestError(
+        'Could not confirm that your profile details were saved. Please try again.'
+      );
+    }
+
+    return {
+      profileId: saved.profile_id,
+      fullName: saved.full_name,
+      username: saved.username,
+      gradeId: saved.grade_id,
+      profileSetupCompleted: saved.profile_setup_completed,
+    };
+  }
+
   public static async getDraft(userId: string): Promise<OnboardingDraftResponse | null> {
     const { data, error } = await supabase
       .from('onboarding_drafts')
@@ -85,6 +129,7 @@ export class OnboardingService {
       learning_style_preference: input.learningStylePreference,
       reminder_preferences: input.reminderPreferences,
       onboarding_completed: true,
+      profile_setup_completed: true,
       onboarding_step: 4,
       onboarding_completed_at: now,
       next_action: 'take_diagnostic',

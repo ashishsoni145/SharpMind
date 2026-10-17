@@ -332,3 +332,11 @@ Signup now handles a failed/unconfirmed welcome-email API response visibly on th
 - Next checkpoint: complete the web production build, then commit/push and wait for the configured production deployment before validating with a new 8-digit OTP.
 
 - Validation completion: the permitted retry of `npm --prefix web run build` exited 0 and exported all 39 static routes, including `/verify-email`. The earlier `EPERM` was sandbox write access only.
+
+## Required student profile setup — 2026-10-17
+
+Added one-time required student profile setup after successful email OTP. Inputs are full name, globally case-insensitive unique username, disabled authenticated email, and class 11/12/Dropper. Student workspace routes are gated until completion. Non-student users bypass the student-only setup. Completion is protected by auth-derived ID and a service-role-only transaction RPC; existing academically onboarded students are backfilled. Added ADR 0009 and migration `20261017000001_required_student_profile_setup.sql` (not applied).
+
+Validation results: `npm run typecheck:all` exit 0; `npm --prefix backend run build` exit 0 and copied templates; `npm --prefix web run build` exit 0 and exported 40 routes; focused route regression test exit 0, 3 passed; `git diff --check` exit 0. Full `npm --prefix backend test` was interrupted with exit 1 after sandbox loopback `EACCES` and external Supabase fetch failures in existing tests; no unrestricted run was attempted due remote/data-ingestion test behavior. `npm --prefix web run lint` exit 1 because `next lint` prompted for first-time ESLint configuration; no config created. No web test script or browser E2E. No Supabase migration, production configuration change, push, or deployment performed.
+
+Next checkpoint: review and apply the new migration to the intended Supabase project, then deploy both configured roots and validate OTP → profile completion → workspace with a controlled account.

@@ -37,4 +37,18 @@ export class OnboardingController {
       next(err);
     }
   }
+
+  public static async completeSignupProfile(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const result = await OnboardingService.completeSignupProfile(req.user.id, req.body);
+      sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
 }

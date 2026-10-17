@@ -164,6 +164,23 @@ export class SharpMindApiClient {
       );
       return res.data!;
     },
+    completeSignupProfile: async (data: {
+      fullName: string;
+      username: string;
+      gradeId: 'class_11' | 'class_12' | 'dropper';
+    }) => {
+      const res = await this.request<{
+        profileId: string;
+        fullName: string;
+        username: string;
+        gradeId: string;
+        profileSetupCompleted: boolean;
+      }>('/onboarding/complete-profile', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return res.data!;
+    },
   };
 
   // File Subsystem

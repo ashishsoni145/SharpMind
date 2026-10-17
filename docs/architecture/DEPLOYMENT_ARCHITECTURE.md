@@ -109,7 +109,7 @@ No retention-cleanup scheduler is configured in this repository. To enable seven
 
 #### Supabase Auth and Resend settings to verify
 
-- Keep Supabase email confirmation enabled. The confirmation email template must include the OTP token (`{{ .Token }}`) and the project OTP length must be six digits to match `/verify-email`.
+- Keep Supabase email confirmation enabled. The confirmation email template must include the OTP token (`{{ .Token }}`); `/verify-email` accepts the configured eight-digit production code.
 - Configure Supabase Auth email delivery/SMTP independently of the custom Resend templates; `RESEND_API_KEY` is used by the backend for the welcome and post-verification messages only.
 - Verify `sharpmind.live` and the configured sender address in Resend, including its required DNS records, before expecting production delivery.
 

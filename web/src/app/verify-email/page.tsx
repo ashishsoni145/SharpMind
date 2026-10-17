@@ -215,7 +215,7 @@ function VerifyEmailContent() {
       });
 
       setTimeout(() => {
-        router.push('/app');
+        router.push('/complete-profile');
       }, 1000);
     } catch {
       setErrorMessage('An unexpected error occurred during verification. Please try again.');

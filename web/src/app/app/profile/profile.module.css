@@ -429,6 +429,12 @@
   font-weight: 500;
 }
 
+.saveError {
+  color: #fca5a5;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
 /* Loading state */
 .loadingState {
   display: flex;

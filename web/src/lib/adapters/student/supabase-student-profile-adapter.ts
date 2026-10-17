@@ -183,6 +183,7 @@ export class SupabaseStudentProfileAdapter implements StudentProfileAdapter {
           learning_style_preference: profile.studyPreferences.learningStylePreference,
           reminder_preferences: profile.studyPreferences.reminderPreferences,
           onboarding_completed: true,
+          profile_setup_completed: true,
           onboarding_step: 5,
           onboarding_completed_at: completedAt,
           next_action: 'take_diagnostic',

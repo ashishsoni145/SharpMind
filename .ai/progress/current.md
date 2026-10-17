@@ -58,3 +58,7 @@ Supabase production logs confirm POST to `check_and_record_otp_send` returned 40
 - Next checkpoint: complete the web production build, then commit/push and wait for the configured production deployment before validating with a new 8-digit OTP.
 
 - Validation completion: the permitted retry of `npm --prefix web run build` exited 0 and exported all 39 static routes, including `/verify-email`. The earlier `EPERM` was sandbox write access only.
+
+### Required student profile setup — 2026-10-17
+
+Implemented OTP-success redirect to mandatory /complete-profile for student users. The page collects name, unique username, prefilled disabled email, and class. Backend endpoint accepts authenticated identity only, atomically writes profile and student grade, maps unique collisions to HTTP 409, and rejects invalid data. WorkspaceShell gates app access on completion; existing academic onboarding completion marks the profile setup flag. Added migration and ADR 0009. Migration is pending Supabase application. Focused backend tests (3/3), all workspace typechecks, backend build, and frontend production build (40 routes) pass. Full backend suite is inconclusive/fails under sandbox network restrictions; lint script prompts to configure ESLint and exits 1. No deployment or push.

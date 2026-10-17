@@ -47,6 +47,7 @@ export default function ProfilePage() {
   // Save profile status
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const userId = user?.id || '';
 
@@ -89,6 +90,7 @@ export default function ProfilePage() {
 
     setIsSaving(true);
     setSaveSuccess(false);
+    setSaveError(null);
 
     try {
       const sanitizedUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -110,6 +112,7 @@ export default function ProfilePage() {
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       console.error('Failed to save profile changes:', err);
+      setSaveError(err instanceof Error ? err.message : 'Could not save profile changes. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -226,6 +229,9 @@ export default function ProfilePage() {
                       type="text"
                       className={`${styles.input} ${styles.inputWithPrefix}`}
                       value={username}
+                      minLength={3}
+                      maxLength={24}
+                      pattern="[a-zA-Z0-9_]{3,24}"
                       onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                       required
                       disabled={isSaving}
@@ -357,6 +363,7 @@ export default function ProfilePage() {
 
             {/* Save Profile Button Row */}
             <div className={styles.actionsRow}>
+              {saveError && <span className={styles.saveError} role="alert">{saveError}</span>}
               {saveSuccess && (
                 <span className={styles.toastMsg}>
                   <Icon name="check" size="xs" /> Profile updated successfully

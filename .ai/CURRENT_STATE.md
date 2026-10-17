@@ -153,3 +153,11 @@ Inspect live `/api/v1/auth/request-otp` status and safe PostgREST error code; co
 - Next checkpoint: complete the web production build, then commit/push and wait for the configured production deployment before validating with a new 8-digit OTP.
 
 - Validation completion: the permitted retry of `npm --prefix web run build` exited 0 and exported all 39 static routes, including `/verify-email`. The earlier `EPERM` was sandbox write access only.
+
+### Required post-verification student profile setup — 2026-10-17
+
+- OTP success now routes student accounts to a required one-time profile dialog (/complete-profile) with name, globally unique username, disabled email, and class 11/12/Dropper. Other roles continue to /app.
+- Added profile_setup_completed independently of academic onboarding and case-insensitive global username uniqueness. Atomic completion uses a backend-authenticated RPC and server-derived user ID. Full academic onboarding also marks setup complete; existing fully-onboarded students are backfilled by migration.
+- Added migration 20261017000001_required_student_profile_setup.sql; it has NOT been applied to Supabase. Apply before deploying these changes.
+- Validation: all workspace typechecks passed; backend build/template copy passed; web production build exported 40 routes; focused profile route tests 3/3 passed after sandbox loopback restriction. Full backend suite was stopped after unrelated existing tests failed from sandbox loopback and external Supabase network errors; it was not rerun unrestricted because suites include external data-ingestion tests. Lint remains interactive due missing ESLint configuration. No frontend test script or browser E2E run.
+- No production setting/data/migration was changed and no push/deployment was done.

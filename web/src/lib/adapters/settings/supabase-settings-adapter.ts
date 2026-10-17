@@ -39,6 +39,7 @@ export class SupabaseSettingsAdapter implements SettingsAdapter {
 
       if (profile) {
         base.name = profile.full_name || base.name;
+        base.username = profile.username || base.username;
         base.email = profile.email || base.email;
         base.role = profile.role || base.role;
       }
@@ -79,12 +80,24 @@ export class SupabaseSettingsAdapter implements SettingsAdapter {
     data: Partial<Pick<UserSettings, 'name' | 'username' | 'avatarUrl'>>
   ): Promise<UserSettings> {
     const supabase = getSupabaseClient();
-    if (supabase && data.name) {
+    if (supabase && (data.name !== undefined || data.username !== undefined)) {
+      const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (data.name !== undefined) updatePayload.full_name = data.name;
+      if (data.username !== undefined) {
+        const username = data.username.trim().toLowerCase();
+        if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+          throw new Error('Username must be 3–24 characters using letters, numbers, and underscores.');
+        }
+        updatePayload.username = username;
+      }
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: data.name, updated_at: new Date().toISOString() })
+        .update(updatePayload)
         .eq('id', userId);
       if (error) {
+        if (error.code === '23505') {
+          throw new Error('That username is already taken. Please choose another.');
+        }
         throw new Error(`Failed to save profile changes: ${error.message}`);
       }
     }

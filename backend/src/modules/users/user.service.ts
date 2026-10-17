@@ -1,11 +1,12 @@
 import { supabase } from '../../db/client';
-import { NotFoundError, BadRequestError } from '../../lib/errors';
+import { NotFoundError, BadRequestError, ConflictError } from '../../lib/errors';
 import { UpdateProfileInput, UpdateStudentProfileInput } from './user.schema';
 
 export interface UserProfileResponse {
   id: string;
   email: string;
   fullName: string;
+  username: string | null;
   role: string;
   avatarUrl: string | null;
   isEmailVerified: boolean;
@@ -30,6 +31,7 @@ export interface StudentProfileResponse {
   learningStylePreference: string;
   reminderPreferences: Record<string, boolean>;
   onboardingCompleted: boolean;
+  profileSetupCompleted: boolean;
   onboardingStep: number;
   onboardingCompletedAt: string | null;
   nextAction: string;
@@ -61,6 +63,7 @@ export class UserService {
       id: profile.id,
       email: profile.email,
       fullName: profile.full_name,
+      username: profile.username || null,
       role: profile.role,
       avatarUrl: profile.avatar_url,
       isEmailVerified: profile.is_email_verified,
@@ -79,6 +82,7 @@ export class UserService {
     };
 
     if (data.fullName !== undefined) updatePayload.full_name = data.fullName;
+    if (data.username !== undefined) updatePayload.username = data.username;
     if (data.avatarUrl !== undefined) updatePayload.avatar_url = data.avatarUrl;
 
     const { data: updated, error } = await supabase
@@ -88,6 +92,9 @@ export class UserService {
       .select('*')
       .single();
 
+    if (error?.code === '23505') {
+      throw new ConflictError('That username is already taken. Please choose another.');
+    }
     if (error || !updated) {
       throw new BadRequestError(`Failed to update profile: ${error?.message}`);
     }
@@ -125,6 +132,7 @@ export class UserService {
       learningStylePreference: sp.learning_style_preference,
       reminderPreferences: sp.reminder_preferences || {},
       onboardingCompleted: sp.onboarding_completed,
+      profileSetupCompleted: Boolean(sp.profile_setup_completed),
       onboardingStep: sp.onboarding_step,
       onboardingCompletedAt: sp.onboarding_completed_at,
       nextAction: sp.next_action,
