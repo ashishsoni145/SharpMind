@@ -257,7 +257,7 @@ export default function PlannerPage() {
             <span className={styles.metricLabel}>
               {viewMode === 'today' ? 'COMPLETED TODAY' : 'WEEKLY STUDY TIME'}
             </span>
-            <div className={styles.metricValue} style={{ color: '#34d399' }}>
+            <div className={styles.metricValue} style={{ color: '#D4D4D4' }}>
               {viewMode === 'today'
                 ? `${completedTasksToday} / ${totalTasksToday}`
                 : `${Math.round(((weekPlan?.totalMinutes || 0) / 60) * 10) / 10}h`}
@@ -265,7 +265,7 @@ export default function PlannerPage() {
           </div>
           <div className={styles.metricCard}>
             <span className={styles.metricLabel}>PACING STATUS</span>
-            <div className={styles.metricValue} style={{ fontSize: '1.125rem', color: '#38bdf8' }}>
+            <div className={styles.metricValue} style={{ fontSize: '1.125rem', color: '#A5A5A5' }}>
               {completedTasksToday === totalTasksToday && totalTasksToday > 0
                 ? 'All Tasks Done'
                 : 'Balanced Cadence'}
@@ -273,7 +273,7 @@ export default function PlannerPage() {
           </div>
           <div className={styles.metricCard}>
             <span className={styles.metricLabel}>ALGORITHM</span>
-            <div className={styles.metricValue} style={{ fontSize: '1.125rem', color: '#a855f7' }}>
+            <div className={styles.metricValue} style={{ fontSize: '1.125rem', color: '#727272' }}>
               Knapsack Fitted
             </div>
           </div>
@@ -349,7 +349,7 @@ export default function PlannerPage() {
                               {task.title}
                             </strong>
                             <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
-                              <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: '#34d399' }}>
+                              <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: '#D4D4D4' }}>
                                 {task.subjectId}
                               </span>
                               <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-tertiary)' }}>•</span>
@@ -359,7 +359,7 @@ export default function PlannerPage() {
                               {task.explanation && (
                                 <>
                                   <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-tertiary)' }}>•</span>
-                                  <span style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>
+                                  <span style={{ fontSize: '0.6875rem', color: '#A1A1A1' }}>
                                     {task.explanation}
                                   </span>
                                 </>
@@ -376,7 +376,7 @@ export default function PlannerPage() {
                             href={task.taskType.includes('revision') ? '/app/revision' : '/app/tests'}
                             style={{
                               fontSize: '0.75rem',
-                              color: '#6366f1',
+                              color: '#6F6F6F',
                               textDecoration: 'underline',
                               fontWeight: 500,
                             }}
@@ -412,12 +412,12 @@ export default function PlannerPage() {
                       <span className={styles.dayDate}>{dayDateNum}</span>
                     </div>
 
-                    <div style={{ fontSize: '0.6875rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
+                    <div style={{ fontSize: '0.6875rem', color: '#A1A1A1', fontFamily: 'var(--font-mono)' }}>
                       {Math.round(day.totalMinutes / 60)}h • {allTasks.length} tasks
                     </div>
 
                     {allTasks.length === 0 ? (
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0' }}>
+                      <div style={{ fontSize: '0.75rem', color: '#727272', fontStyle: 'italic', padding: '0.5rem 0' }}>
                         Rest / Open buffer
                       </div>
                     ) : (
@@ -425,8 +425,8 @@ export default function PlannerPage() {
                         {allTasks.map((t) => (
                           <div key={t.id} className={styles.dayTaskMini}>
                             <strong style={{ display: 'block', color: '#ffffff' }}>{t.title}</strong>
-                            <span style={{ fontSize: '0.6875rem', color: '#38bdf8' }}>{t.subjectId}</span>
-                            <span style={{ fontSize: '0.6875rem', color: '#64748b' }}> • {t.estimatedMinutes}m</span>
+                            <span style={{ fontSize: '0.6875rem', color: '#A5A5A5' }}>{t.subjectId}</span>
+                            <span style={{ fontSize: '0.6875rem', color: '#727272' }}> • {t.estimatedMinutes}m</span>
                           </div>
                         ))}
                       </div>

@@ -9,11 +9,9 @@ import { Button } from '@/components/ui/Button';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.sharpmind.live';
 
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/product', label: 'Product' },
-  { href: '/features', label: 'Features' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/#features', label: 'Features' },
+  { href: '/#how', label: 'How it works' },
+  { href: '/#faq', label: 'FAQ' },
 ];
 
 export function Header() {
@@ -54,6 +52,7 @@ export function Header() {
   }, [handleKeyDown]);
 
   const isActive = (href: string) => {
+    if (href.startsWith('/#')) return false;
     if (href === '/') return pathname === '/';
     return pathname?.startsWith(href);
   };
@@ -63,40 +62,9 @@ export function Header() {
       <div className={styles.container}>
         {/* Brand */}
         <Link href="/" className={styles.brand} aria-label="SharpMind Home">
-          <span className={styles.brandMark}>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                d="M12 2L2 7L12 12L22 7L12 2Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2 17L12 22L22 17"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2 12L12 17L22 12"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
+          <span className={styles.brandMark} aria-hidden="true">S</span>
           <span className={styles.brandText}>
-            Sharp<span className={styles.brandAccent}>Mind</span>
+            SharpMind
           </span>
         </Link>
 

@@ -27,9 +27,9 @@
   width: 52px;
   height: 52px;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
-  border: 1px solid var(--brand-accent-border, rgba(16, 185, 129, 0.3));
-  color: var(--brand-primary, #10b981);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--brand-accent-border, rgba(255, 255, 255, 0.3));
+  color: var(--brand-primary, #ffffff);
   font-family: var(--font-display, sans-serif);
   font-weight: 700;
   font-size: 1.25rem;
@@ -179,8 +179,8 @@
   gap: 4px;
   padding: 2px 8px;
   border-radius: var(--radius-full);
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -252,7 +252,7 @@
 }
 
 .classBtnActive {
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(255, 255, 255, 0.12);
   border-color: var(--brand-primary);
   color: var(--brand-primary);
   font-weight: 600;
@@ -299,7 +299,7 @@
 }
 
 .themeBtnActive {
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(255, 255, 255, 0.12);
   border-color: var(--brand-primary);
   color: var(--brand-primary);
   font-weight: 600;
@@ -340,9 +340,9 @@
 .alertError {
   padding: 10px 14px;
   border-radius: var(--radius-md);
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #ef4444;
+  background: rgba(104, 104, 104, 0.1);
+  border: 1px solid rgba(104, 104, 104, 0.3);
+  color: #686868;
   font-size: 0.8125rem;
   display: flex;
   align-items: center;
@@ -352,9 +352,9 @@
 .alertSuccess {
   padding: 10px 14px;
   border-radius: var(--radius-md);
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #10b981;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
   font-size: 0.8125rem;
   display: flex;
   align-items: center;
@@ -375,7 +375,7 @@
   align-items: center;
   gap: var(--space-2);
   padding: 11px 22px;
-  background: var(--brand-primary, #10b981);
+  background: var(--brand-primary, #ffffff);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-md);
@@ -386,7 +386,7 @@
 }
 
 .saveBtn:hover:not(:disabled) {
-  background: var(--brand-hover, #059669);
+  background: var(--brand-hover, #E4E4E4);
   transform: translateY(-1px);
 }
 
@@ -412,7 +412,7 @@
 }
 
 .updatePassBtn:hover:not(:disabled) {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .updatePassBtn:disabled {
@@ -424,13 +424,13 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #10b981;
+  color: #ffffff;
   font-size: 0.8125rem;
   font-weight: 500;
 }
 
 .saveError {
-  color: #fca5a5;
+  color: #B7B7B7;
   font-size: 0.8125rem;
   line-height: 1.4;
 }
@@ -450,8 +450,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 3px solid rgba(16, 185, 129, 0.15);
-  border-top-color: var(--brand-primary, #10b981);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--brand-primary, #ffffff);
   animation: spin 0.8s linear infinite;
 }
 

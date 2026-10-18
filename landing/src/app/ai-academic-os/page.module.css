@@ -35,8 +35,8 @@
 }
 
 .comparisonHighlight {
-  border-color: rgba(124, 58, 237, 0.3);
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), var(--color-bg-glass));
+  border-color: rgba(85, 85, 85, 0.3);
+  background: linear-gradient(135deg, rgba(85, 85, 85, 0.08), var(--color-bg-glass));
   box-shadow: var(--shadow-glow);
 }
 
@@ -96,7 +96,7 @@
 }
 
 .modelItem:hover {
-  border-color: rgba(124, 58, 237, 0.3);
+  border-color: rgba(85, 85, 85, 0.3);
   transform: translateY(-2px);
 }
 

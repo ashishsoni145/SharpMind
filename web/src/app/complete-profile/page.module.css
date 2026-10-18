@@ -4,8 +4,8 @@
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.16), transparent 38%),
-    var(--color-background, #09090b);
+    radial-gradient(circle at 50% 20%, rgba(85, 85, 85, 0.16), transparent 38%),
+    var(--color-background, #090909);
 }
 
 .dialog {
@@ -13,13 +13,13 @@
   padding: clamp(24px, 6vw, 40px);
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
   border-radius: var(--radius-2xl, 24px);
-  background: var(--color-surface, #111114);
+  background: var(--color-surface, #111111);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
 }
 
 .eyebrow {
   margin-bottom: 10px;
-  color: var(--color-primary-light, #c4b5fd);
+  color: var(--color-primary-light, #BDBDBD);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -28,14 +28,14 @@
 
 .title {
   margin: 0;
-  color: var(--color-text-primary, #f4f4f5);
+  color: var(--color-text-primary, #F4F4F4);
   font-size: clamp(1.6rem, 4vw, 2rem);
   line-height: 1.2;
 }
 
 .description {
   margin: 12px 0 24px;
-  color: var(--color-text-secondary, #a1a1aa);
+  color: var(--color-text-secondary, #A2A2A2);
   line-height: 1.55;
 }
 
@@ -49,7 +49,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  color: var(--color-text-secondary, #d4d4d8);
+  color: var(--color-text-secondary, #D4D4D4);
   font-size: 0.9rem;
   font-weight: 600;
   text-align: left;
@@ -63,36 +63,36 @@
   border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
   border-radius: var(--radius-lg, 12px);
   background: rgba(255, 255, 255, 0.045);
-  color: var(--color-text-primary, #f4f4f5);
+  color: var(--color-text-primary, #F4F4F4);
   font: inherit;
   font-weight: 400;
 }
 
 .field select option {
-  background: #18181b;
-  color: #f4f4f5;
+  background: #181818;
+  color: #F4F4F4;
 }
 
 .field input:focus,
 .field select:focus {
-  outline: 2px solid var(--color-primary, #8b5cf6);
+  outline: 2px solid var(--color-primary, #717171);
   outline-offset: 2px;
 }
 
 .field input:disabled {
-  color: var(--color-text-secondary, #a1a1aa);
+  color: var(--color-text-secondary, #A2A2A2);
   opacity: 0.8;
 }
 
 .field small {
-  color: var(--color-text-tertiary, #71717a);
+  color: var(--color-text-tertiary, #727272);
   font-size: 0.75rem;
   font-weight: 400;
 }
 
-.field .usernameAvailable { color: #34d399; }
-.field .usernameUnavailable { color: #fb7185; }
-.field .usernameChecking { color: var(--color-text-tertiary, #a1a1aa); }
+.field .usernameAvailable { color: #D4D4D4; }
+.field .usernameUnavailable { color: #909090; }
+.field .usernameChecking { color: var(--color-text-tertiary, #A2A2A2); }
 
 .error,
 .status {
@@ -105,15 +105,15 @@
 }
 
 .error {
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.1);
-  color: #fca5a5;
+  border: 1px solid rgba(104, 104, 104, 0.4);
+  background: rgba(104, 104, 104, 0.1);
+  color: #B7B7B7;
 }
 
 .status {
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  background: rgba(16, 185, 129, 0.1);
-  color: #6ee7b7;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+  color: #CACACA;
 }
 
 @media (max-width: 480px) {

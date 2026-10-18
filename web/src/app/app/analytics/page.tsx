@@ -88,7 +88,7 @@ export default function AnalyticsPage() {
               style={{
                 display: 'inline-block',
                 padding: '0.625rem 1.25rem',
-                background: '#6366f1',
+                background: '#6F6F6F',
                 color: '#ffffff',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 500,
@@ -141,12 +141,12 @@ export default function AnalyticsPage() {
 
                     const barColor =
                       dim.status === 'healthy'
-                        ? '#10b981'
+                        ? '#ffffff'
                         : dim.status === 'attention'
-                        ? '#f59e0b'
+                        ? '#A6A6A6'
                         : dim.status === 'critical'
-                        ? '#ef4444'
-                        : '#64748b';
+                        ? '#686868'
+                        : '#727272';
 
                     return (
                       <div key={dim.id} className={styles.dimensionCard}>
@@ -187,14 +187,14 @@ export default function AnalyticsPage() {
                 Daily AI Debrief
               </h3>
               {dailyDebrief && (
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{dailyDebrief.reviewDate}</span>
+                <span style={{ fontSize: '0.8rem', color: '#A1A1A1' }}>{dailyDebrief.reviewDate}</span>
               )}
             </div>
 
             {dailyDebrief ? (
               <>
                 <div>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#A1A1A1', textTransform: 'uppercase' }}>
                     Today&apos;s Grounded Highlights
                   </span>
                   <ul className={styles.bulletList} style={{ marginTop: '0.5rem' }}>
@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
 
                 {dailyDebrief.actionableNextSteps && dailyDebrief.actionableNextSteps.length > 0 && (
                   <div>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f59e0b', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#A6A6A6', textTransform: 'uppercase' }}>
                       Actionable Next Steps
                     </span>
                     <ul className={styles.bulletList} style={{ marginTop: '0.5rem' }}>
@@ -244,7 +244,7 @@ export default function AnalyticsPage() {
                 Weekly Strategic Review
               </h3>
               {weeklyReview && (
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                <span style={{ fontSize: '0.8rem', color: '#A1A1A1' }}>
                   {weeklyReview.weekStartDate} to {weeklyReview.weekEndDate}
                 </span>
               )}
@@ -254,7 +254,7 @@ export default function AnalyticsPage() {
               <>
                 <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                   <div>
-                    <span style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#A1A1A1', textTransform: 'uppercase' }}>
                       Weekly Study Hours
                     </span>
                     <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#ffffff' }}>
@@ -262,17 +262,17 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#A1A1A1', textTransform: 'uppercase' }}>
                       Topic Velocity
                     </span>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#38bdf8' }}>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#A5A5A5' }}>
                       {weeklyReview.weeklyVelocity} topics
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#A1A1A1', textTransform: 'uppercase' }}>
                     Strategic Recommendations
                   </span>
                   <ul className={styles.bulletList} style={{ marginTop: '0.5rem' }}>

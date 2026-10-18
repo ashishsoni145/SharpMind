@@ -49,15 +49,15 @@
 .roleCard:hover {
   border-color: var(--color-primary);
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 12px 24px rgba(85, 85, 85, 0.15);
 }
 
 .iconWrapper {
   width: 3.5rem;
   height: 3.5rem;
   border-radius: var(--radius-full);
-  background: rgba(124, 58, 237, 0.12);
-  border: 1px solid rgba(124, 58, 237, 0.25);
+  background: rgba(85, 85, 85, 0.12);
+  border: 1px solid rgba(85, 85, 85, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;

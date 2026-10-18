@@ -43,6 +43,7 @@ export function Button(props: ButtonProps) {
     styles[size],
     fullWidth ? styles.fullWidth : '',
     loading ? styles.loading : '',
+    variant === 'primary' ? 'btn-brilliant-primary' : variant === 'secondary' || variant === 'outline' ? 'btn-brilliant-secondary' : '',
     className,
   ]
     .filter(Boolean)

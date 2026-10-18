@@ -99,9 +99,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(104, 104, 104, 0.1);
+  color: #686868;
+  border: 1px solid rgba(104, 104, 104, 0.25);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-weight: 600;
@@ -110,8 +110,8 @@
 }
 
 .signOutBtn:hover {
-  background: rgba(239, 68, 68, 0.18);
-  border-color: #ef4444;
+  background: rgba(104, 104, 104, 0.18);
+  border-color: #686868;
 }
 
 @media (max-width: 640px) {

@@ -42,16 +42,16 @@
 }
 
 .success {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .warning {
-  background: rgba(245, 158, 11, 0.1);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: rgba(166, 166, 166, 0.1);
+  color: #C1C1C1;
+  border: 1px solid rgba(166, 166, 166, 0.25);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 

@@ -9,7 +9,7 @@
 }
 
 .dragActive {
-  background: rgba(37, 99, 235, 0.05);
+  background: rgba(96, 96, 96, 0.05);
   border-color: var(--brand-primary);
 }
 
@@ -73,7 +73,7 @@
 }
 
 .removeImgBtn:hover {
-  color: #ef4444;
+  color: #686868;
 }
 
 .controlsRow {
@@ -89,7 +89,7 @@
 
 .controlsRow:focus-within {
   border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(96, 96, 96, 0.15);
 }
 
 .attachBtn {

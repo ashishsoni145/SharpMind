@@ -532,7 +532,7 @@ export default function WorkspaceDashboard() {
                               {task.title}
                             </strong>
                             <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center' }}>
-                              <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: '#34d399' }}>
+                              <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: '#D4D4D4' }}>
                                 {task.subject}
                               </span>
                               <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-tertiary)' }}>•</span>
@@ -682,7 +682,7 @@ export default function WorkspaceDashboard() {
                         </div>
                       </div>
                       <div className={styles.cardFooter}>
-                        <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: '#34d399' }}>
+                        <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: '#D4D4D4' }}>
                           STATUS: {item.classification.replace(/_/g, ' ').toUpperCase()}
                         </span>
                         <Button href="/app/tests" variant="primary" size="sm">

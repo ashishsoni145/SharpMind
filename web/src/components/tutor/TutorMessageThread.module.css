@@ -22,7 +22,7 @@
   width: 56px;
   height: 56px;
   border-radius: var(--radius-full);
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(96, 96, 96, 0.12);
   color: var(--brand-primary);
   display: flex;
   align-items: center;
@@ -115,7 +115,7 @@
 }
 
 .assistantAvatar {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #7B7B7B 0%, #717171 100%);
   color: #ffffff;
 }
 
@@ -159,9 +159,9 @@
   letter-spacing: 0.05em;
   padding: 0.15rem 0.5rem;
   border-radius: var(--radius-full);
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(96, 96, 96, 0.12);
   color: var(--brand-primary);
-  border: 1px solid rgba(37, 99, 235, 0.25);
+  border: 1px solid rgba(96, 96, 96, 0.25);
 }
 
 .timestamp {
@@ -224,9 +224,9 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
   padding: 0.5rem 0.875rem;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: #0284c7;
+  background: rgba(165, 165, 165, 0.12);
+  border: 1px solid rgba(165, 165, 165, 0.3);
+  color: #6D6D6D;
   border-radius: var(--radius-md);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -236,8 +236,8 @@
 }
 
 .simulationHookBtn:hover {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: #38bdf8;
+  background: rgba(165, 165, 165, 0.2);
+  border-color: #A5A5A5;
 }
 
 /* Loading Skeleton */

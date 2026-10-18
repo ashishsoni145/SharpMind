@@ -175,3 +175,16 @@ Inspect live `/api/v1/auth/request-otp` status and safe PostgREST error code; co
 ### Next checkpoint
 
 Review the complete diff, apply the existing profile-setup migration only if still pending, then deploy through the normal Git-triggered pipeline and verify signup email count, email/username availability behavior, toasts, and profile completion with a controlled account. Add platform-level abuse controls to the public email-availability endpoint before relying on it at scale.
+
+## Monochrome whole-app UI refresh — 2026-10-18
+
+- Reworked the public landing homepage with a responsive editorial hero, 70ms typewriter text with 35ms deletion and an 1800ms pause, labeled illustrative knowledge graph, requested metric strip, numbered feature cards, process steps, accessible expanding FAQ, and final CTA. Added compact mobile header navigation to the page sections.
+- Applied monochrome design tokens and tactile primary/secondary/outline buttons across landing and signed-in web UI, including auth, settings, and academic workspace surfaces. Existing routes and data behavior remain intact; dedicated scientific visualization components retain their color encodings.
+- Added Tailwind CSS 3/PostCSS/Autoprefixer in both independent frontend workspaces with per-root configs. Existing CSS modules remain supported. Replaced build-time Google font fetching with system/serif stacks to keep frontend builds independent of Google Fonts network access.
+- No backend source, API, database, Supabase, Resend, auth, or deployment configuration was changed. No migration is required.
+- Validation: `npm run typecheck:all` passed (landing, web, backend); full `npm run build` passed (landing 16 static routes, web 40 static routes, backend TypeScript/template build). After the final landing FAQ/step details, `npm --prefix landing run typecheck` and `npm --prefix landing run build` passed again. `npm run lint` exited 1 because the existing `next lint` script prompts for initial ESLint setup and no ESLint config exists. No frontend test script or browser E2E was available/run. `git diff --check` passed; output includes Windows line-ending normalization warnings only. No deployment/push performed.
+- `npm install` completed after adding frontend toolchain packages and reported 9 audit advisories (3 moderate, 6 high); their baseline/new status has not been determined yet.
+
+### Next checkpoint
+
+Review the final diff and resolve/audit the reported npm advisories separately. After review, commit and push through the normal pipeline, then visually check the public homepage and signed-in workspace at desktop/mobile widths in the deployed preview. No production Vercel settings or external fonts need configuration; the system font fallback is intentional.

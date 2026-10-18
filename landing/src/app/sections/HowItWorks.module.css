@@ -35,22 +35,22 @@
   width: 3.75rem;
   height: 3.75rem;
   border-radius: var(--radius-full);
-  background: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-  font-family: var(--font-display);
+  background: #ffffff;
+  color: #09090b;
+  font-family: var(--font-mono);
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   flex-shrink: 0;
-  box-shadow: var(--clay-shadow-md);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 0 0 #71717a;
+  border: 2px solid #ffffff;
   transition:
     transform 0.3s var(--ease-clay),
     box-shadow 0.3s var(--ease-clay);
 }
 
 .step:hover .stepNumber {
-  transform: scale(1.1) rotate(-5deg);
-  box-shadow: var(--clay-shadow-hover);
+  transform: translateY(1px);
+  box-shadow: 0 3px 0 0 #71717a;
 }
 
 .stepContent {
@@ -85,11 +85,7 @@
     left: calc(50% + 2.25rem);
     width: calc(100% - 2.5rem);
     height: 2px;
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.04) 100%
-    );
+    background: repeating-linear-gradient(90deg, #52525b 0 5px, transparent 5px 10px);
     border-radius: var(--radius-full);
   }
 }

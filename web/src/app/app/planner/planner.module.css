@@ -33,9 +33,9 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.15));
-  border: 1px solid rgba(52, 211, 153, 0.3);
-  color: #34d399;
+  background: linear-gradient(135deg, rgba(173, 173, 173, 0.15), rgba(255, 255, 255, 0.15));
+  border: 1px solid rgba(173, 173, 173, 0.3);
+  color: #D4D4D4;
 }
 
 .pageTitle {
@@ -47,7 +47,7 @@
 
 .pageSubtitle {
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   max-width: 720px;
   line-height: 1.5;
 }
@@ -94,13 +94,13 @@
   font-weight: 500;
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: #A1A1A1;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .tabBtnActive {
-  background: #6366f1;
+  background: #6F6F6F;
   color: #ffffff;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .metricCard {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.875rem;
   padding: 1.125rem;
@@ -127,7 +127,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #727272;
 }
 
 .metricValue {
@@ -139,7 +139,7 @@
 
 /* Session Cards */
 .sessionCard {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.875rem;
   padding: 1.5rem;
@@ -170,7 +170,7 @@
 
 .sessionMeta {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   font-family: var(--font-mono, monospace);
 }
 
@@ -198,13 +198,13 @@
 
 .taskItemCompleted {
   opacity: 0.6;
-  background: rgba(16, 185, 129, 0.03);
-  border-color: rgba(16, 185, 129, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .taskItemCompleted strong {
   text-decoration: line-through;
-  color: #64748b !important;
+  color: #727272 !important;
 }
 
 .taskMeta {
@@ -228,8 +228,8 @@
 }
 
 .taskCheckbox:checked {
-  background: #10b981;
-  border-color: #10b981;
+  background: #ffffff;
+  border-color: #ffffff;
 }
 
 .taskCheckbox:checked::after {
@@ -250,7 +250,7 @@
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  color: #D4D4D4;
 }
 
 /* Weekly grid */
@@ -268,7 +268,7 @@
 }
 
 .dayColumn {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.75rem;
   padding: 0.875rem;
@@ -294,7 +294,7 @@
 
 .dayDate {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #727272;
   font-family: var(--font-mono, monospace);
 }
 
@@ -304,6 +304,6 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 0.75rem;
-  color: #cbd5e1;
+  color: #D4D4D4;
   line-height: 1.3;
 }

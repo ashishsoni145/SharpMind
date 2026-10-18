@@ -33,9 +33,9 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(56, 189, 248, 0.15));
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34d399;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(165, 165, 165, 0.15));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #D4D4D4;
 }
 
 .pageTitle {
@@ -47,7 +47,7 @@
 
 .pageSubtitle {
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   max-width: 720px;
   line-height: 1.5;
 }
@@ -57,7 +57,7 @@
   border-radius: 0.5rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  color: #D4D4D4;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
@@ -77,7 +77,7 @@
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 1.5rem;
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1.25rem;
   padding: 2rem;
@@ -110,16 +110,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: conic-gradient(#10b981 var(--readiness-percent, 68%), rgba(255, 255, 255, 0.05) 0);
+  background: conic-gradient(#ffffff var(--readiness-percent, 68%), rgba(255, 255, 255, 0.05) 0);
   padding: 12px;
-  box-shadow: 0 0 24px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.2);
 }
 
 .gaugeInner {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: #0b0e14;
+  background: #0E0E0E;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -135,7 +135,7 @@
 
 .gaugeLabel {
   font-size: 0.6875rem;
-  color: #64748b;
+  color: #727272;
   text-transform: uppercase;
   font-family: var(--font-mono, monospace);
   letter-spacing: 0.05em;
@@ -163,7 +163,7 @@
 
 .projLabel {
   font-size: 0.6875rem;
-  color: #64748b;
+  color: #727272;
   font-family: var(--font-mono, monospace);
   letter-spacing: 0.04em;
   display: block;
@@ -173,7 +173,7 @@
 .projValue {
   font-size: 1.375rem;
   font-weight: 700;
-  color: #38bdf8;
+  color: #A5A5A5;
   font-family: var(--font-mono, monospace);
 }
 
@@ -197,7 +197,7 @@
 }
 
 .factorCard {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1rem;
   padding: 1.25rem;
@@ -221,7 +221,7 @@
 .factorWeight {
   font-size: 0.6875rem;
   font-family: var(--font-mono, monospace);
-  color: #64748b;
+  color: #727272;
 }
 
 .factorScoreRow {
@@ -234,7 +234,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   font-family: var(--font-mono, monospace);
-  color: #38bdf8;
+  color: #A5A5A5;
 }
 
 .statusPill {
@@ -247,23 +247,23 @@
 }
 
 .statusStrong {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
+  background: rgba(255, 255, 255, 0.15);
+  color: #D4D4D4;
 }
 
 .statusGood {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
+  background: rgba(165, 165, 165, 0.15);
+  color: #A5A5A5;
 }
 
 .statusNeedsWork {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
+  background: rgba(166, 166, 166, 0.15);
+  color: #C1C1C1;
 }
 
 .statusCritical {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  background: rgba(104, 104, 104, 0.15);
+  color: #8E8E8E;
 }
 
 .progressBarTrack {
@@ -276,12 +276,12 @@
 .progressBarFill {
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, #3b82f6, #10b981);
+  background: linear-gradient(90deg, #7B7B7B, #ffffff);
 }
 
 .factorDesc {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   line-height: 1.45;
 }
 
@@ -290,7 +290,7 @@
    ============================================================================= */
 
 .simulatorBox {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1.25rem;
   padding: 1.75rem;
@@ -319,7 +319,7 @@
 
 .sliderLabel {
   font-size: 0.8125rem;
-  color: #94a3b8;
+  color: #A1A1A1;
 }
 
 .sliderValue {
@@ -331,14 +331,14 @@
 
 .sliderInput {
   width: 100%;
-  accent-color: #6366f1;
+  accent-color: #6F6F6F;
 }
 
 .runSimBtn {
   align-self: flex-start;
   padding: 0.625rem 1.25rem;
   border-radius: 0.5rem;
-  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  background: linear-gradient(135deg, #535353, #939393);
   color: #ffffff;
   font-size: 0.875rem;
   font-weight: 600;
@@ -351,13 +351,13 @@
 }
 
 .runSimBtn:hover {
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 4px 16px rgba(83, 83, 83, 0.4);
 }
 
 /* Simulation Output Card */
 .simResultCard {
-  background: rgba(99, 102, 241, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: rgba(111, 111, 111, 0.06);
+  border: 1px solid rgba(111, 111, 111, 0.25);
   border-radius: 1rem;
   padding: 1.5rem;
   display: flex;
@@ -376,15 +376,15 @@
   font-size: 2.25rem;
   font-weight: 800;
   font-family: var(--font-mono, monospace);
-  color: #38bdf8;
+  color: #A5A5A5;
 }
 
 .simDeltaBadge {
   font-size: 0.875rem;
   font-weight: 700;
   font-family: var(--font-mono, monospace);
-  color: #34d399;
-  background: rgba(16, 185, 129, 0.15);
+  color: #D4D4D4;
+  background: rgba(255, 255, 255, 0.15);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
 }
@@ -394,6 +394,6 @@
   flex-direction: column;
   gap: 0.375rem;
   font-size: 0.8125rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   line-height: 1.5;
 }

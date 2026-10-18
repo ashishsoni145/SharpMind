@@ -12,7 +12,7 @@
 }
 
 .toast {
-  --toast-color: #93c5fd;
+  --toast-color: #BEBEBE;
   position: relative;
   display: flex;
   align-items: flex-start;
@@ -20,8 +20,8 @@
   width: 100%;
   padding: 14px 42px 17px 16px;
   overflow: hidden;
-  color: #f8fafc;
-  background: #171923;
+  color: #FAFAFA;
+  background: #191919;
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-left: 3px solid var(--toast-color);
   border-radius: 12px;
@@ -30,10 +30,10 @@
   animation: enter 180ms ease-out;
 }
 
-.success { --toast-color: #34d399; }
-.error { --toast-color: #fb7185; }
-.warning { --toast-color: #fbbf24; }
-.info { --toast-color: #60a5fa; }
+.success { --toast-color: #D4D4D4; }
+.error { --toast-color: #909090; }
+.warning { --toast-color: #C1C1C1; }
+.info { --toast-color: #9C9C9C; }
 
 .message {
   flex: 1;
@@ -63,7 +63,7 @@
   width: 26px;
   height: 26px;
   place-items: center;
-  color: #cbd5e1;
+  color: #D4D4D4;
   font-size: 1.35rem;
   line-height: 1;
   background: transparent;

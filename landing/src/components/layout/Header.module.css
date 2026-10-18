@@ -37,6 +37,38 @@
   gap: var(--space-8);
 }
 
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.brandMark {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 2px solid #fff;
+  border-radius: 0.65rem;
+  background: #fff;
+  box-shadow: 0 3px 0 #727272;
+  color: #000;
+  font-family: Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.brandText {
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
 /* ---- Logo ---- */
 .logo {
   display: flex;
@@ -91,6 +123,8 @@
     transform 0.3s var(--ease-clay);
 }
 
+.desktopNav .navList { gap: var(--space-3); }
+
 .navLink:hover {
   color: var(--color-text-primary);
   background: rgba(255, 255, 255, 0.06);
@@ -119,6 +153,13 @@
   align-items: center;
   gap: var(--space-3);
   flex-shrink: 0;
+}
+
+@media (max-width: 420px) {
+  .container { gap: var(--space-2); }
+  .actions { gap: var(--space-2); }
+  .actions :global(a) { padding-inline: 0.55rem; }
+  .brandText { font-size: 0.95rem; }
 }
 
 .userMenu {

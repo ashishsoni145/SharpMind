@@ -83,13 +83,13 @@ function SignupForm() {
       case 0:
         return { label: 'Empty', color: 'transparent', width: '0%' };
       case 1:
-        return { label: 'Weak', color: '#ef4444', width: '25%' };
+        return { label: 'Weak', color: '#686868', width: '25%' };
       case 2:
-        return { label: 'Fair', color: '#f59e0b', width: '50%' };
+        return { label: 'Fair', color: '#A6A6A6', width: '50%' };
       case 3:
-        return { label: 'Good', color: '#6366f1', width: '75%' };
+        return { label: 'Good', color: '#6F6F6F', width: '75%' };
       case 4:
-        return { label: 'Strong', color: '#10b981', width: '100%' };
+        return { label: 'Strong', color: '#ffffff', width: '100%' };
       default:
         return { label: '', color: 'transparent', width: '0%' };
     }

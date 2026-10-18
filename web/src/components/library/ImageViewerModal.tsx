@@ -61,24 +61,24 @@ export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
             role="img"
             aria-label={material.title}
           >
-            <rect width="800" height="450" fill="#0f172a" rx="8" />
+            <rect width="800" height="450" fill="#171717" rx="8" />
             {/* Grid backdrop */}
             <defs>
               <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" strokeWidth="1" />
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#282828" strokeWidth="1" />
               </pattern>
               <radialGradient id="sOrbitalGrad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
-                <stop offset="70%" stopColor="#0284c7" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#0369a1" stopOpacity="0" />
+                <stop offset="0%" stopColor="#A5A5A5" stopOpacity="0.9" />
+                <stop offset="70%" stopColor="#6D6D6D" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#575757" stopOpacity="0" />
               </radialGradient>
               <radialGradient id="pLobe1" cx="50%" cy="30%" r="40%">
-                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#be123c" stopOpacity="0.1" />
+                <stop offset="0%" stopColor="#686868" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#3A3A3A" stopOpacity="0.1" />
               </radialGradient>
               <radialGradient id="pLobe2" cx="50%" cy="70%" r="40%">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#1d4ed8" stopOpacity="0.1" />
+                <stop offset="0%" stopColor="#7B7B7B" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#4E4E4E" stopOpacity="0.1" />
               </radialGradient>
             </defs>
             <rect width="800" height="450" fill="url(#grid)" />
@@ -87,12 +87,12 @@ export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
             <g transform="translate(130, 210)">
               <circle cx="0" cy="0" r="70" fill="url(#sOrbitalGrad)" />
               <circle cx="0" cy="0" r="2" fill="#ffffff" />
-              <line x1="-85" y1="0" x2="85" y2="0" stroke="#475569" strokeDasharray="3,3" />
-              <line x1="0" y1="-85" x2="0" y2="85" stroke="#475569" strokeDasharray="3,3" />
-              <text x="0" y="115" fill="#f8fafc" fontSize="14" fontWeight="600" textAnchor="middle">
+              <line x1="-85" y1="0" x2="85" y2="0" stroke="#535353" strokeDasharray="3,3" />
+              <line x1="0" y1="-85" x2="0" y2="85" stroke="#535353" strokeDasharray="3,3" />
+              <text x="0" y="115" fill="#FAFAFA" fontSize="14" fontWeight="600" textAnchor="middle">
                 1s Orbital (l = 0, m = 0)
               </text>
-              <text x="0" y="135" fill="#94a3b8" fontSize="12" textAnchor="middle">
+              <text x="0" y="135" fill="#A1A1A1" fontSize="12" textAnchor="middle">
                 Spherical Symmetrical • 0 Nodal Planes
               </text>
             </g>
@@ -102,12 +102,12 @@ export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
               <ellipse cx="0" cy="-45" rx="35" ry="50" fill="url(#pLobe1)" />
               <ellipse cx="0" cy="45" rx="35" ry="50" fill="url(#pLobe2)" />
               <circle cx="0" cy="0" r="3" fill="#ffffff" />
-              <line x1="-85" y1="0" x2="85" y2="0" stroke="#ef4444" strokeWidth="1.5" />
-              <line x1="0" y1="-95" x2="0" y2="95" stroke="#475569" strokeDasharray="3,3" />
-              <text x="0" y="115" fill="#f8fafc" fontSize="14" fontWeight="600" textAnchor="middle">
+              <line x1="-85" y1="0" x2="85" y2="0" stroke="#686868" strokeWidth="1.5" />
+              <line x1="0" y1="-95" x2="0" y2="95" stroke="#535353" strokeDasharray="3,3" />
+              <text x="0" y="115" fill="#FAFAFA" fontSize="14" fontWeight="600" textAnchor="middle">
                 2pz Orbital (l = 1, m = 0)
               </text>
-              <text x="0" y="135" fill="#94a3b8" fontSize="12" textAnchor="middle">
+              <text x="0" y="135" fill="#A1A1A1" fontSize="12" textAnchor="middle">
                 Dumbbell Lobe • xy Nodal Plane
               </text>
             </g>
@@ -119,21 +119,21 @@ export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
               <ellipse cx="35" cy="-35" rx="28" ry="40" transform="rotate(45 35 -35)" fill="url(#pLobe2)" />
               <ellipse cx="-35" cy="35" rx="28" ry="40" transform="rotate(45 -35 35)" fill="url(#pLobe2)" />
               <circle cx="0" cy="0" r="3" fill="#ffffff" />
-              <line x1="-85" y1="0" x2="85" y2="0" stroke="#475569" strokeDasharray="3,3" />
-              <line x1="0" y1="-85" x2="0" y2="85" stroke="#475569" strokeDasharray="3,3" />
-              <text x="0" y="115" fill="#f8fafc" fontSize="14" fontWeight="600" textAnchor="middle">
+              <line x1="-85" y1="0" x2="85" y2="0" stroke="#535353" strokeDasharray="3,3" />
+              <line x1="0" y1="-85" x2="0" y2="85" stroke="#535353" strokeDasharray="3,3" />
+              <text x="0" y="115" fill="#FAFAFA" fontSize="14" fontWeight="600" textAnchor="middle">
                 3d(x²-y²) Orbital (l = 2)
               </text>
-              <text x="0" y="135" fill="#94a3b8" fontSize="12" textAnchor="middle">
+              <text x="0" y="135" fill="#A1A1A1" fontSize="12" textAnchor="middle">
                 Cloverleaf • 2 Angular Nodal Planes
               </text>
             </g>
 
             {/* Header branding */}
-            <text x="30" y="45" fill="#60a5fa" fontSize="16" fontWeight="700">
+            <text x="30" y="45" fill="#9C9C9C" fontSize="16" fontWeight="700">
               NCERT CHEMICAL STRUCTURE ATLAS
             </text>
-            <text x="30" y="68" fill="#94a3b8" fontSize="12">
+            <text x="30" y="68" fill="#A1A1A1" fontSize="12">
               Angular Wavefunction & Probability Density Distribution | Class 11 Chemistry Chapter 2
             </text>
           </svg>

@@ -16,7 +16,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  background: rgba(18, 24, 38, 0.94);
+  background: rgba(24, 24, 24, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -37,13 +37,13 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background: #60a5fa;
+  background: #9C9C9C;
   transform-origin: left;
   animation: drain 5s linear forwards;
 }
 
-.warning .progress { background: #fbbf24; }
-.critical .progress { background: #f87171; }
+.warning .progress { background: #C1C1C1; }
+.critical .progress { background: #8E8E8E; }
 
 .toast::before {
   content: '';
@@ -52,17 +52,17 @@
   left: 0;
   bottom: 0;
   width: 4px;
-  background: #3b82f6;
+  background: #7B7B7B;
   border-top-left-radius: 14px;
   border-bottom-left-radius: 14px;
 }
 
 .toast.warning::before {
-  background: #f59e0b;
+  background: #A6A6A6;
 }
 
 .toast.critical::before {
-  background: #ef4444;
+  background: #686868;
 }
 
 .header {
@@ -88,21 +88,21 @@
   letter-spacing: 0.05em;
   padding: 3px 8px;
   border-radius: 9999px;
-  background: rgba(59, 130, 246, 0.18);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(123, 123, 123, 0.18);
+  color: #9C9C9C;
+  border: 1px solid rgba(123, 123, 123, 0.35);
 }
 
 .toast.warning .actionBadge {
-  background: rgba(245, 158, 11, 0.18);
-  color: #fbbf24;
-  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(166, 166, 166, 0.18);
+  color: #C1C1C1;
+  border-color: rgba(166, 166, 166, 0.35);
 }
 
 .toast.critical .actionBadge {
-  background: rgba(239, 68, 68, 0.18);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(104, 104, 104, 0.18);
+  color: #8E8E8E;
+  border-color: rgba(104, 104, 104, 0.35);
 }
 
 .pulseDot {
@@ -138,14 +138,14 @@
 .title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #f8fafc;
+  color: #FAFAFA;
   margin: 0 0 4px 0;
   line-height: 1.35;
 }
 
 .message {
   font-size: 0.83rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   margin: 0;
   line-height: 1.45;
 }
@@ -162,7 +162,7 @@
 .dismissBtn {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  color: #D4D4D4;
   font-size: 0.8rem;
   font-weight: 500;
   padding: 6px 12px;
@@ -180,7 +180,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #2563eb;
+  background: #606060;
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 600;
@@ -188,33 +188,33 @@
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 2px 8px rgba(96, 96, 96, 0.4);
   transition: all 0.15s ease;
   text-decoration: none;
 }
 
 .actionBtn:hover {
-  background: #1d4ed8;
+  background: #4E4E4E;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 4px 12px rgba(96, 96, 96, 0.5);
 }
 
 .toast.warning .actionBtn {
-  background: #d97706;
-  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
+  background: #848484;
+  box-shadow: 0 2px 8px rgba(132, 132, 132, 0.4);
 }
 
 .toast.warning .actionBtn:hover {
-  background: #b45309;
+  background: #626262;
 }
 
 .toast.critical .actionBtn {
-  background: #dc2626;
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+  background: #4D4D4D;
+  box-shadow: 0 2px 8px rgba(77, 77, 77, 0.4);
 }
 
 .toast.critical .actionBtn:hover {
-  background: #b91c1c;
+  background: #3D3D3D;
 }
 
 @keyframes slideIn {

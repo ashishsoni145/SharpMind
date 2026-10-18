@@ -316,7 +316,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                   {sec.diagramDescription && (
                     <div className={styles.diagramBox}>
-                      <Icon name="cube" size="lg" style={{ marginBottom: '0.5rem', color: '#3b82f6' }} />
+                      <Icon name="cube" size="lg" style={{ marginBottom: '0.5rem', color: '#7B7B7B' }} />
                       <strong>[Figure 4.{currentPage}.1 — Trajectory Projection Geometry]</strong>
                       <p style={{ margin: '0.5rem 0 0 0', maxWidth: '500px' }}>
                         {sec.diagramDescription}

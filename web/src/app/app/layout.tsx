@@ -4,29 +4,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense
         fallback={
-          <div
-            style={{
-              minHeight: '100vh',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: '#0a0a0a',
-              color: 'var(--color-text-secondary)',
-              gap: '1rem',
-            }}
-          >
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                border: '3px solid rgba(255, 255, 255, 0.1)',
-                borderTopColor: '#ffffff',
-                animation: 'spin 0.8s linear infinite',
-              }}
-            />
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem' }}>
+          <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-zinc-950 text-zinc-400">
+            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-white/10 border-t-white" aria-hidden="true" />
+            <p className="font-mono text-sm">
               Loading SharpMind Workspace...
             </p>
           </div>

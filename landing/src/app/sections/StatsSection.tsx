@@ -4,9 +4,9 @@ import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import styles from './StatsSection.module.css';
 
 const stats = [
-  { end: 10000, suffix: '+', label: 'Concepts Mapped' },
-  { end: 50, suffix: '+', label: 'Subjects Covered' },
-  { end: 95, suffix: '%', label: 'Accuracy Improvement' },
+  { end: 5789, suffix: '+', label: 'Concepts Mapped' },
+  { end: 29, suffix: '+', label: 'Subjects Covered' },
+  { end: 54, suffix: '%', label: 'Accuracy Improvement' },
   { end: 24, suffix: '/7', label: 'AI Tutor Access' },
 ];
 

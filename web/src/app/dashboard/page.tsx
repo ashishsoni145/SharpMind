@@ -18,8 +18,8 @@ export default function DashboardRedirectPage() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#0b0f19',
-      color: '#f9fafb',
+      backgroundColor: '#0F0F0F',
+      color: '#FAFAFA',
       fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       padding: '24px',
       textAlign: 'center'
@@ -27,14 +27,14 @@ export default function DashboardRedirectPage() {
       <h1 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px' }}>
         Redirecting to SharpMind workspace...
       </h1>
-      <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '16px' }}>
+      <p style={{ color: '#A2A2A2', fontSize: '14px', marginBottom: '16px' }}>
         If you are not redirected automatically within a few seconds:
       </p>
       <Link
         href="/app"
         style={{
           color: '#ffffff',
-          backgroundColor: '#6366f1',
+          backgroundColor: '#6F6F6F',
           padding: '10px 20px',
           borderRadius: '6px',
           textDecoration: 'none',

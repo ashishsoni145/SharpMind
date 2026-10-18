@@ -186,7 +186,7 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
               }}
             >
               <span>
-                Mastery: <strong style={{ color: '#38bdf8' }}>{topic.masteryStatus || 'uncalibrated'}</strong>
+                Mastery: <strong style={{ color: '#A5A5A5' }}>{topic.masteryStatus || 'uncalibrated'}</strong>
               </span>
               <span>•</span>
               <span>
@@ -248,9 +248,9 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
             <span
               className={styles.tabCount}
               style={{
-                background: 'rgba(56, 189, 248, 0.2)',
-                color: '#38bdf8',
-                border: '1px solid rgba(56, 189, 248, 0.3)',
+                background: 'rgba(165, 165, 165, 0.2)',
+                color: '#A5A5A5',
+                border: '1px solid rgba(165, 165, 165, 0.3)',
               }}
             >
               3D Sandbox
@@ -422,9 +422,9 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
                     <span
                       className={styles.artifactBadge3D}
                       style={{
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        color: '#10b981',
-                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        background: 'rgba(255, 255, 255, 0.15)',
+                        color: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
                       }}
                     >
                       Visual Model
@@ -439,7 +439,7 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
               <div
                 style={{
                   padding: '24px',
-                  background: 'rgba(9, 13, 22, 0.7)',
+                  background: 'rgba(13, 13, 13, 0.7)',
                   borderRadius: '10px',
                   border: '1px solid rgba(255, 255, 255, 0.06)',
                   display: 'flex',
@@ -447,7 +447,7 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
                   gap: '16px',
                 }}
               >
-                <div style={{ color: '#38bdf8', fontWeight: 600, fontSize: '14px' }}>
+                <div style={{ color: '#A5A5A5', fontWeight: 600, fontSize: '14px' }}>
                   Analytical Architecture & Physical Relationships
                 </div>
                 <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
@@ -589,7 +589,7 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
                       <span
                         style={{
                           fontSize: '0.75rem',
-                          color: '#10b981',
+                          color: '#ffffff',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '4px',
@@ -659,12 +659,12 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
                         padding: '12px 16px',
                         borderRadius: '8px',
                         background: evaluations[q.id].isCorrect
-                          ? 'rgba(16, 185, 129, 0.1)'
-                          : 'rgba(239, 68, 68, 0.1)',
+                          ? 'rgba(255, 255, 255, 0.1)'
+                          : 'rgba(104, 104, 104, 0.1)',
                         border: `1px solid ${
                           evaluations[q.id].isCorrect
-                            ? 'rgba(16, 185, 129, 0.3)'
-                            : 'rgba(239, 68, 68, 0.3)'
+                            ? 'rgba(255, 255, 255, 0.3)'
+                            : 'rgba(104, 104, 104, 0.3)'
                         }`,
                       }}
                     >
@@ -672,7 +672,7 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
                         style={{
                           fontWeight: 600,
                           fontSize: '0.875rem',
-                          color: evaluations[q.id].isCorrect ? '#10b981' : '#ef4444',
+                          color: evaluations[q.id].isCorrect ? '#ffffff' : '#686868',
                           marginBottom: '4px',
                         }}
                       >

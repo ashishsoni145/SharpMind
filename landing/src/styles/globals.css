@@ -6,6 +6,52 @@
 @import './reset.css';
 @import './tokens.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}
+
+/* Mechanical, monochrome buttons used by the marketing and workspace UI. */
+@layer components {
+  .btn-brilliant-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 0 0 #A2A2A2;
+    transform: translateY(0);
+    transition: transform 0.08s ease-in-out, box-shadow 0.08s ease-in-out;
+    user-select: none;
+  }
+  .btn-brilliant-primary:hover { background-color: #F4F4F4; }
+  .btn-brilliant-primary:active { transform: translateY(4px); box-shadow: 0 0 0 0 transparent; }
+  .btn-brilliant-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    background-color: #181818;
+    color: #ffffff;
+    border: 2px solid #404040;
+    box-shadow: 0 4px 0 0 #272727;
+    transform: translateY(0);
+    transition: transform 0.08s ease-in-out, box-shadow 0.08s ease-in-out;
+    user-select: none;
+  }
+  .btn-brilliant-secondary:hover { background-color: #272727; border-color: #535353; }
+  .btn-brilliant-secondary:active { transform: translateY(4px); box-shadow: 0 0 0 0 transparent; }
+}
+
 /* ---- Base ---- */
 body {
   font-family: var(--font-sans);
@@ -18,7 +64,7 @@ body {
 
 /* ---- Focus Styles ---- */
 :focus-visible {
-  outline: 2px solid var(--brand-accent, #10b981);
+  outline: 2px solid var(--brand-accent, #ffffff);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -50,7 +96,7 @@ body {
 
 /* ---- Selection ---- */
 ::selection {
-  background: rgba(16, 185, 129, 0.25);
+  background: rgba(255, 255, 255, 0.25);
   color: #ffffff;
 }
 
@@ -71,7 +117,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.4);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 /* ---- Layout Utilities ---- */

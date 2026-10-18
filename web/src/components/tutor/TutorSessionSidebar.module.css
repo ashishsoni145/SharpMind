@@ -76,8 +76,8 @@
 }
 
 .activeSessionItem {
-  background: rgba(37, 99, 235, 0.1);
-  border-color: rgba(37, 99, 235, 0.25);
+  background: rgba(96, 96, 96, 0.1);
+  border-color: rgba(96, 96, 96, 0.25);
 }
 
 .sessionContent {
@@ -128,7 +128,7 @@
 }
 
 .deleteBtn:hover {
-  color: #ef4444;
+  color: #686868;
 }
 
 .emptyHistory {

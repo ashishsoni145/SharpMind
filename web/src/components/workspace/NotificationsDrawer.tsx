@@ -76,13 +76,13 @@ export function NotificationsDrawer({ isOpen, onClose }: NotificationsDrawerProp
 
         <div className={styles.notificationsList}>
           {isLoading && notifications.length === 0 && (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.88rem' }}>
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#A1A1A1', fontSize: '0.88rem' }}>
               Loading alerts...
             </div>
           )}
 
           {!isLoading && notifications.length === 0 && (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.88rem' }}>
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#A1A1A1', fontSize: '0.88rem' }}>
               All caught up! Zero unread notifications.
             </div>
           )}

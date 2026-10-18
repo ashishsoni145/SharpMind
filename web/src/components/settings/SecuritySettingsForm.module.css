@@ -57,7 +57,7 @@
 
 .input:focus {
   border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(96, 96, 96, 0.15);
 }
 
 .criteriaList {
@@ -78,7 +78,7 @@
 }
 
 .criteriaMet {
-  color: #10b981;
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -121,8 +121,8 @@
   gap: 0.25rem;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.12);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
   padding: 0.2rem 0.5rem;
   border-radius: var(--radius-full);
 }
@@ -163,17 +163,17 @@
 .errorBanner {
   padding: 0.625rem 1rem;
   border-radius: var(--radius-md);
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #ef4444;
+  background: rgba(104, 104, 104, 0.12);
+  border: 1px solid rgba(104, 104, 104, 0.25);
+  color: #686868;
   font-size: 0.8125rem;
 }
 
 .successBanner {
   padding: 0.625rem 1rem;
   border-radius: var(--radius-md);
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  color: #10b981;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
   font-size: 0.8125rem;
 }

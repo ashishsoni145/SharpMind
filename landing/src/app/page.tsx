@@ -4,6 +4,7 @@ import { StatsSection } from './sections/StatsSection';
 import { FeaturesPreview } from './sections/FeaturesPreview';
 import { HowItWorks } from './sections/HowItWorks';
 import { CtaBanner } from './sections/CtaBanner';
+import { FAQSection } from './sections/FAQSection';
 
 export const metadata: Metadata = {
   title: 'SharpMind — AI Academic OS | Master Any Subject',
@@ -18,6 +19,7 @@ export default function HomePage() {
       <StatsSection />
       <FeaturesPreview />
       <HowItWorks />
+      <FAQSection />
       <CtaBanner />
     </>
   );

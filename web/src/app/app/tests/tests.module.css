@@ -39,9 +39,9 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  color: #a78bfa;
+  background: linear-gradient(135deg, rgba(111, 111, 111, 0.15), rgba(114, 114, 114, 0.15));
+  border: 1px solid rgba(113, 113, 113, 0.3);
+  color: #999999;
 }
 
 .pageTitle {
@@ -53,7 +53,7 @@
 
 .pageSubtitle {
   font-size: 0.875rem;
-  color: var(--color-text-secondary, #94a3b8);
+  color: var(--color-text-secondary, #A1A1A1);
   max-width: 720px;
   line-height: 1.5;
 }
@@ -74,7 +74,7 @@
   font-weight: 500;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--color-text-secondary, #94a3b8);
+  color: var(--color-text-secondary, #A1A1A1);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -86,9 +86,9 @@
 }
 
 .filterPillActive {
-  background: rgba(99, 102, 241, 0.18);
-  border-color: rgba(129, 140, 248, 0.5);
-  color: #a5b4fc;
+  background: rgba(111, 111, 111, 0.18);
+  border-color: rgba(145, 145, 145, 0.5);
+  color: #B6B6B6;
 }
 
 /* Assessment Cards Grid */
@@ -99,7 +99,7 @@
 }
 
 .card {
-  background: #0f1319;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1rem;
   padding: 1.375rem;
@@ -111,7 +111,7 @@
 }
 
 .card:hover {
-  border-color: rgba(99, 102, 241, 0.35);
+  border-color: rgba(111, 111, 111, 0.35);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
   transform: translateY(-2px);
 }
@@ -134,27 +134,27 @@
 }
 
 .badgeChapter {
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  color: #60a5fa;
+  background: rgba(123, 123, 123, 0.15);
+  border: 1px solid rgba(123, 123, 123, 0.35);
+  color: #9C9C9C;
 }
 
 .badgeMock {
-  background: rgba(168, 85, 247, 0.15);
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  color: #c084fc;
+  background: rgba(114, 114, 114, 0.15);
+  border: 1px solid rgba(114, 114, 114, 0.35);
+  color: #999999;
 }
 
 .badgePyq {
-  background: rgba(234, 179, 8, 0.15);
-  border: 1px solid rgba(234, 179, 8, 0.35);
-  color: #facc15;
+  background: rgba(178, 178, 178, 0.15);
+  border: 1px solid rgba(178, 178, 178, 0.35);
+  color: #C9C9C9;
 }
 
 .badgeDiagnostic {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: #34d399;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #D4D4D4;
 }
 
 .cardTitle {
@@ -166,7 +166,7 @@
 
 .cardDesc {
   font-size: 0.8125rem;
-  color: var(--color-text-secondary, #94a3b8);
+  color: var(--color-text-secondary, #A1A1A1);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -192,7 +192,7 @@
 
 .specLabel {
   font-size: 0.6875rem;
-  color: var(--color-text-tertiary, #64748b);
+  color: var(--color-text-tertiary, #727272);
   font-family: var(--font-mono, monospace);
   letter-spacing: 0.03em;
 }
@@ -210,7 +210,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   border: none;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #535353, #555555);
   color: #ffffff;
   cursor: pointer;
   display: flex;
@@ -221,8 +221,8 @@
 }
 
 .startBtn:hover {
-  background: linear-gradient(135deg, #4338ca, #6d28d9);
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, #454545, #434343);
+  box-shadow: 0 4px 14px rgba(111, 111, 111, 0.4);
 }
 
 /* =============================================================================
@@ -232,7 +232,7 @@
 .runnerOverlay {
   position: fixed;
   inset: 0;
-  background: #080a0f;
+  background: #0A0A0A;
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -244,7 +244,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background: #0f131a;
+  background: #131313;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -266,24 +266,24 @@
   gap: 0.5rem;
   padding: 0.375rem 0.875rem;
   border-radius: 0.5rem;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  background: rgba(104, 104, 104, 0.12);
+  border: 1px solid rgba(104, 104, 104, 0.3);
+  color: #8E8E8E;
   font-family: var(--font-mono, monospace);
   font-weight: 700;
   font-size: 0.9375rem;
 }
 
 .timerNormal {
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
+  background: rgba(111, 111, 111, 0.12);
+  border-color: rgba(111, 111, 111, 0.3);
+  color: #B6B6B6;
 }
 
 .submitTopBtn {
   padding: 0.4375rem 1.125rem;
   border-radius: 0.5rem;
-  background: #10b981;
+  background: #ffffff;
   color: #ffffff;
   border: none;
   font-weight: 600;
@@ -293,7 +293,7 @@
 }
 
 .submitTopBtn:hover {
-  background: #059669;
+  background: #E4E4E4;
 }
 
 /* Runner Content Layout */
@@ -330,8 +330,8 @@
 .qMarksTag {
   font-family: var(--font-mono, monospace);
   font-size: 0.8125rem;
-  color: #34d399;
-  background: rgba(52, 211, 153, 0.1);
+  color: #D4D4D4;
+  background: rgba(173, 173, 173, 0.1);
   padding: 0.25rem 0.625rem;
   border-radius: 0.375rem;
 }
@@ -339,7 +339,7 @@
 .questionText {
   font-size: 1.0625rem;
   line-height: 1.65;
-  color: #e2e8f0;
+  color: #E7E7E7;
   margin-bottom: 1.5rem;
 }
 
@@ -358,7 +358,7 @@
   border-radius: 0.75rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #cbd5e1;
+  color: #D4D4D4;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -369,8 +369,8 @@
 }
 
 .optionSelected {
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(129, 140, 248, 0.5);
+  background: rgba(111, 111, 111, 0.12);
+  border-color: rgba(145, 145, 145, 0.5);
   color: #ffffff;
 }
 
@@ -384,11 +384,11 @@
   font-weight: 700;
   font-size: 0.8125rem;
   background: rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
+  color: #A1A1A1;
 }
 
 .optionSelected .optionKeyCircle {
-  background: #6366f1;
+  background: #6F6F6F;
   color: #ffffff;
 }
 
@@ -403,7 +403,7 @@
 .numericalInput {
   padding: 0.75rem 1rem;
   border-radius: 0.625rem;
-  background: #111620;
+  background: #161616;
   border: 1px solid rgba(255, 255, 255, 0.15);
   font-family: var(--font-mono, monospace);
   font-size: 1.25rem;
@@ -412,8 +412,8 @@
 }
 
 .numericalInput:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+  border-color: #6F6F6F;
+  box-shadow: 0 0 0 2px rgba(111, 111, 111, 0.25);
 }
 
 /* Action Footer */
@@ -438,7 +438,7 @@
   border-radius: 0.5rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  color: #A1A1A1;
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
@@ -453,22 +453,22 @@
 .btnReview {
   padding: 0.5625rem 1rem;
   border-radius: 0.5rem;
-  background: rgba(168, 85, 247, 0.15);
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  color: #c084fc;
+  background: rgba(114, 114, 114, 0.15);
+  border: 1px solid rgba(114, 114, 114, 0.35);
+  color: #999999;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
 }
 
 .btnReview:hover {
-  background: rgba(168, 85, 247, 0.25);
+  background: rgba(114, 114, 114, 0.25);
 }
 
 .btnSaveNext {
   padding: 0.5625rem 1.25rem;
   border-radius: 0.5rem;
-  background: #4f46e5;
+  background: #535353;
   border: none;
   color: #ffffff;
   font-size: 0.8125rem;
@@ -478,13 +478,13 @@
 }
 
 .btnSaveNext:hover {
-  background: #4338ca;
+  background: #454545;
 }
 
 /* Sidebar Question Palette */
 .runnerSidebar {
   width: 320px;
-  background: #0b0e14;
+  background: #0E0E0E;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -497,7 +497,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #A1A1A1;
 }
 
 .legendItem {
@@ -513,19 +513,19 @@
 }
 
 .dotAnswered {
-  background: #10b981;
+  background: #ffffff;
 }
 
 .dotUnanswered {
-  background: #ef4444;
+  background: #686868;
 }
 
 .dotReview {
-  background: #a855f7;
+  background: #727272;
 }
 
 .dotNotVisited {
-  background: #475569;
+  background: #535353;
 }
 
 .paletteGrid {
@@ -547,7 +547,7 @@
   justify-content: center;
   transition: all 0.1s ease;
   color: #ffffff;
-  background: #334155;
+  background: #3F3F3F;
 }
 
 .paletteBtn:hover {
@@ -560,15 +560,15 @@
 }
 
 .paletteAnswered {
-  background: #059669;
+  background: #E4E4E4;
 }
 
 .paletteUnanswered {
-  background: #dc2626;
+  background: #4D4D4D;
 }
 
 .paletteReview {
-  background: #7c3aed;
+  background: #555555;
 }
 
 /* =============================================================================
@@ -590,7 +590,7 @@
 .scorecardModal {
   width: 100%;
   max-width: 780px;
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 1.25rem;
   padding: 2rem;
@@ -624,7 +624,7 @@
 .scoreBig {
   font-size: 2.25rem;
   font-weight: 800;
-  color: #38bdf8;
+  color: #A5A5A5;
   font-family: var(--font-mono, monospace);
 }
 
@@ -635,19 +635,19 @@
 }
 
 .insightCard {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(104, 104, 104, 0.08);
+  border: 1px solid rgba(104, 104, 104, 0.25);
   border-radius: 0.75rem;
   padding: 1rem 1.25rem;
   font-size: 0.8125rem;
-  color: #fca5a5;
+  color: #B7B7B7;
   line-height: 1.5;
 }
 
 .insightSuccess {
-  background: rgba(16, 185, 129, 0.08);
-  border-color: rgba(16, 185, 129, 0.25);
-  color: #6ee7b7;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #CACACA;
 }
 
 .actionButtonsRow {

@@ -31,9 +31,9 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.15));
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  background: linear-gradient(135deg, rgba(104, 104, 104, 0.15), rgba(137, 137, 137, 0.15));
+  border: 1px solid rgba(104, 104, 104, 0.3);
+  color: #8E8E8E;
 }
 
 .pageTitle {
@@ -45,7 +45,7 @@
 
 .pageSubtitle {
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   max-width: 720px;
   line-height: 1.5;
 }
@@ -58,7 +58,7 @@
 }
 
 .metricCard {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.875rem;
   padding: 1.125rem;
@@ -71,7 +71,7 @@
 .metricLabel {
   font-size: 0.75rem;
   font-family: var(--font-mono, monospace);
-  color: #64748b;
+  color: #727272;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -84,13 +84,13 @@
 }
 
 .metricAlert {
-  border-color: rgba(239, 68, 68, 0.3);
-  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(104, 104, 104, 0.3);
+  background: rgba(104, 104, 104, 0.05);
 }
 
 .metricSuccess {
-  border-color: rgba(16, 185, 129, 0.3);
-  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* Filter Bar */
@@ -109,7 +109,7 @@
   font-weight: 500;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  color: #A1A1A1;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -121,9 +121,9 @@
 }
 
 .filterPillActive {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(248, 113, 113, 0.4);
-  color: #fca5a5;
+  background: rgba(104, 104, 104, 0.15);
+  border-color: rgba(142, 142, 142, 0.4);
+  color: #B7B7B7;
 }
 
 /* Mistakes List */
@@ -134,7 +134,7 @@
 }
 
 .mistakeCard {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1rem;
   padding: 1.5rem;
@@ -173,33 +173,33 @@
 }
 
 .badgeCause {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  background: rgba(104, 104, 104, 0.12);
+  border: 1px solid rgba(104, 104, 104, 0.3);
+  color: #8E8E8E;
 }
 
 .badgeRepetition {
-  background: rgba(168, 85, 247, 0.12);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  color: #c084fc;
+  background: rgba(114, 114, 114, 0.12);
+  border: 1px solid rgba(114, 114, 114, 0.3);
+  color: #999999;
 }
 
 .badgeResolved {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34d399;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #D4D4D4;
 }
 
 .dueText {
   font-size: 0.75rem;
   font-family: var(--font-mono, monospace);
-  color: #f59e0b;
+  color: #A6A6A6;
 }
 
 .questionText {
   font-size: 1rem;
   line-height: 1.6;
-  color: #e2e8f0;
+  color: #E7E7E7;
 }
 
 /* Answer Comparison Grid */
@@ -224,13 +224,13 @@
 }
 
 .ansWrong {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(104, 104, 104, 0.08);
+  border: 1px solid rgba(104, 104, 104, 0.25);
 }
 
 .ansCorrect {
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .ansLabel {
@@ -241,11 +241,11 @@
 }
 
 .ansWrong .ansLabel {
-  color: #f87171;
+  color: #8E8E8E;
 }
 
 .ansCorrect .ansLabel {
-  color: #34d399;
+  color: #D4D4D4;
 }
 
 .ansContent {
@@ -260,7 +260,7 @@
   border-radius: 0.625rem;
   padding: 0.875rem 1rem;
   font-size: 0.8125rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   line-height: 1.55;
 }
 
@@ -275,7 +275,7 @@
 .retryBtn {
   padding: 0.5rem 1.125rem;
   border-radius: 0.5rem;
-  background: linear-gradient(135deg, #ea580c, #c2410c);
+  background: linear-gradient(135deg, #727272, #595959);
   color: #ffffff;
   border: none;
   font-size: 0.8125rem;
@@ -288,8 +288,8 @@
 }
 
 .retryBtn:hover {
-  background: linear-gradient(135deg, #c2410c, #9a3412);
-  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+  background: linear-gradient(135deg, #595959, #474747);
+  box-shadow: 0 4px 12px rgba(114, 114, 114, 0.35);
 }
 
 /* =============================================================================
@@ -311,7 +311,7 @@
 .retryModal {
   width: 100%;
   max-width: 640px;
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 1.25rem;
   padding: 1.75rem;
@@ -332,13 +332,13 @@
 }
 
 .feedbackSuccess {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: #34d399;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #D4D4D4;
 }
 
 .feedbackFail {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  color: #f87171;
+  background: rgba(104, 104, 104, 0.15);
+  border: 1px solid rgba(104, 104, 104, 0.35);
+  color: #8E8E8E;
 }

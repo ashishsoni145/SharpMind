@@ -31,9 +31,9 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #818cf8;
+  background: linear-gradient(135deg, rgba(111, 111, 111, 0.15), rgba(114, 114, 114, 0.15));
+  border: 1px solid rgba(111, 111, 111, 0.3);
+  color: #919191;
 }
 
 .pageTitle {
@@ -45,7 +45,7 @@
 
 .pageSubtitle {
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   max-width: 720px;
   line-height: 1.5;
 }
@@ -58,7 +58,7 @@
 }
 
 .metricCard {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.875rem;
   padding: 1.125rem;
@@ -69,13 +69,13 @@
 }
 
 .metricAlert {
-  border-color: rgba(239, 68, 68, 0.3);
-  background: linear-gradient(180deg, rgba(239, 68, 68, 0.05), #0f131a);
+  border-color: rgba(104, 104, 104, 0.3);
+  background: linear-gradient(180deg, rgba(104, 104, 104, 0.05), #131313);
 }
 
 .metricSuccess {
-  border-color: rgba(52, 211, 153, 0.3);
-  background: linear-gradient(180deg, rgba(52, 211, 153, 0.05), #0f131a);
+  border-color: rgba(173, 173, 173, 0.3);
+  background: linear-gradient(180deg, rgba(173, 173, 173, 0.05), #131313);
 }
 
 .metricLabel {
@@ -83,7 +83,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #727272;
 }
 
 .metricValue {
@@ -107,7 +107,7 @@
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  color: #A1A1A1;
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
@@ -120,8 +120,8 @@
 }
 
 .filterPillActive {
-  background: #6366f1;
-  border-color: #6366f1;
+  background: #6F6F6F;
+  border-color: #6F6F6F;
   color: #ffffff;
 }
 
@@ -133,7 +133,7 @@
 }
 
 .revisionCard {
-  background: #0f131a;
+  background: #131313;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.875rem;
   padding: 1.25rem;
@@ -161,8 +161,8 @@
   font-family: var(--font-mono, monospace);
   font-weight: 600;
   text-transform: uppercase;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
+  color: #A5A5A5;
+  background: rgba(165, 165, 165, 0.1);
   padding: 0.2rem 0.5rem;
   border-radius: 0.25rem;
 }
@@ -176,21 +176,21 @@
 }
 
 .urgencyHigh {
-  color: #f87171;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #8E8E8E;
+  background: rgba(104, 104, 104, 0.15);
+  border: 1px solid rgba(104, 104, 104, 0.3);
 }
 
 .urgencyMedium {
-  color: #fbbf24;
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #C1C1C1;
+  background: rgba(166, 166, 166, 0.15);
+  border: 1px solid rgba(166, 166, 166, 0.3);
 }
 
 .urgencyNormal {
-  color: #34d399;
-  background: rgba(52, 211, 153, 0.15);
-  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #D4D4D4;
+  background: rgba(173, 173, 173, 0.15);
+  border: 1px solid rgba(173, 173, 173, 0.3);
 }
 
 .topicTitle {
@@ -206,7 +206,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #A1A1A1;
   margin-top: 0.5rem;
 }
 
@@ -229,7 +229,7 @@
   display: flex;
   gap: 0.75rem;
   font-size: 0.75rem;
-  color: #64748b;
+  color: #727272;
   font-family: var(--font-mono, monospace);
   padding-bottom: 0.75rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -250,7 +250,7 @@
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
+  color: #D4D4D4;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -263,25 +263,25 @@
 }
 
 .recallSuccess:hover {
-  background: rgba(52, 211, 153, 0.15);
-  border-color: rgba(52, 211, 153, 0.4);
-  color: #34d399;
+  background: rgba(173, 173, 173, 0.15);
+  border-color: rgba(173, 173, 173, 0.4);
+  color: #D4D4D4;
 }
 
 .recallHard:hover {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.4);
-  color: #fbbf24;
+  background: rgba(166, 166, 166, 0.15);
+  border-color: rgba(166, 166, 166, 0.4);
+  color: #C1C1C1;
 }
 
 .recallForgot:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
+  background: rgba(104, 104, 104, 0.15);
+  border-color: rgba(104, 104, 104, 0.4);
+  color: #8E8E8E;
 }
 
 .btnSubtext {
   font-size: 0.625rem;
-  color: #64748b;
+  color: #727272;
   font-weight: 400;
 }

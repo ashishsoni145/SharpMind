@@ -37,33 +37,33 @@
 }
 
 .badgePdf {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(104, 104, 104, 0.12);
+  color: #686868;
+  border: 1px solid rgba(104, 104, 104, 0.25);
 }
 
 .badgeNotes {
-  background: rgba(59, 130, 246, 0.12);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(123, 123, 123, 0.12);
+  color: #7B7B7B;
+  border: 1px solid rgba(123, 123, 123, 0.25);
 }
 
 .badgeCheatsheet {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: rgba(166, 166, 166, 0.12);
+  color: #A6A6A6;
+  border: 1px solid rgba(166, 166, 166, 0.25);
 }
 
 .badgeImage {
-  background: rgba(168, 85, 247, 0.12);
-  color: #a855f7;
-  border: 1px solid rgba(168, 85, 247, 0.25);
+  background: rgba(114, 114, 114, 0.12);
+  color: #727272;
+  border: 1px solid rgba(114, 114, 114, 0.25);
 }
 
 .badgeSummary {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .subjectTag {
