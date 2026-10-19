@@ -50,7 +50,7 @@ SharpMind is configured into three independent deployment projects from a single
 - **Workspace Navigation:**
   - Root route (`/`): Fast client router automatically redirecting authenticated sessions to `/app` (Dashboard) and unauthenticated visitors to `/login`.
   - Authenticated shell (`/app/*`): All 13 core academic modules (`dashboard`, `classroom`, `library`, `tutor`, `focus`, `planner`, `tests`, `mistakes`, `revision`, `readiness`, `analytics`, `upgrade`, `settings`).
-  - Auth routes: `/login`, `/signup`, `/onboarding`, `/forgot-password`, `/reset-password`, `/verify-email`.
+  - Auth/setup routes: `/login`, `/signup`, `/complete-profile`, `/forgot-password`, `/reset-password`, `/verify-email`.
 - **Environment Variables:**
   - `NEXT_PUBLIC_API_URL` (Public, Required): Production API base origin: `https://api.sharpmind.live`. Automatically normalizes to `/api/v1` endpoints.
   - `NEXT_PUBLIC_SUPABASE_URL` (Public, Required): Remote Supabase instance URL (e.g. `https://vscprtuinxopistikpcs.supabase.co`).

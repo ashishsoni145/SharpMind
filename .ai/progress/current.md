@@ -80,3 +80,7 @@ Next checkpoint: diff review and dependency-audit follow-up; commit/push only af
 ### UI navigation follow-up (2026-10-19)
 
 In response to app UI feedback, fixed white-on-white primary controls, moved the app shell into the persistent `/app` layout, added route/content skeleton loading, and redirected the app root by auth state. PWA `start_url` now points to `/app/`. See ADR 0012. Validation passed web typecheck and production build (40 routes). Lint remains blocked by its existing interactive first-run prompt; local browser preview timed out. No backend or production configuration was changed.
+
+## Legacy onboarding UI retirement — 2026-10-19
+
+The requested old academic wizard at `/onboarding` has been removed with no redirect or alias. Dashboard and command-palette entry points were removed, profile actions now point to `/app/profile`, and stale classroom copy was corrected. The required `/complete-profile` setup remains. Backend onboarding APIs and profile storage types remain for compatibility and are not linked as a page. ADR 0013 records scope. Web typecheck and production build passed; the build exported 39 routes without `/onboarding`. Lint exits 1 at the existing interactive ESLint setup prompt; no web test script is configured. `git diff --check` passed. No deploy or push.

@@ -366,3 +366,9 @@ Changed the web root to route signed-in users to `/app` and signed-out users to 
 Validation: baseline web typecheck and production build passed; post-change `npm --prefix web run typecheck` passed (exit 0), `npm --prefix web run build` passed (exit 0; 40 static routes), the exported root contains the app-entry skeleton and not the marketing hero, the exported manifest parses with `/app/` as `start_url`, no white-on-white `--brand-primary` declarations remain, and `git diff --check` passed. `npm --prefix web run lint` exited 1 at the existing interactive `next lint` ESLint-setup prompt. No frontend test script exists. The in-app browser timed out on `localhost:3000`, so browser interaction/visual verification remains unavailable. No deploy, push, or production settings changes.
 
 Next checkpoint: inspect final diff, confirm manifest and changed foregrounds, and commit/push only when the user is ready; then check installed-app launch and in-app menu transitions in the deployed preview on mobile and desktop.
+
+### 2026-10-19 — legacy onboarding UI retirement
+
+Removed the obsolete `/onboarding` page and stylesheet, its command-palette entry, dashboard branch, and stale classroom copy. There is no route redirect or alias; static export omits `/onboarding`. The mandatory `/complete-profile` flow, profile editor, data types, backend onboarding API, and stored data remain intact. Updated project/deployment docs and added ADR 0013. Post-change web typecheck passed and production build passed (39 static routes, no `/onboarding`) after an elevated rerun; an earlier sandbox attempt failed writing generated Next files with Windows `EPERM`. Lint still opens the existing first-run ESLint prompt and exits 1. `git diff --check` passed. No deployment or production change.
+
+Next checkpoint: review the final diff; commit and push only when the user is ready, then verify the hosted `/onboarding` path returns not found after deployment.

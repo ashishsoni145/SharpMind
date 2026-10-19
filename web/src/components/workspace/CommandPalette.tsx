@@ -95,14 +95,6 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         icon: 'user',
         href: '/app/profile',
       },
-      {
-        id: 'onboarding',
-        label: 'Re-run Academic Onboarding',
-        description: 'Update board, grade, enrolled subjects, and exam goals',
-        category: 'Account',
-        icon: 'classroom',
-        href: '/onboarding',
-      },
     ],
     []
   );

@@ -302,7 +302,6 @@ export default function WorkspaceDashboard() {
   const boardName = profile?.academicProfile.board ? profile.academicProfile.board.toUpperCase() : 'Board';
   const gradeName = profile?.academicProfile.grade ? profile.academicProfile.grade.replace('class_', '') + 'th' : '';
 
-  const isOnboardingComplete = Boolean(profile?.onboardingStatus.isCompleted);
   const isDiagnosticPending =
     profile?.knowledgeModelAttachment.status === 'pending_initial_diagnostic' &&
     modelSummary.status !== 'calibrated';
@@ -377,23 +376,7 @@ export default function WorkspaceDashboard() {
                 <span className={styles.priorityPill}>Priority 1 • High Leverage</span>
               </div>
 
-              {!isOnboardingComplete ? (
-                <>
-                  <div className={styles.heroMain}>
-                    <h1 id="ai-next-action-heading" className={styles.heroTitle}>
-                      Complete Your Academic Identity Calibration
-                    </h1>
-                    <p className={styles.heroDescription}>
-                      SharpMind needs your target exam, syllabus board, and enrolled subjects before it can sequence personalized practice questions.
-                    </p>
-                  </div>
-                  <div className={styles.heroActionRow}>
-                    <Button href="/onboarding" variant="primary" size="lg">
-                      Complete Onboarding Wizard &rarr;
-                    </Button>
-                  </div>
-                </>
-              ) : isDiagnosticPending || modelSummary.status === 'uncalibrated' ? (
+              {isDiagnosticPending || modelSummary.status === 'uncalibrated' ? (
                 <>
                   <div className={styles.heroMain}>
                     <h1 id="ai-next-action-heading" className={styles.heroTitle}>
@@ -745,8 +728,8 @@ export default function WorkspaceDashboard() {
                   }}
                 >
                   <span>Curriculum alignment: {boardName} {gradeName ? `Class ${gradeName}` : ''}</span>
-                  <Link href="/onboarding" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>
-                    Edit Enrolled Subjects &rarr;
+                  <Link href="/app/profile" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>
+                    Edit Academic Profile &rarr;
                   </Link>
                 </div>
               </div>

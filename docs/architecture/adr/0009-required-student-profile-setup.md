@@ -5,7 +5,7 @@
 
 ## Context
 
-New student accounts must supply a display name, a globally unique username, and an academic class after email verification and before entering the workspace. The existing academic onboarding wizard collects substantially more information and must remain a separate, optional follow-up flow.
+New student accounts must supply a display name, a globally unique username, and an academic class after email verification and before entering the workspace. The former optional academic onboarding wizard UI has been retired; this minimum profile setup remains the only required first-run setup gate.
 
 ## Decision
 

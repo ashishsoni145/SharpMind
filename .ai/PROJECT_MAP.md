@@ -6,7 +6,7 @@ Product areas and implementation status across platforms and workspaces:
 |---|---|---|
 | Public landing & marketing | `landing/` (`https://sharpmind.live`) | Implemented (Phase 01 + Deployment Boundaries + Tailwind monochrome UI) |
 | Web Workspace & Shell | `web/src/app/app` (`https://app.sharpmind.live`) | Implemented (Phase 01 + Phase 04 + Tailwind monochrome UI; persistent shell, skeleton navigation, PWA app entry) |
-| Web Auth & Onboarding | `web/src/app/login`, `web/src/app/onboarding` | Implemented (Phase 01) |
+| Web Auth & Required Profile Setup | `web/src/app/login`, `web/src/app/complete-profile` | Implemented; legacy academic wizard UI retired |
 | Backend Foundation & Server | `backend/src/app.ts`, `backend/src/server.ts`, `backend/api/index.ts` | Implemented (Phase 02 + Vercel Serverless) |
 | Auth & Authorization | `backend/src/middleware/auth.ts`, `backend/src/middleware/roles.ts`, `tenant.ts` | Implemented (Phase 02) |
 | User & Student Profile API | `backend/src/modules/users` | Implemented (Phase 02) |

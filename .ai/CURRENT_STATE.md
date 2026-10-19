@@ -1,6 +1,6 @@
 # Current State — SharpMind
 
-**Last Verified:** 2026-10-19 (web UI follow-up; backend and landing unchanged)
+**Last Verified:** 2026-10-20 (legacy onboarding UI retirement; backend and landing unchanged)
 **Architecture:** Tri-Project Monorepo with Strict Domain Separation & Continuous Vercel Deployability  
 **Topology:**
 - `landing/` → `https://sharpmind.live` (Public Marketing & Landing Site)
@@ -196,3 +196,10 @@ Review the final diff and resolve/audit the reported npm advisories separately. 
 - The web app root routes an existing session to `/app` and signed-out users to `/login`; `web/public/manifest.json` starts the installed PWA at `/app/`.
 - No backend, database, API, auth policy, or deployment config changed. ADR 0012 documents the routing/layout decision.
 - Validation: `npm --prefix web run typecheck` exit 0; `npm --prefix web run build` exit 0 (40 static routes). `npm --prefix web run lint` exits 1 at the existing interactive `next lint` ESLint configuration prompt. In-app browser local preview timed out, so no visual browser check was completed.
+
+## Legacy onboarding UI retirement — 2026-10-19
+
+- Removed the obsolete web `/onboarding` wizard route and stylesheet, with no redirect or alias. Removed its command-palette link and dashboard completion branch; remaining academic-profile links point to `/app/profile`.
+- Preserved the required `/complete-profile` gate and shared profile/domain logic, plus backend draft APIs and stored onboarding data for compatibility. No database migration or production data operation is required.
+- Updated the project map, deployment route list, ADR 0009 context, and added ADR 0013.
+- Pre-change `npm --prefix web run typecheck` passed. A sandbox build attempt hit Windows `EPERM` writing generated output; the permitted elevated rerun passed (`npm --prefix web run build`, exit 0) and exported 39 static routes with no `/onboarding`. Post-change `npm --prefix web run typecheck` passed. `npm --prefix web run lint` remains blocked at the existing interactive first-run ESLint setup prompt (exit 1); no web test script is configured. `git diff --check` passed. No deployment or production change was made.

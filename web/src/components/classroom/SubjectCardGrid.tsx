@@ -24,7 +24,7 @@ export const SubjectCardGrid: React.FC<SubjectCardGridProps> = ({
           <Icon name="classroom" size="xl" />
         </div>
         <h3>No Enrolled Subjects Found</h3>
-        <p>Update your academic identity in onboarding to enroll in subjects.</p>
+        <p>Update your academic profile to enroll in subjects.</p>
       </div>
     );
   }
