@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { Icon } from '@/components/ui/Icon';
 import { useToast } from '@/components/ui/Toast';
 import { apiClient } from '@/lib/api-client';
@@ -48,7 +47,6 @@ export default function AnalyticsPage() {
   const gaugeAngle = `${Math.round((overallScore / 100) * 360)}deg`;
 
   return (
-    <WorkspaceShell>
       <div className={styles.container}>
         {/* Header */}
         <div className={styles.header}>
@@ -293,6 +291,5 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
-    </WorkspaceShell>
   );
 }

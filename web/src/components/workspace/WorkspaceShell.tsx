@@ -13,6 +13,7 @@ import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { CommandPalette } from './CommandPalette';
 import { NotificationsDrawer } from './NotificationsDrawer';
+import { WorkspaceLoadingSkeleton } from './WorkspaceLoadingSkeleton';
 import styles from './WorkspaceShell.module.css';
 
 interface WorkspaceShellProps {
@@ -134,21 +135,11 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
   };
 
   if (isLoading || !isAuthenticated || !user) {
-    return (
-      <div className={styles.loadingScreen} role="status" aria-live="polite">
-        <div className={styles.spinner} />
-        <p>Restoring SharpMind workspace...</p>
-      </div>
-    );
+    return <WorkspaceLoadingSkeleton label="Restoring SharpMind workspace..." />;
   }
 
   if (profileSetupState === 'checking') {
-    return (
-      <div className={styles.loadingScreen} role="status" aria-live="polite">
-        <div className={styles.spinner} />
-        <p>Checking your profile setup...</p>
-      </div>
-    );
+    return <WorkspaceLoadingSkeleton label="Checking your profile setup..." />;
   }
 
   if (profileSetupState === 'failed') {

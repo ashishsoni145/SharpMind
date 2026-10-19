@@ -11,7 +11,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
-  const isAppWorkspace = pathname?.startsWith('/app');
+  const isAppWorkspace = pathname === '/' || pathname?.startsWith('/app');
 
   // Authenticated workspace manages its own full-viewport shell without marketing header/footer
   if (isAppWorkspace) {

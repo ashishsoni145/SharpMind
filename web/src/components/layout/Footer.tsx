@@ -70,7 +70,7 @@ export function Footer() {
         <div className={styles.top}>
           {/* Brand */}
           <div className={styles.brand}>
-            <Link href="/" className={styles.logo} aria-label="SharpMind home">
+            <Link href="https://sharpmind.live" className={styles.logo} aria-label="SharpMind home">
               <svg
                 width="28"
                 height="28"

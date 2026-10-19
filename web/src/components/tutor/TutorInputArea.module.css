@@ -133,7 +133,7 @@
   height: 38px;
   border-radius: var(--radius-full);
   background: var(--brand-primary);
-  color: #ffffff;
+  color: #090909;
   border: none;
   cursor: pointer;
   transition: all 0.15s ease;

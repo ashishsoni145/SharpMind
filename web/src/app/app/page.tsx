@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { useAuth } from '@/lib/auth/auth-context';
 import { studentProfileAdapter } from '@/lib/adapters/student';
 import type { StudentProfile } from '@/lib/types/onboarding';
 import { Button } from '@/components/ui/Button';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { useToast } from '@/components/ui/Toast';
+import { WorkspaceLoadingSkeleton } from '@/components/workspace/WorkspaceLoadingSkeleton';
 import { apiClient } from '@/lib/api-client';
 import styles from './page.module.css';
 
@@ -311,13 +311,9 @@ export default function WorkspaceDashboard() {
   const topBacklog = backlogItems.length > 0 ? backlogItems[0] : null;
 
   return (
-    <WorkspaceShell>
       <div className={styles.container}>
         {isLoading ? (
-          <div className={styles.loadingSkeleton} role="status">
-            <div className={styles.spinner} />
-            <p>Evaluating Student Model and real-time academic state...</p>
-          </div>
+          <WorkspaceLoadingSkeleton label="Loading your dashboard..." contentOnly />
         ) : (
           <>
             {/* ----------------------------------------------------------- */}
@@ -827,6 +823,5 @@ export default function WorkspaceDashboard() {
         )}
 
       </div>
-    </WorkspaceShell>
   );
 }

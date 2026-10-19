@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
+import { WorkspaceLoadingSkeleton } from '@/components/workspace/WorkspaceLoadingSkeleton';
 import { Icon } from '@/components/ui/Icon';
 import { TutorModeSelector } from '@/components/tutor/TutorModeSelector';
 import { TutorMessageThread } from '@/components/tutor/TutorMessageThread';
@@ -300,10 +300,8 @@ function TutorPageContent() {
 
 export default function TutorPage() {
   return (
-    <WorkspaceShell>
-      <Suspense fallback={<div style={{ padding: '2rem' }}>Loading SharpMind AI Tutor...</div>}>
+      <Suspense fallback={<WorkspaceLoadingSkeleton label="Opening AI tutor..." contentOnly />}>
         <TutorPageContent />
       </Suspense>
-    </WorkspaceShell>
   );
 }

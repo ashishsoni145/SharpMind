@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { Icon } from '@/components/ui/Icon';
 import { useToast } from '@/components/ui/Toast';
+import { WorkspaceLoadingSkeleton } from '@/components/workspace/WorkspaceLoadingSkeleton';
 import styles from './tests.module.css';
 import type {
   Assessment,
@@ -258,7 +258,6 @@ export default function TestsPage() {
   };
 
   return (
-    <WorkspaceShell>
       <div className={styles.container}>
         {/* Header */}
         <header className={styles.header}>
@@ -298,9 +297,7 @@ export default function TestsPage() {
 
         {/* Assessment Cards Grid */}
         {loading && !activeSession ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-            Loading available assessments...
-          </div>
+          <WorkspaceLoadingSkeleton label="Loading available assessments..." contentOnly />
         ) : filteredAssessments.length === 0 ? (
           <div style={{
             padding: '3rem 2rem',
@@ -653,6 +650,5 @@ export default function TestsPage() {
           </div>
         )}
       </div>
-    </WorkspaceShell>
   );
 }

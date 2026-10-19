@@ -76,3 +76,7 @@ Built the marketing homepage requested in the design brief and applied a graysca
 Validation: `npm run typecheck:all` exit 0; full `npm run build` exit 0 (landing 16 routes, web 40 routes, backend build/template copy); after final landing FAQ/step changes, `npm --prefix landing run typecheck` and `npm --prefix landing run build` exit 0. `npm run lint` exits 1 at existing `next lint` ESLint configuration prompt. No frontend test script or browser E2E. `git diff --check` exit 0 (line-ending warnings). `npm install` reported nine audit advisories; status not yet investigated. No deployment, push, backend edit, or production setting change.
 
 Next checkpoint: diff review and dependency-audit follow-up; commit/push only after review, then check preview at phone and desktop widths.
+
+### UI navigation follow-up (2026-10-19)
+
+In response to app UI feedback, fixed white-on-white primary controls, moved the app shell into the persistent `/app` layout, added route/content skeleton loading, and redirected the app root by auth state. PWA `start_url` now points to `/app/`. See ADR 0012. Validation passed web typecheck and production build (40 routes). Lint remains blocked by its existing interactive first-run prompt; local browser preview timed out. No backend or production configuration was changed.

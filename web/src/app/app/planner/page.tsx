@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { Icon } from '@/components/ui/Icon';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -200,7 +199,6 @@ export default function PlannerPage() {
     ) || 0;
 
   return (
-    <WorkspaceShell>
       <div className={styles.container}>
         {/* Header */}
         <header className={styles.header}>
@@ -438,6 +436,5 @@ export default function PlannerPage() {
           )
         )}
       </div>
-    </WorkspaceShell>
   );
 }

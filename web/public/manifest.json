@@ -2,10 +2,10 @@
   "name": "SharpMind",
   "short_name": "SharpMind",
   "description": "AI Academic OS — Master any subject with AI that knows how you learn.",
-  "start_url": "/",
+  "start_url": "/app/",
   "display": "standalone",
   "background_color": "#080810",
-  "theme_color": "#7c3aed",
+  "theme_color": "#090909",
   "icons": [
     {
       "src": "/icon-192.png",

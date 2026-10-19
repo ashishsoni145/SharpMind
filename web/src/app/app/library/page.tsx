@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
+import { WorkspaceLoadingSkeleton } from '@/components/workspace/WorkspaceLoadingSkeleton';
 import { Icon } from '@/components/ui/Icon';
 import { MaterialCard } from '@/components/library/MaterialCard';
 import { LibraryFilterBar, LibraryFilters } from '@/components/library/LibraryFilterBar';
@@ -116,9 +116,7 @@ function LibraryPageContent() {
       {/* Materials Grid */}
       <main aria-label="Curriculum Materials List">
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            Loading verified academic materials...
-          </div>
+          <WorkspaceLoadingSkeleton label="Loading verified academic materials..." contentOnly />
         ) : materials.length === 0 ? (
           <div className={styles.emptyState}>
             <Icon name="search" size="xl" style={{ color: 'var(--text-muted)' }} />
@@ -172,10 +170,8 @@ function LibraryPageContent() {
 
 export default function LibraryPage() {
   return (
-    <WorkspaceShell>
-      <Suspense fallback={<div style={{ padding: '2rem' }}>Loading Library...</div>}>
+      <Suspense fallback={<WorkspaceLoadingSkeleton label="Opening library..." contentOnly />}>
         <LibraryPageContent />
       </Suspense>
-    </WorkspaceShell>
   );
 }

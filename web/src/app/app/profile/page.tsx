@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useTheme } from '@/lib/theme/theme-context';
 import { settingsAdapter } from '@/lib/adapters/settings';
 import type { UserSettings } from '@/lib/types/settings';
 import { Icon } from '@/components/ui/Icon';
 import { useToast } from '@/components/ui/Toast';
+import { WorkspaceLoadingSkeleton } from '@/components/workspace/WorkspaceLoadingSkeleton';
 import styles from './profile.module.css';
 
 const CLASS_OPTIONS = [
@@ -156,7 +156,6 @@ export default function ProfilePage() {
   const isDropper = grade === 'dropper';
 
   return (
-    <WorkspaceShell>
       <div className={styles.container}>
         {/* Header */}
         <header className={styles.header}>
@@ -172,10 +171,7 @@ export default function ProfilePage() {
         </header>
 
         {loading ? (
-          <div className={styles.loadingState}>
-            <div className={styles.spinner} />
-            <span>Loading your profile details...</span>
-          </div>
+          <WorkspaceLoadingSkeleton label="Loading your profile details..." contentOnly />
         ) : (
           <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
             {/* Identity & Account Card */}
@@ -460,6 +456,5 @@ export default function ProfilePage() {
           )}
         </section>
       </div>
-    </WorkspaceShell>
   );
 }

@@ -1,6 +1,6 @@
 # Current State — SharpMind
 
-**Last Verified:** 2026-10-15
+**Last Verified:** 2026-10-19 (web UI follow-up; backend and landing unchanged)
 **Architecture:** Tri-Project Monorepo with Strict Domain Separation & Continuous Vercel Deployability  
 **Topology:**
 - `landing/` → `https://sharpmind.live` (Public Marketing & Landing Site)
@@ -188,3 +188,11 @@ Review the complete diff, apply the existing profile-setup migration only if sti
 ### Next checkpoint
 
 Review the final diff and resolve/audit the reported npm advisories separately. After review, commit and push through the normal pipeline, then visually check the public homepage and signed-in workspace at desktop/mobile widths in the deployed preview. No production Vercel settings or external fonts need configuration; the system font fallback is intentional.
+
+## App Navigation and PWA Entry Follow-up — 2026-10-19
+
+- Fixed the monochrome contrast regression affecting active library filters, material actions, and other white primary controls: foreground text is now near-black wherever the primary surface is white.
+- The authenticated workspace shell now lives in the shared `/app` layout, preserving its navigation during Next.js client transitions. App route loading and auth/profile restoration use responsive skeletons instead of full-screen spinners.
+- The web app root routes an existing session to `/app` and signed-out users to `/login`; `web/public/manifest.json` starts the installed PWA at `/app/`.
+- No backend, database, API, auth policy, or deployment config changed. ADR 0012 documents the routing/layout decision.
+- Validation: `npm --prefix web run typecheck` exit 0; `npm --prefix web run build` exit 0 (40 static routes). `npm --prefix web run lint` exits 1 at the existing interactive `next lint` ESLint configuration prompt. In-app browser local preview timed out, so no visual browser check was completed.

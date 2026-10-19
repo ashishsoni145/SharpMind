@@ -1,13 +1,11 @@
 'use client';
 
 import React from 'react';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
 import { WorkspacePlaceholder } from '@/components/workspace/WorkspacePlaceholder';
 import { Button } from '@/components/ui/Button';
 
 export default function UpgradePage() {
   return (
-    <WorkspaceShell>
       <WorkspacePlaceholder
         title="SharpMind Pro Academic Plan"
         subtitle="Supercharge your preparation with unlimited Socratic AI tutoring, full-length NTA-style mocks, and multi-model reasoning."
@@ -35,6 +33,5 @@ export default function UpgradePage() {
           },
         ]}
       />
-    </WorkspaceShell>
   );
 }

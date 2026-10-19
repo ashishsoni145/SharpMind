@@ -111,7 +111,7 @@
 
 .userAvatar {
   background: var(--brand-primary);
-  color: #ffffff;
+  color: #090909;
 }
 
 .assistantAvatar {
@@ -132,7 +132,7 @@
 
 .userBubble {
   background: var(--brand-primary);
-  color: #ffffff;
+  color: #090909;
   border-bottom-right-radius: 4px;
 }
 

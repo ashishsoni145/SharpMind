@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { WorkspaceShell } from '@/components/workspace/WorkspaceShell';
+import { WorkspaceLoadingSkeleton } from '@/components/workspace/WorkspaceLoadingSkeleton';
 import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -339,10 +339,7 @@ function ClassroomHierarchyContent() {
 
       {/* Loading & Error States */}
       {isLoading && (
-        <div className={styles.loadingSkeleton} role="status" aria-live="polite">
-          <div className={styles.spinner} />
-          <p>Loading curriculum learning hierarchy...</p>
-        </div>
+        <WorkspaceLoadingSkeleton label="Loading curriculum learning hierarchy..." contentOnly />
       )}
 
       {/* HIERARCHY LEVEL 4: Topic Detail View (Concepts, PYQs, Notes, Mastery Hooks) */}
@@ -391,17 +388,10 @@ function ClassroomHierarchyContent() {
 
 export default function ClassroomPage() {
   return (
-    <WorkspaceShell>
       <Suspense
-        fallback={
-          <div className={styles.loadingSkeleton} role="status" aria-live="polite">
-            <div className={styles.spinner} />
-            <p>Initializing Classroom...</p>
-          </div>
-        }
+        fallback={<WorkspaceLoadingSkeleton label="Opening classroom..." contentOnly />}
       >
         <ClassroomHierarchyContent />
       </Suspense>
-    </WorkspaceShell>
   );
 }

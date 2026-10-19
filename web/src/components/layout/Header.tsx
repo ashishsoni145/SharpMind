@@ -71,7 +71,7 @@ export function Header() {
     >
       <div className={styles.container}>
         {/* Logo */}
-        <Link href="/" className={styles.logo} aria-label="SharpMind home">
+        <Link href="https://sharpmind.live" className={styles.logo} aria-label="SharpMind home">
           <svg
             className={styles.logoIcon}
             width="28"

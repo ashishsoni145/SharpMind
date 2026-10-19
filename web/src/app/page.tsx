@@ -1,19 +1,19 @@
-import type { Metadata } from 'next';
-import { HeroSection } from './sections/HeroSection';
-import { StatsSection } from './sections/StatsSection';
-import { FeaturesPreview } from './sections/FeaturesPreview';
-import { HowItWorks } from './sections/HowItWorks';
-import { CtaBanner } from './sections/CtaBanner';
+'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { WorkspaceLoadingSkeleton } from '@/components/workspace/WorkspaceLoadingSkeleton';
+import { useAuth } from '@/lib/auth/auth-context';
 
 export default function HomePage() {
-  return (
-    <>
-      <HeroSection />
-      <StatsSection />
-      <FeaturesPreview />
-      <HowItWorks />
-      <CtaBanner />
-    </>
-  );
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      router.replace(user ? '/app' : '/login');
+    }
+  }, [isLoading, router, user]);
+
+  return <WorkspaceLoadingSkeleton label="Opening SharpMind..." />;
 }

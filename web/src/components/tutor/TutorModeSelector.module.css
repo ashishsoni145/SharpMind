@@ -70,7 +70,7 @@
 
 .activeModeButton {
   background: var(--brand-primary);
-  color: #ffffff;
+  color: #090909;
   border-color: var(--brand-primary);
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(96, 96, 96, 0.25);
@@ -78,5 +78,5 @@
 
 .activeModeButton:hover {
   background: var(--brand-primary);
-  color: #ffffff;
+  color: #090909;
 }

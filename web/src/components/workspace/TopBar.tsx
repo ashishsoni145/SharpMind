@@ -203,7 +203,7 @@ export function TopBar({
                 <span>Profile</span>
               </Link>
               <Link
-                href="/"
+                href="https://sharpmind.live"
                 className={styles.dropdownItem}
                 onClick={() => setIsUserMenuOpen(false)}
                 role="menuitem"
