@@ -248,6 +248,15 @@ describe('SharpMind Security, Tenant Isolation & Anti-Leakage Suite', () => {
         expect(res.headers['access-control-allow-origin']).not.toBe('https://malicious-attacker-site.com');
       }
     });
+
+    it('allows the exact SharpMind desktop origin when configured', async () => {
+      const res = await request(app)
+        .get('/health')
+        .set('Origin', 'sharpmind://app');
+
+      expect(res.headers['access-control-allow-origin']).toBe('sharpmind://app');
+      expect(res.headers['access-control-allow-credentials']).toBe('true');
+    });
   });
 
   describe('6. Canonical Identity & Parameter Spoofing Attack', () => {

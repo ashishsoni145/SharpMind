@@ -1,0 +1,66 @@
+{
+  "name": "@sharpmind/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SharpMind Academic OS for Windows",
+  "author": "SharpMind",
+  "main": "main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.cjs",
+    "build:web": "node scripts/build-web.cjs",
+    "typecheck": "node --check main.cjs && node --check preload.cjs && node --check security.cjs && node --check scripts/build-web.cjs && node --check scripts/dev.cjs && node --check scripts/dev-server.cjs && node --check scripts/make-icon.cjs && node --check scripts/smoke.cjs",
+    "test": "node --test test/*.test.cjs",
+    "package:win": "npm run build:web && node scripts/make-icon.cjs && electron-builder --win --x64",
+    "package:dir": "npm run build:web && node scripts/make-icon.cjs && electron-builder --dir --win --x64",
+    "smoke:dev": "node scripts/smoke.cjs"
+  },
+  "devDependencies": {
+    "electron": "44.9.1",
+    "electron-builder": "26.17.0",
+    "png-to-ico": "^3.0.1"
+  },
+  "build": {
+    "appId": "live.sharpmind.desktop",
+    "productName": "SharpMind",
+    "artifactName": "SharpMind-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "security.cjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../../web/out",
+        "to": "web"
+      }
+    ],
+    "protocols": [
+      {
+        "name": "SharpMind authentication callback",
+        "schemes": ["sharpmind"]
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": true,
+      "target": ["nsis", "msi"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SharpMind",
+      "deleteAppDataOnUninstall": false
+    },
+    "msi": {
+      "perMachine": false,
+      "createDesktopShortcut": true
+    }
+  }
+}

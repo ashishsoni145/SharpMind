@@ -1,6 +1,6 @@
 # Current State — SharpMind
 
-**Last Verified:** 2026-10-20 (legacy onboarding UI retirement; backend and landing unchanged)
+**Last Verified:** 2026-10-20 (desktop integration checkpoint; web/backend build pass, no installer artifact yet)
 **Architecture:** Tri-Project Monorepo with Strict Domain Separation & Continuous Vercel Deployability  
 **Topology:**
 - `landing/` → `https://sharpmind.live` (Public Marketing & Landing Site)
@@ -203,3 +203,18 @@ Review the final diff and resolve/audit the reported npm advisories separately. 
 - Preserved the required `/complete-profile` gate and shared profile/domain logic, plus backend draft APIs and stored onboarding data for compatibility. No database migration or production data operation is required.
 - Updated the project map, deployment route list, ADR 0009 context, and added ADR 0013.
 - Pre-change `npm --prefix web run typecheck` passed. A sandbox build attempt hit Windows `EPERM` writing generated output; the permitted elevated rerun passed (`npm --prefix web run build`, exit 0) and exported 39 static routes with no `/onboarding`. Post-change `npm --prefix web run typecheck` passed. `npm --prefix web run lint` remains blocked at the existing interactive first-run ESLint setup prompt (exit 1); no web test script is configured. `git diff --check` passed. No deployment or production change was made.
+
+## Windows Desktop Client — 2026-10-20
+
+- Added `apps/desktop` as a standalone Electron package around the complete static `web/` export. It is intentionally outside root npm workspaces, with its own lockfile, so desktop dependencies do not enter existing Vercel target installs.
+- Desktop shell uses `sharpmind://app`, a path/route allowlist, isolated preload bridge, sandboxed renderer, OS `safeStorage` for only Supabase Auth storage, validated auth callback deep links, and native Save As for downloads. Browser auth storage and redirects remain unchanged.
+- Added static `/auth/callback/` and desktop signup/password-reset callback URLs. The existing backend, Supabase Auth, database, and RLS remain shared. No migration, production deployment setting, DNS, or production data was changed.
+- Backend CORS defaults include `sharpmind://app`; any explicit production `CORS_ORIGIN` must be updated manually. Supabase must allow `sharpmind://app/auth/callback/` and `sharpmind://app/reset-password/`, and auth email templates must honor `{{ .RedirectTo }}`.
+- Validation: `npm run build` passed (landing 16, web 40 routes, backend templates copied); `npm run typecheck:all` passed; desktop security tests 4/4; backend focused email/OTP tests 37/37; backend CORS tests 2/2; desktop static web export passed (40 routes). Lint remains blocked at the existing interactive `next lint` configuration prompt; web has no test script.
+- Follow-up validation: desktop security tests now pass 5/5, including rejecting service-role JWTs in public build config; desktop JS typecheck/syntax checks pass. Root lockfile contains no desktop workspace or Electron packaging dependencies.
+- Not verified: desktop GUI launch, installer generation/install/uninstall, or actual service authentication/file flows. Electron Builder validated configuration and entered packaging but produced no artifacts. One attempt returned `getaddrinfo ENOTFOUND github.com`; a retry downloaded Electron but packaging went silent before artifacts appeared and was interrupted. No `.exe` or `.msi` exists.
+- Code signing and auto-update remain unconfigured. No schema migration is needed.
+
+### Desktop Next Checkpoint
+
+On a network-enabled Windows x64 host, run root `npm ci` and `npm ci --prefix apps/desktop`, set the public production `SHARPMIND_DESKTOP_*` settings, and run `npm --prefix apps/desktop run package:win`. Verify versioned installers, install/uninstall in a clean VM, and exercise auth callbacks, shared profile, and file operations. Before production validation, allow exact callback URLs in Supabase and append `sharpmind://app` to backend `CORS_ORIGIN` while preserving both web origins.

@@ -1,4 +1,8 @@
 # Current
+
+## Cross-cutting Windows desktop client — 2026-10-20
+
+Implemented the Electron shell, full web export integration, desktop auth session/deep-link bridge, Windows NSIS/MSI configuration, and docs (ADR 0014). Desktop tooling is isolated from root workspaces. Full monorepo build and typechecks passed; desktop security 5/5, focused email/OTP 37/37, and CORS 2/2 passed. Installer/runtime smoke remains unverified: one runtime fetch showed GitHub DNS failure; a later builder downloaded Electron but produced no artifacts before interruption. No `.exe`/`.msi` exists. See `.ai/CURRENT_STATE.md` for exact service settings and release checkpoint.
  
 Phase 03 — COMPLETED (Parts 01–04).
  

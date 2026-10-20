@@ -6,8 +6,7 @@
     "landing",
     "web",
     "backend",
-    "packages/*",
-    "apps/*"
+    "packages/*"
   ],
   "scripts": {
     "dev": "npm --prefix web run dev",

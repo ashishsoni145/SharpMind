@@ -18,8 +18,8 @@ export const envSchema = z.object({
   ),
   CORS_ORIGIN: z.string().default(
     process.env.NODE_ENV === 'production'
-      ? 'https://sharpmind.live,https://app.sharpmind.live'
-      : 'http://localhost:3000,http://localhost:3001,https://sharpmind.live,https://app.sharpmind.live'
+      ? 'https://sharpmind.live,https://app.sharpmind.live,sharpmind://app'
+      : 'http://localhost:3000,http://localhost:3001,https://sharpmind.live,https://app.sharpmind.live,sharpmind://app'
   ),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   API_PREFIX: z.string().default('/api/v1'),

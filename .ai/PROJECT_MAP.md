@@ -42,4 +42,5 @@ Product areas and implementation status across platforms and workspaces:
 | AI Guardrails & Evaluation Suite | `backend/src/ai/guardrails/`, `backend/src/ai/evaluation/` | Implemented (Phase 06) |
 | Classroom Collaboration & Mentorship | `backend/src/modules/classroom` | Planned (Phase 08) |
 | Roles/Admin/Billing Workflows | `backend/src/modules/admin`, `billing` | Planned (Phase 09) |
-| Mobile/desktop clients | `apps/mobile`, `apps/desktop` | Planned (Future) |
+| Windows desktop client | `apps/desktop` (standalone Electron package around the full `web/` export) | Implementation in progress; production web export passes, native runtime download currently blocks installer verification |
+| Mobile clients | `apps/mobile` | Planned (Future) |

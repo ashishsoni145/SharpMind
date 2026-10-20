@@ -118,6 +118,9 @@ export class SupabaseAuthAdapter implements AuthAdapter {
     }
 
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const emailRedirectTo = typeof window !== 'undefined' && window.sharpMindDesktop
+      ? window.sharpMindDesktop.authRedirectUrl('signup')
+      : origin ? `${origin}/app` : undefined;
     const { data, error } = await supabase.auth.signUp({
       email: credentials.email.trim().toLowerCase(),
       password: credentials.password,
@@ -126,7 +129,7 @@ export class SupabaseAuthAdapter implements AuthAdapter {
           full_name: credentials.fullName.trim(),
           role: credentials.role,
         },
-        emailRedirectTo: origin ? `${origin}/app` : undefined,
+        emailRedirectTo,
       },
     });
 
@@ -187,8 +190,11 @@ export class SupabaseAuthAdapter implements AuthAdapter {
     }
 
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const redirectTo = typeof window !== 'undefined' && window.sharpMindDesktop
+      ? window.sharpMindDesktop.authRedirectUrl('password-reset')
+      : origin ? `${origin}/reset-password` : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(request.email.trim().toLowerCase(), {
-      redirectTo: origin ? `${origin}/reset-password` : undefined,
+      redirectTo,
     });
 
     if (error) {
