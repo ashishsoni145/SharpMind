@@ -26,5 +26,8 @@
     "typecheck:backend": "npm --prefix backend run typecheck",
     "typecheck:all": "npm run typecheck:landing && npm run typecheck:web && npm run typecheck:backend",
     "test:backend": "npm --prefix backend run test"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0"
   }
 }

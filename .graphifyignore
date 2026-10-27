@@ -1,0 +1,8 @@
+# Exclude agent skill bundles (including third-party source) from the product graph.
+.agents/skills/
+.codex/skills/
+.ai/.agents/skills/
+# Session transcripts may contain user-provided test identifiers or personal context.
+.ai/session/
+# Root agent policy includes a locally supplied test credential; keep it out of graph memory.
+AGENTS.md

@@ -3,6 +3,8 @@
 ## Cross-cutting Windows desktop client — 2026-10-20
 
 Implemented the Electron shell, full web export integration, desktop auth session/deep-link bridge, Windows NSIS/MSI configuration, and docs (ADR 0014). Desktop tooling is isolated from root workspaces. Full monorepo build and typechecks passed; desktop security 5/5, focused email/OTP 37/37, and CORS 2/2 passed. Installer/runtime smoke remains unverified: one runtime fetch showed GitHub DNS failure; a later builder downloaded Electron but produced no artifacts before interruption. No `.exe`/`.msi` exists. See `.ai/CURRENT_STATE.md` for exact service settings and release checkpoint.
+
+Graphify skill plus the Codex project hook are installed. Root `AGENTS.md` requires graph-first codebase exploration and a graph refresh before final repository responses. The full graph covers 484 code files, 41 documents, and 4 images (3,273 nodes, 7,007 links, 195 communities); all 45 semantic source coverage checks and source-linked query/explain checks passed. Graph integrity reports zero dangling endpoints and eight self-loops. Two sensitive CSS token files remain excluded. See `.ai/CURRENT_STATE.md` for limits and the Windows venv invocation.
  
 Phase 03 — COMPLETED (Parts 01–04).
  
