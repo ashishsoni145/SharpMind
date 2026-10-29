@@ -1,6 +1,6 @@
 # Blocked
 
-Windows installer validation is blocked by the Electron runtime/build download path in this environment. Electron Builder accepted its configuration and began packaging, but no output artifact appeared; one attempt returned `getaddrinfo ENOTFOUND github.com`, and later runtime/package attempts did not complete. Resume on a network-enabled Windows x64 host. Do not claim an installer exists until both installer files are verified.
+Local Windows installer packaging remains blocked by the runtime download: the Electron 44.9.1 ZIP reached 12% and timed out after 600,000 ms. A documented mirror retry also produced no runtime. To bypass the local network, `.github/workflows/windows-desktop.yml` now builds on a GitHub-hosted Windows runner and uploads `.exe`/`.msi` artifacts. It is not yet pushed or run. Add the three public Supabase/API repository variables, push to `main` or run it manually, then verify the artifact and installation. No installer exists until that workflow succeeds.
 
 Production confirmation is blocked on backend logs and deployed Supabase project access. Check the PostgREST error code and ensure migrations `20261014000002` and `20261014000003` are applied to the project matching backend `SUPABASE_URL`. No production credentials/dashboard were accessed.
 

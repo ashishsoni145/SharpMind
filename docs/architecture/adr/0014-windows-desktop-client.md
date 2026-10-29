@@ -15,6 +15,7 @@ The existing student client is a complete Next.js static export with direct Supa
 - Persist only Supabase auth storage through Electron `safeStorage`; on Windows this uses OS-backed encryption. Keep student records and app state on the existing shared Supabase/API services.
 - Register fixed authentication callback routes for the `sharpmind:` scheme and allowlist its exact origin in backend CORS. Existing web redirects remain unchanged.
 - Require explicit client-safe production API/Supabase configuration at package time. Never bundle backend, Resend, or service-role credentials.
+- Keep Electron packaging dependencies in `apps/desktop` with its own lockfile; build Windows installers through a Windows GitHub Actions runner and publish them only as workflow artifacts until a release process is explicitly added.
 - Do not ship an auto-updater until a signed update feed and verification policy are provisioned.
 
 ## Consequences
@@ -23,3 +24,4 @@ The existing student client is a complete Next.js static export with direct Supa
 - Supabase must allow the callback URLs and the deployed backend must allow `sharpmind://app`; these are manual settings, not changed by this task.
 - Unsigned local installers may show Windows SmartScreen warnings. Signing requires an organization certificate and protected CI signing credentials.
 - Windows installer generation requires a Windows build host and downloaded packages.
+- GitHub Actions requires repository variables for the public Supabase URL/key and API URL. Artifacts are unsigned unless protected certificate signing is configured.

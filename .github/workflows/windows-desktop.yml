@@ -1,0 +1,59 @@
+name: Windows desktop installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/windows-desktop.yml
+      - apps/desktop/**
+      - web/**
+      - packages/**
+      - package.json
+      - package-lock.json
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build SharpMind for Windows x64
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/desktop/package-lock.json
+
+      - name: Install monorepo dependencies
+        run: npm ci
+
+      - name: Install desktop packaging dependencies
+        run: npm ci --prefix apps/desktop
+
+      - name: Build Windows installers
+        run: npm --prefix apps/desktop run package:win
+        env:
+          SHARPMIND_DESKTOP_SUPABASE_URL: ${{ vars.SHARPMIND_DESKTOP_SUPABASE_URL }}
+          SHARPMIND_DESKTOP_SUPABASE_ANON_KEY: ${{ vars.SHARPMIND_DESKTOP_SUPABASE_ANON_KEY }}
+          SHARPMIND_DESKTOP_API_URL: ${{ vars.SHARPMIND_DESKTOP_API_URL }}
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SharpMind-Windows-${{ github.run_number }}
+          path: |
+            apps/desktop/release/*.exe
+            apps/desktop/release/*.msi
+          if-no-files-found: error
+          retention-days: 14

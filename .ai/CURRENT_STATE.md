@@ -1,6 +1,6 @@
 # Current State — SharpMind
 
-**Last Verified:** 2026-10-20 (desktop integration checkpoint; web/backend build pass, no installer artifact yet)
+**Last Verified:** 2026-10-29 (desktop GitHub Actions workflow added; all app builds/typechecks pass; Actions artifact not yet generated)
 **Architecture:** Tri-Project Monorepo with Strict Domain Separation & Continuous Vercel Deployability  
 **Topology:**
 - `landing/` → `https://sharpmind.live` (Public Marketing & Landing Site)
@@ -217,7 +217,7 @@ Review the final diff and resolve/audit the reported npm advisories separately. 
 
 ### Desktop Next Checkpoint
 
-On a network-enabled Windows x64 host, run root `npm ci` and `npm ci --prefix apps/desktop`, set the public production `SHARPMIND_DESKTOP_*` settings, and run `npm --prefix apps/desktop run package:win`. Verify versioned installers, install/uninstall in a clean VM, and exercise auth callbacks, shared profile, and file operations. Before production validation, allow exact callback URLs in Supabase and append `sharpmind://app` to backend `CORS_ORIGIN` while preserving both web origins.
+The Windows Actions workflow `.github/workflows/windows-desktop.yml` now builds the `.exe` and `.msi` on pushes to `main` or a manual Actions run, and uploads them as a downloadable artifact. Root Electron 45 was removed from the web/landing/backend workspace; the standalone desktop package keeps its pinned Electron 44.9.1. All local workspace builds/typechecks, lockfile dry-runs, desktop tests, and workflow YAML checks passed. The workflow has not run on GitHub and no installer artifact exists yet. Add the public `SHARPMIND_DESKTOP_*` repository variables, push to `main` or run the workflow manually, download the artifact, then verify install/uninstall and test auth callbacks/shared profile/file operations. Before production auth validation, allow exact callback URLs in Supabase and append `sharpmind://app` to backend `CORS_ORIGIN` while preserving both web origins.
 
 ## 2026-10-27 — Graphify agent memory integration
 

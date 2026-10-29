@@ -42,6 +42,6 @@ Product areas and implementation status across platforms and workspaces:
 | AI Guardrails & Evaluation Suite | `backend/src/ai/guardrails/`, `backend/src/ai/evaluation/` | Implemented (Phase 06) |
 | Classroom Collaboration & Mentorship | `backend/src/modules/classroom` | Planned (Phase 08) |
 | Roles/Admin/Billing Workflows | `backend/src/modules/admin`, `billing` | Planned (Phase 09) |
-| Windows desktop client | `apps/desktop` (standalone Electron package around the full `web/` export) | Implementation in progress; production web export passes, native runtime download currently blocks installer verification |
+| Windows desktop client | `apps/desktop` (standalone Electron package around the full `web/` export) | GitHub Actions Windows x64 installer workflow added; awaiting first run and artifact/install verification |
 | Agent codebase memory | `.agents/skills/graphify`, `.codex/skills/graphify`, `graphify-out/` | Graphify project instructions and Codex hook installed; full code+semantic graph generated from 484 code files, 41 docs and 4 images (3,273 nodes/7,007 links); two sensitive CSS files excluded (see current state) |
 | Mobile clients | `apps/mobile` | Planned (Future) |

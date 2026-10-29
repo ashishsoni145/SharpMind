@@ -24,6 +24,18 @@ Copy `.env.example` values into the current shell or a private local environment
 - `npm --prefix apps/desktop run package:win` creates versioned NSIS `.exe` and MSI installers under `apps/desktop/release/`.
 - On a Windows test VM, install each artifact, launch, exercise authentication and file operations with a test account, confirm shortcuts, then uninstall and verify shortcut removal. Installer QA is not implied by a successful packaging build.
 
+## Build installers with GitHub Actions
+
+The repository workflow at `.github/workflows/windows-desktop.yml` builds the installers on a Windows x64 runner when relevant changes are pushed to `main`, or when started manually from the GitHub **Actions** tab. It uploads the `.exe` and `.msi` as a downloadable artifact; it does not publish a GitHub Release.
+
+Before running the workflow, add these repository variables under **Settings → Secrets and variables → Actions → Variables**:
+
+- `SHARPMIND_DESKTOP_SUPABASE_URL` — the production Supabase project URL.
+- `SHARPMIND_DESKTOP_SUPABASE_ANON_KEY` — the public anon or publishable key for that project.
+- `SHARPMIND_DESKTOP_API_URL` — `https://api.sharpmind.live`.
+
+These values are embedded in the client build and are public configuration. Never add a service-role key, Resend key, or other backend secret. After a successful run, open its **Artifacts** section and download `SharpMind-Windows-<run number>`.
+
 The NSIS installer creates Start Menu and optional desktop shortcuts, allows choosing an install folder, and leaves encrypted auth data in user app-data on uninstall. MSI is per-user. No code-signing certificate is embedded. A release owner must use a trusted certificate and protected `CSC_LINK`/`CSC_KEY_PASSWORD` build secrets before distributing signed installers. No automatic updater is included; design and verify a signed update feed before enabling one.
 
 ## One-time service configuration

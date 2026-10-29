@@ -1537,10 +1537,10 @@
     "semantic_hash": "94409727388e7abcd13b163166c14aa8"
   },
   "package.json": {
-    "mtime": 1792688972.563612,
-    "seen": 1793102390.398087,
-    "ast_hash": "2f59d8c1cd42a21e8167e2adeaa09b3f",
-    "semantic_hash": "2f59d8c1cd42a21e8167e2adeaa09b3f"
+    "mtime": 1793290659.6873906,
+    "seen": 1793291300.6136658,
+    "ast_hash": "28113795b409f34ac5b461ddc0442ced",
+    "semantic_hash": ""
   },
   "packages/api-client/package.json": {
     "mtime": 1789719850.0,
@@ -2841,10 +2841,10 @@
     "semantic_hash": "480dcd0ce3020acd746827fd8b39833f"
   },
   ".ai/CURRENT_STATE.md": {
-    "mtime": 1793104291.6718812,
-    "seen": 1793104530.853034,
-    "ast_hash": "c96e3ea7b94430ac667c77867d2a43ea",
-    "semantic_hash": "c96e3ea7b94430ac667c77867d2a43ea"
+    "mtime": 1793291174.3089,
+    "seen": 1793291300.6140938,
+    "ast_hash": "724e102c1dc154676bae8b64328ffc10",
+    "semantic_hash": ""
   },
   ".ai/DECISIONS.md": {
     "mtime": 1793098029.0957427,
@@ -2877,10 +2877,10 @@
     "semantic_hash": "3e96d09003ceeacf28b4f68610c236b2"
   },
   ".ai/PROJECT_MAP.md": {
-    "mtime": 1793104291.6728835,
-    "seen": 1793104530.8530602,
-    "ast_hash": "52efbe1390c7fc4bac5d82f16befc35b",
-    "semantic_hash": "52efbe1390c7fc4bac5d82f16befc35b"
+    "mtime": 1793291185.3717062,
+    "seen": 1793291300.614105,
+    "ast_hash": "ab824dc5fe965e26375f6315bd5a8ea5",
+    "semantic_hash": ""
   },
   ".ai/RISKS.md": {
     "mtime": 1789380732.0,
@@ -2907,10 +2907,10 @@
     "semantic_hash": "2ba258a3ca17d4b8b611f10bd41ca739"
   },
   ".ai/progress/blocked.md": {
-    "mtime": 1793104291.6748857,
-    "seen": 1793104530.8530817,
-    "ast_hash": "7aa630d1c8c47a2c4dcf4eae369740eb",
-    "semantic_hash": "7aa630d1c8c47a2c4dcf4eae369740eb"
+    "mtime": 1793291194.6502042,
+    "seen": 1793291300.614115,
+    "ast_hash": "5bf6fc1927ba33c1683ac4828e83640c",
+    "semantic_hash": ""
   },
   ".ai/progress/completed.md": {
     "mtime": 1792074215.8337867,
@@ -2919,16 +2919,16 @@
     "semantic_hash": "9e3f734d64d240cbaccf6ed7b88258d4"
   },
   ".ai/progress/current.md": {
-    "mtime": 1793104291.673883,
-    "seen": 1793104530.8530908,
-    "ast_hash": "2efe31887f4fef0f22ac988613f29b73",
-    "semantic_hash": "2efe31887f4fef0f22ac988613f29b73"
+    "mtime": 1793291204.9081132,
+    "seen": 1793291300.6141186,
+    "ast_hash": "47a8f7b05ef7f4c2ca72429355fe7639",
+    "semantic_hash": ""
   },
   ".ai/progress/next.md": {
-    "mtime": 1793104291.6768868,
-    "seen": 1793104530.8530936,
-    "ast_hash": "21571a72e89b77cd1afb2f016088f0c3",
-    "semantic_hash": "21571a72e89b77cd1afb2f016088f0c3"
+    "mtime": 1793291213.008659,
+    "seen": 1793291300.6141205,
+    "ast_hash": "cd8224ec3cc79507156c5558e80fa74b",
+    "semantic_hash": ""
   },
   "README.md": {
     "mtime": 1791704283.0,
@@ -2937,10 +2937,10 @@
     "semantic_hash": "cfed896b810d5088715ad0d58c01dfaa"
   },
   "apps/desktop/README.md": {
-    "mtime": 1792500675.0080864,
-    "seen": 1793104234.4743102,
-    "ast_hash": "368ad42f8860beb1b13b1af7824ec3f9",
-    "semantic_hash": "368ad42f8860beb1b13b1af7824ec3f9"
+    "mtime": 1793290696.0634718,
+    "seen": 1793291300.6141248,
+    "ast_hash": "65d47537eed47f12aeeec098a22afa59",
+    "semantic_hash": ""
   },
   "backend/src/emails/templates/verification-success.html": {
     "mtime": 1791962931.0559576,
@@ -3045,10 +3045,10 @@
     "semantic_hash": "7014f1bee99a4167ce981873d02f1da7"
   },
   "docs/architecture/adr/0014-windows-desktop-client.md": {
-    "mtime": 1792499035.0022967,
-    "seen": 1793104234.474346,
-    "ast_hash": "f2399871e12d7050315b0d2cbfdae289",
-    "semantic_hash": "f2399871e12d7050315b0d2cbfdae289"
+    "mtime": 1793290706.3321848,
+    "seen": 1793291300.614159,
+    "ast_hash": "d19e07336c153758e265ce799ec839e9",
+    "semantic_hash": ""
   },
   "docs/architecture/adr/0015-graphify-agent-project-memory.md": {
     "mtime": 1793098029.09375,
@@ -3176,6 +3176,12 @@
     "ast_hash": "dd43fcace77b9d04439061c8e350985e",
     "semantic_hash": "dd43fcace77b9d04439061c8e350985e"
   },
+  ".github/workflows/windows-desktop.yml": {
+    "mtime": 1793290684.610449,
+    "seen": 1793291300.6131036,
+    "ast_hash": "34ea209fe634e45b69a2f0cde7a16fdf",
+    "semantic_hash": ""
+  },
   "apps/desktop/package-lock.json": {
     "mtime": 1792498984.457645,
     "seen": 1793104657.3264992,
@@ -3189,9 +3195,9 @@
     "semantic_hash": ""
   },
   "package-lock.json": {
-    "mtime": 1792688972.65798,
-    "seen": 1793104657.3265107,
-    "ast_hash": "4183bcb7f096870694305fa2465b74cd",
+    "mtime": 1793290659.769857,
+    "seen": 1793291300.614179,
+    "ast_hash": "e8b1be541fcd2726a83f60ccb8d39a0d",
     "semantic_hash": ""
   },
   "web/package-lock.json": {
